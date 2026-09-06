@@ -1,0 +1,163 @@
+# Findo
+
+A 2D hidden-object game in the "Where's Waldo" tradition: a large illustrated
+map, a short list of things hidden in it, and a clock. Built with Flutter and
+the Flame engine, for Android and iOS from one codebase.
+
+Findo ships in **English and Hebrew**, with full right-to-left layout on the
+Hebrew side, switchable from Settings without restarting.
+
+---
+
+## Running it
+
+```powershell
+flutter pub get
+flutter run
+```
+
+Other useful commands:
+
+```powershell
+flutter analyze                      # static analysis, expected clean
+flutter test                         # unit tests
+flutter build apk --release          # installable APK for testing
+flutter build appbundle --release    # the artifact Google Play accepts
+flutter build ios --release          # requires macOS and Xcode
+```
+
+---
+
+## How it plays
+
+- **Drag** to pan the map, **pinch** to zoom. The camera is clamped so the map
+  always fills the screen, on 16:9, 19.5:9 and 4:3 alike.
+- **Tap an item from the bottom bar's list** to collect it: +100 points.
+- **Find several in a row** within three seconds and the multiplier climbs to
+  x2, then x3.
+- **Tap the wrong place** and it costs 15 points and 3 seconds.
+- **Clear the map** before the clock runs out. Leftover time converts to bonus
+  points at 10 per second, and the total decides 1 to 3 stars.
+- **Hints** pan the camera to an uncollected item and make it glow. They are
+  spent from a stored balance, earned by watching a rewarded video, or bought.
+
+---
+
+## Layout
+
+```
+lib/
+  main.dart                     app entry: managers, theme, localization, first frame
+  app_services.dart             the manager bundle, reachable via AppServices.of(context)
+  theme.dart                    colours, radii, ThemeData
+  models/
+    level_definition.dart       level, item and result models, and their JSON parsing
+  managers/
+    save_manager.dart           the only code that touches SharedPreferences
+    localization_manager.dart   JSON dictionaries, RTL/LTR, persisted language
+    level_manager.dart          level catalogue, found-item tracking, unlocks
+    score_manager.dart          scoring, combo streak, countdown, stars
+    audio_manager.dart          BGM and SFX, settings-aware, lifecycle-aware
+    monetization_manager.dart   ATT, UMP consent, AdMob, in-app purchases
+  game/
+    findo_game.dart             the FlameGame: camera, gestures, rules
+    components/
+      map_background_component.dart   the map, and the source of misclicks
+      item_target_component.dart      one collectable: tap, collect, glow
+  ui/
+    home_screen.dart            title screen
+    level_select_screen.dart    level grid with stars and best scores
+    game_screen.dart            hosts the Flame canvas and all overlays
+    hud_overlay.dart            score, timer, combo, search bar, hint button
+    win_modal.dart              level-complete summary, and the time-up panel
+    pause_modal.dart            pause
+    settings_dialog.dart        audio, language, store, privacy options
+    hint_dialog.dart            spend a hint or watch a video
+    safe_area_wrapper.dart      notch, Dynamic Island and status-bar insets
+    widgets/common.dart         stars, panels, chips, time formatting
+assets/
+  images/levels/                three map backgrounds
+  images/items/                 twelve collectable sprites
+  audio/                        music and sound effects
+  locales/                      en.json and he.json
+  levels/                       level definitions and their manifest
+  fonts/                        the Findo font family
+tool/
+  generate_assets.py            regenerates every image, sound and level file
+docs/
+  RELEASE_GUIDE_GOOGLE_PLAY.md  step-by-step publishing guide
+```
+
+### Why the managers are plain `ChangeNotifier`s
+
+The game state is small and its owners are unambiguous, so the app uses
+`ChangeNotifier` with `ListenableBuilder` and two `InheritedWidget`s rather
+than a state-management package. Adding one later is a local change: the
+managers themselves have no Flutter dependencies beyond `ChangeNotifier`.
+
+---
+
+## Adding a level
+
+Levels are data, not code. Write `assets/levels/level_04.json`:
+
+```json
+{
+  "id": "level_04",
+  "index": 4,
+  "nameKey": "level.harbour",
+  "background": "levels/harbour.png",
+  "worldSize": { "width": 2048, "height": 1536 },
+  "timeLimitSeconds": 160,
+  "starThresholds": { "one": 1100, "two": 1800, "three": 2500 },
+  "items": [
+    { "id": "fish", "sprite": "items/fish.png", "x": 900, "y": 1100, "size": 110, "angle": 0.1 }
+  ]
+}
+```
+
+Then add `"level_04"` to `assets/levels/index.json`, and `level.harbour` to
+both `assets/locales/en.json` and `assets/locales/he.json`. Every item `id`
+needs a matching `item.<id>` key in both dictionaries -- `flutter test` checks
+this and fails if a translation is missing.
+
+---
+
+## About the shipped art and audio
+
+Every image and sound in `assets/` is generated by `tool/generate_assets.py`
+(Pillow for the images, synthesised PCM for the audio):
+
+```powershell
+python tool/generate_assets.py
+```
+
+They are real and complete -- the maps have depth and clutter, the sprites are
+recognisable, the music loops cleanly -- but they are programmer art, meant to
+be replaced by an illustrator and a composer. The contract to preserve when
+replacing them is the file layout: `assets/images/levels/<scene>.png`,
+`assets/images/items/<id>.png`, and `assets/audio/<name>.wav`.
+
+The background music is a WAV rather than an MP3. Both play identically through
+`audioplayers`; WAV was chosen because it can be generated without an encoder
+in the toolchain. Swapping in an MP3 means changing one constant in
+`audio_manager.dart`.
+
+The `Findo` font family is Roboto (Apache-2.0), bundled so typography is
+identical on Android and iOS.
+
+---
+
+## Monetization and privacy
+
+The repo is wired for AdMob and in-app purchases but ships **Google's official
+test ad unit ids**, which is the only correct setting for an unpublished app.
+`docs/RELEASE_GUIDE_GOOGLE_PLAY.md` lists exactly which constants to replace.
+
+On first launch the app requests App Tracking Transparency on iOS, then runs
+the Google UMP consent flow, and only then initializes the ad SDK. Settings has
+a permanent "Privacy options" entry, which the consent framework requires.
+
+All player data -- progress, stars, language, audio settings, purchases --
+lives in `shared_preferences` on the device. The game sends nothing to a server
+of its own.

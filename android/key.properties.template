@@ -1,0 +1,12 @@
+# Copy to android/key.properties and fill in with your upload keystore.
+# android/key.properties is git-ignored: it holds passwords and must never be
+# committed. The keystore file itself must be backed up somewhere safe -- lose
+# it and you can no longer update the app on Google Play.
+#
+# Create the keystore with:
+#   keytool -genkey -v -keystore %USERPROFILE%\findo-upload.jks \
+#           -keyalg RSA -keysize 2048 -validity 10000 -alias findo
+storePassword=your-store-password
+keyPassword=your-key-password
+keyAlias=findo
+storeFile=C:/Users/you/findo-upload.jks

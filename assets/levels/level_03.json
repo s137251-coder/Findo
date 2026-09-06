@@ -1,0 +1,82 @@
+{
+  "id": "level_03",
+  "index": 3,
+  "nameKey": "level.beach",
+  "background": "levels/beach.png",
+  "worldSize": {
+    "width": 2048,
+    "height": 1536
+  },
+  "timeLimitSeconds": 160,
+  "starThresholds": {
+    "one": 1100,
+    "two": 1800,
+    "three": 2500
+  },
+  "items": [
+    {
+      "id": "fish",
+      "sprite": "items/fish.png",
+      "x": 1512,
+      "y": 1298,
+      "size": 119,
+      "angle": 0.239
+    },
+    {
+      "id": "star",
+      "sprite": "items/star.png",
+      "x": 1905,
+      "y": 1255,
+      "size": 118,
+      "angle": 0.043
+    },
+    {
+      "id": "ball",
+      "sprite": "items/ball.png",
+      "x": 173,
+      "y": 1015,
+      "size": 103,
+      "angle": -0.342
+    },
+    {
+      "id": "boot",
+      "sprite": "items/boot.png",
+      "x": 887,
+      "y": 1325,
+      "size": 116,
+      "angle": 0.248
+    },
+    {
+      "id": "glasses",
+      "sprite": "items/glasses.png",
+      "x": 1147,
+      "y": 959,
+      "size": 112,
+      "angle": 0.021
+    },
+    {
+      "id": "cup",
+      "sprite": "items/cup.png",
+      "x": 838,
+      "y": 1053,
+      "size": 101,
+      "angle": 0.241
+    },
+    {
+      "id": "hat",
+      "sprite": "items/hat.png",
+      "x": 1544,
+      "y": 980,
+      "size": 113,
+      "angle": 0.107
+    },
+    {
+      "id": "cat",
+      "sprite": "items/cat.png",
+      "x": 571,
+      "y": 1266,
+      "size": 109,
+      "angle": 0.242
+    }
+  ]
+}
