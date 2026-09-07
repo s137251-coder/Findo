@@ -65,5 +65,15 @@
   "level.snow": "Snow Village",
   "level.museum": "The Museum",
   "level.stadium": "Cup Final",
-  "level.airport": "Terminal Two"
+  "level.airport": "Terminal Two",
+  "level.zoo": "City Zoo",
+  "level.water": "Splash Park",
+  "level.mall": "Grand Mall",
+  "level.docks": "Fishing Docks",
+  "level.castle": "Castle Fair",
+  "level.hospital": "County Hospital",
+  "level.school": "Riverside School",
+  "level.site": "Building Site",
+  "level.marathon": "City Marathon",
+  "level.festival": "Festival Field"
 }

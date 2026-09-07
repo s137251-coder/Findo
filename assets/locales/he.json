@@ -65,5 +65,15 @@
   "level.snow": "כפר השלג",
   "level.museum": "המוזיאון",
   "level.stadium": "גמר הגביע",
-  "level.airport": "טרמינל 2"
+  "level.airport": "טרמינל 2",
+  "level.zoo": "גן החיות",
+  "level.water": "פארק המים",
+  "level.mall": "הקניון",
+  "level.docks": "מזח הדייגים",
+  "level.castle": "יריד הטירה",
+  "level.hospital": "בית החולים",
+  "level.school": "בית הספר",
+  "level.site": "אתר הבנייה",
+  "level.marathon": "מרתון העיר",
+  "level.festival": "פסטיבל השדה"
 }

@@ -1,6 +1,6 @@
 # Findo — art brief
 
-Everything needed to draw the ten level maps and the character hidden in them,
+Everything needed to draw the twenty level maps and the character hidden in them,
 without opening the code. Numbers here are not preferences: they are what the
 game measures, and `tool/level_data.py` rejects work that misses them.
 
@@ -148,11 +148,17 @@ side by side.
 
 ---
 
-## 3. The ten levels
+## 3. The twenty levels
 
-Difficulty is carried by four dials: how many people are on the map, how tall
-Findo is, how much of her is hidden behind scenery, and how many decoys are
-competing for attention. Time comes down as those go up.
+Difficulty is carried by five dials: how many people are on the map, how large
+each of them is drawn, how tall Findo is, how much of her is hidden behind
+scenery, and how many decoys compete for attention. Time comes down as those go
+up.
+
+Levels 1 to 10 are the first half; every figure there is 90-130 px tall. From
+level 11 the crowds outgrow that: the individual figures are drawn smaller so
+they still fit the frame, and Findo shrinks with them. The **figure size**
+column gives each scene's crowd height as a fraction of the map's height.
 
 | # | Level | Scene | Crowd | Findo height | Occluded | Decoys | Region | Time |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -166,6 +172,16 @@ competing for attention. Time comes down as those go up.
 | 8 | The Museum | Galleries: dinosaur skeleton, framed paintings, school groups | 320 | 95 px | up to 30% | 8 | left edge | 120 s |
 | 9 | Cup Final | Packed stadium stand, banners, stewards, the pitch along one edge | 380 | 90 px | up to 30% | 10 | lower left | 110 s |
 | 10 | Terminal Two | Airport: check-in queues, gates, trolleys, planes through the glass | 420 | 85 px | up to 35% | 12 | upper right | 100 s |
+| 11 | City Zoo | Enclosures, keepers, aviary dome, penguin pool, winding paths | 440 | 82 px | up to 35% | 12 | lower centre | 95 s |
+| 12 | Splash Park | Water slides, wave pool, lazy river, loungers, lifeguards | 460 | 80 px | up to 35% | 13 | upper left | 95 s |
+| 13 | Grand Mall | Two-floor atrium, escalators, shopfronts, food court | 480 | 78 px | up to 40% | 14 | right edge | 90 s |
+| 14 | Fishing Docks | Quaysides, boats, fish market, crane, warehouses | 500 | 75 px | up to 40% | 15 | lower left | 90 s |
+| 15 | Castle Fair | Courtyard, jousting run, craft stalls, blacksmith, banners | 520 | 73 px | up to 40% | 16 | upper centre | 85 s |
+| 16 | County Hospital | Cutaway wings, wards, theatre, ambulance bay, helipad | 540 | 70 px | up to 45% | 17 | left edge | 85 s |
+| 17 | Riverside School | Cutaway classrooms, hall, playground, running track | 560 | 68 px | up to 45% | 18 | lower right | 80 s |
+| 18 | Building Site | Half-built tower, tower cranes, diggers, site cabins | 580 | 66 px | up to 45% | 19 | upper right | 80 s |
+| 19 | City Marathon | A river of runners, packed barriers, water station | 620 | 63 px | up to 50% | 20 | lower centre | 75 s |
+| 20 | Festival Field | Main stage, an enormous crowd, tents, food trucks | 660 | 60 px | up to 50% | 22 | upper left | 75 s |
 
 ### Notes on the harder levels
 
@@ -180,8 +196,18 @@ and on decoys rather than on colour noise.
 **Cup Final** is the densest. Rows of seated spectators give a strong repeating
 rhythm; break it with standing figures so the eye has somewhere to catch.
 
-**Terminal Two** is the finale: smallest figure, most decoys, least time. She
-should be genuinely hard, and still fair — head clear, two traits visible.
+**Terminal Two** closes the first half: smallest figure of those ten, most
+decoys, least time. Genuinely hard, still fair — head clear, two traits visible.
+
+**City Marathon** is a river of near-identical runners. Vary their vests and
+give the pavement crowd ordinary clothes, so the two groups read differently.
+
+**Festival Field** is the last level and the hardest thing in the game: the
+biggest crowd, the smallest figure, and 75 seconds. At 60 px on a 2048 px map
+she is about 23 logical pixels tall when the whole map is on screen, so the
+level cannot be solved without pinching in. That is the point of the 3.2x zoom
+and the 2048 px masters; by level 20 the player is expected to work the map
+rather than scan it.
 
 ### Star cuts
 
