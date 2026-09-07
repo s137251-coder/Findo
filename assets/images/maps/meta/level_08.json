@@ -1,0 +1,22 @@
+{
+  "id": "level_08",
+  "index": 8,
+  "nameKey": "level.museum",
+  "map": "maps/level_08.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 120,
+  "starThresholds": {
+    "one": 220,
+    "two": 640,
+    "three": 964
+  },
+  "target": {
+    "x": 400,
+    "y": 625,
+    "width": 33,
+    "height": 95
+  }
+}

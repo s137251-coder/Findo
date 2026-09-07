@@ -2,21 +2,21 @@
   "id": "level_01",
   "index": 1,
   "nameKey": "level.town",
-  "map": "maps/level_01.png",
+  "map": "maps/level_01.webp",
   "mapSize": {
     "width": 2048,
     "height": 2048
   },
-  "timeLimitSeconds": 120,
+  "timeLimitSeconds": 150,
   "starThresholds": {
-    "one": 220,
-    "two": 640,
-    "three": 964
+    "one": 250,
+    "two": 775,
+    "three": 1180
   },
   "target": {
-    "x": 592,
-    "y": 1643,
-    "width": 44,
-    "height": 118
+    "x": 398,
+    "y": 1322,
+    "width": 46,
+    "height": 130
   }
 }

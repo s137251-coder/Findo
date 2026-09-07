@@ -1,8 +1,8 @@
 {
-  "id": "level_03",
-  "index": 3,
-  "nameKey": "level.fair",
-  "map": "maps/level_03.webp",
+  "id": "level_04",
+  "index": 4,
+  "nameKey": "level.beach",
+  "map": "maps/level_04.webp",
   "mapSize": {
     "width": 2048,
     "height": 2048
@@ -14,9 +14,9 @@
     "three": 1108
   },
   "target": {
-    "x": 860,
-    "y": 1280,
-    "width": 42,
-    "height": 120
+    "x": 451,
+    "y": 245,
+    "width": 40,
+    "height": 115
   }
 }

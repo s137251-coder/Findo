@@ -1,0 +1,22 @@
+{
+  "id": "level_10",
+  "index": 10,
+  "nameKey": "level.airport",
+  "map": "maps/level_10.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 100,
+  "starThresholds": {
+    "one": 200,
+    "two": 550,
+    "three": 820
+  },
+  "target": {
+    "x": 1646,
+    "y": 275,
+    "width": 30,
+    "height": 85
+  }
+}

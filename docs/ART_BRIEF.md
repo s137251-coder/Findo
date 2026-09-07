@@ -8,11 +8,21 @@ game measures, and `tool/level_data.py` rejects work that misses them.
 
 ## 0. How the game uses what you deliver
 
-One map per level. **Findo is painted into the map by you** — the game does not
-paste her on top. It is handed a rectangle saying where she ended up, and puts
-an invisible hit area there. That is deliberate: it means you can tuck her
-behind a lamppost, light her like the rest of the scene, and draw her in the
-same hand as everyone else.
+One map per level. **Findo is part of the map artwork before the game ever sees
+it** — the game never composites her at runtime. It is handed a rectangle saying
+where she ended up and puts an invisible hit area there.
+
+There are two ways she gets into the artwork, and the game cannot tell them
+apart:
+
+- **An illustrator draws her in.** Preferred. You can tuck her behind a
+  lamppost, light her like the rest of the scene, and draw her in the same hand
+  as everyone else. Then hand over her bounding box.
+- **The tool pastes her in.** What happens with generated scenes, where the
+  model is asked to leave her out entirely: `tool/build_level.py` places the
+  master at the size the level calls for and records the box itself. She is
+  then pixel-identical everywhere, at the cost of no occlusion and no
+  scene-specific lighting.
 
 The player sees the whole map shrunk to fit the phone, then pinches in up to
 **3.2x**. So the map has to read at both extremes: a legible crowd when zoomed
@@ -69,8 +79,12 @@ reach about halfway down the torso.
 
 `findo.png` — the character alone, transparent background, **at least 800 px
 tall**, PNG-32, trimmed so the image bounds touch her silhouette on all four
-sides. This is the master; every map's version of her is this figure redrawn at
-the map's scale, not a resized paste.
+sides.
+
+This is the master, and it is also what the game uses for her portrait in the
+objective bar and for the shape of her tap area. When an illustrator draws her
+into a scene, they redraw this figure at the map's scale rather than pasting a
+resized copy; when the tool composites her, it scales this file directly.
 
 ---
 
@@ -79,15 +93,22 @@ the map's scale, not a resized paste.
 | Property | Requirement |
 | --- | --- |
 | Dimensions | **exactly 2048 x 2048 px** |
-| Format | PNG-24, **no alpha channel** |
+| Delivery format | PNG-24 or high-quality JPEG, **no alpha channel** |
 | Colour space | sRGB |
-| File size | **at most 1.5 MB** after optimization |
-| File name | `level_01.png` … `level_10.png` |
+| Shipping format | WebP, written by `tool/build_level.py` -- do not hand-convert |
+| Shipped size | **at most 1.5 MB** per map |
+| File name | `level_01` … `level_10`, extension as delivered |
 | Location | `assets/images/maps/` |
 
 Square, because the camera has to cover both a tall phone held upright and the
-same phone on its side. Ten maps at 1.5 MB is 15 MB of the download; going over
-that is the difference between an install people finish and one they abandon.
+same phone on its side.
+
+Hand over the master in whatever lossless or near-lossless format you work in.
+The build tool re-encodes it to WebP, which is what the app ships: these are
+dense illustrations, and one of them measured 5.9 MB as a PNG against 0.8 MB as
+WebP at quality 92, with no visible difference at any zoom the game allows. Ten
+maps as PNG would have been a 60 MB download; as WebP the whole set is about
+9 MB. Flutter decodes WebP on both Android and iOS.
 
 ### Style
 
@@ -244,14 +265,27 @@ translated name or the level numbering has a gap.
 
 ---
 
-## 6. Placeholder art currently in the repo
+## 6. What is in the repo now
 
-Three generated maps ship today so the game runs: `level_01` through
-`level_03`, built by `tool/generate_maps.py`. They are geometric, not
-illustrated, and exist to be replaced. They do follow the rules above — the same
+All ten maps are illustrated and in place, generated from the prompts in
+`docs/GEMINI_PROMPTS.md` and composited with `tool/build_level.py`.
+
+`tool/generate_maps.py` still builds the original geometric placeholders. It is
+kept as a working reference for what these rules mean in practice: the same
 routine draws Findo and the crowd, and it refuses to give any crowd member two
-of her traits — so they are a working reference for what the rules mean in
-practice.
+of her signature traits.
 
-Replacing one is dropping in the new file and re-running the register command.
+### The rule the tool enforces for you
+
+This brief says `#923EA8` is Findo's alone. Generators do not obey that. The
+supplied Fountain Square artwork contained a woman in a yellow top *and* a
+violet skirt -- two of the three signature traits, which reads as a second Findo
+the game cannot register, and a player who taps her is penalised for finding
+the right-looking person.
+
+So `tool/build_level.py` shifts every pixel near her skirt colour to `#6C52B0`
+before compositing her in, and reports how many it moved. After that the colour
+really is hers, on every map, whoever drew it.
+
+Replacing a map is dropping in the new file and re-running its build command.
 Nothing in the Dart code names a particular map.

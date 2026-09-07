@@ -2,21 +2,21 @@
   "id": "level_02",
   "index": 2,
   "nameKey": "level.farm",
-  "map": "maps/level_02.png",
+  "map": "maps/level_02.webp",
   "mapSize": {
     "width": 2048,
     "height": 2048
   },
-  "timeLimitSeconds": 120,
+  "timeLimitSeconds": 150,
   "starThresholds": {
-    "one": 220,
-    "two": 640,
-    "three": 964
+    "one": 250,
+    "two": 775,
+    "three": 1180
   },
   "target": {
-    "x": 1452,
-    "y": 1315,
+    "x": 1653,
+    "y": 600,
     "width": 44,
-    "height": 118
+    "height": 125
   }
 }

@@ -40,6 +40,13 @@ MAP_SIDE = 2048
 # How close a pixel must be to the corner colour to count as background.
 KEY_TOLERANCE = 68
 
+# Findo's skirt. The brief says this colour is hers alone on every map, because
+# it is the one thing a player's eye can be trained on. Generators do not obey
+# that, so the rule is enforced here instead of hoped for.
+FINDO_SKIRT = (146, 62, 168)
+ALTERNATE_PURPLE = (108, 82, 176)
+SKIRT_TOLERANCE = 70
+
 
 def fit_square(image: Image.Image, side: int = MAP_SIDE) -> tuple[Image.Image, str]:
     """Centre-crops to square, then scales to exactly [side].
@@ -67,6 +74,30 @@ def fit_square(image: Image.Image, side: int = MAP_SIDE) -> tuple[Image.Image, s
         notes.append(f"scaled {width}px to {side}px")
 
     return image.convert("RGB"), "; ".join(notes) or "already the right size"
+
+
+def free_the_skirt_colour(scene: Image.Image) -> tuple[Image.Image, int]:
+    """Shifts anything already wearing Findo's violet to a different purple.
+
+    Without this a crowd can contain a figure in her exact skirt -- and in the
+    supplied Fountain Square artwork one of them also wore a yellow top, which
+    is two of her three signature traits and reads as a second Findo the game
+    cannot register. Each matching pixel keeps its own deviation from the
+    source colour, so shading and outlines survive the shift.
+    """
+    import numpy as np
+
+    pixels = np.asarray(scene.convert("RGB")).astype(np.int16)
+    source = np.array(FINDO_SKIRT, dtype=np.int16)
+    target = np.array(ALTERNATE_PURPLE, dtype=np.int16)
+
+    distance = np.abs(pixels - source).sum(axis=2)
+    hit = distance < SKIRT_TOLERANCE
+    count = int(hit.sum())
+    if count:
+        pixels[hit] = np.clip(pixels[hit] - source + target, 0, 255)
+
+    return Image.fromarray(pixels.astype("uint8"), "RGB"), count
 
 
 def key_out_background(image: Image.Image, tolerance: int = KEY_TOLERANCE) -> Image.Image:
@@ -174,6 +205,11 @@ def cmd_level(args: argparse.Namespace) -> int:
     scene, note = fit_square(Image.open(scene_path))
     print(f"scene: {note}")
 
+    scene, recoloured = free_the_skirt_colour(scene)
+    if recoloured:
+        print(f"  shifted {recoloured:,} pixels off Findo's skirt colour, so it "
+              f"is hers alone on this map")
+
     findo = Image.open(FINDO).convert("RGBA")
     height = args.height
     width = max(1, round(findo.width * height / findo.height))
@@ -192,8 +228,13 @@ def cmd_level(args: argparse.Namespace) -> int:
     scene.paste(findo, (x, y), findo)
 
     MAPS.mkdir(parents=True, exist_ok=True)
-    map_name = f"{args.id}.png"
-    scene.save(MAPS / map_name, optimize=True)
+    # WebP, not PNG. These are dense illustrations: the same map is 5.9 MB as a
+    # PNG and 0.8 MB as WebP at quality 92, and ten of them is the difference
+    # between a 15 MB download and a 60 MB one. Flutter decodes WebP on both
+    # Android and iOS. Hand-drawn masters stay lossless PNG; this is only the
+    # shipping copy.
+    map_name = f"{args.id}.webp"
+    scene.save(MAPS / map_name, "WEBP", quality=92, method=6)
     size_mb = (MAPS / map_name).stat().st_size / 1_048_576
     print(f"wrote {(MAPS / map_name).relative_to(ROOT)} at {MAP_SIDE}x{MAP_SIDE}, {size_mb:.2f} MB")
     if size_mb > 1.5:

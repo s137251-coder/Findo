@@ -1,0 +1,22 @@
+{
+  "id": "level_05",
+  "index": 5,
+  "nameKey": "level.station",
+  "map": "maps/level_05.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 130,
+  "starThresholds": {
+    "one": 230,
+    "two": 685,
+    "three": 1036
+  },
+  "target": {
+    "x": 1740,
+    "y": 1052,
+    "width": 39,
+    "height": 110
+  }
+}

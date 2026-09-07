@@ -1,0 +1,22 @@
+{
+  "id": "level_06",
+  "index": 6,
+  "nameKey": "level.market",
+  "map": "maps/level_06.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 130,
+  "starThresholds": {
+    "one": 230,
+    "two": 685,
+    "three": 1036
+  },
+  "target": {
+    "x": 1486,
+    "y": 1594,
+    "width": 37,
+    "height": 105
+  }
+}

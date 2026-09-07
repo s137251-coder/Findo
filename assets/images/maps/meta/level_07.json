@@ -1,0 +1,22 @@
+{
+  "id": "level_07",
+  "index": 7,
+  "nameKey": "level.snow",
+  "map": "maps/level_07.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 120,
+  "starThresholds": {
+    "one": 220,
+    "two": 640,
+    "three": 964
+  },
+  "target": {
+    "x": 815,
+    "y": 908,
+    "width": 35,
+    "height": 100
+  }
+}
