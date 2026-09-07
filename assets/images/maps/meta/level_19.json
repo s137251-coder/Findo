@@ -1,0 +1,22 @@
+{
+  "id": "level_19",
+  "index": 19,
+  "nameKey": "level.nightfest",
+  "map": "maps/level_19.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 75,
+  "starThresholds": {
+    "one": 175,
+    "two": 438,
+    "three": 640
+  },
+  "target": {
+    "x": 380,
+    "y": 1486,
+    "width": 24,
+    "height": 68
+  }
+}

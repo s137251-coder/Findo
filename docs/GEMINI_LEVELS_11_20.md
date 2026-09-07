@@ -40,6 +40,108 @@ work the map, which is what the 3.2x zoom and the 2048 px masters are for.
 
 ---
 
+## What arrived, and what is still missing
+
+Nine of the ten scenes came back and are registered as levels 11 to 19. Two
+were never produced — Fishing Docks and Riverside School — and one came back
+twice, as a daytime festival and a dusk one. Both festivals were kept: they
+look different enough to be separate levels, and the dusk one makes a better
+finale.
+
+| Level | Scene | Findo | Time | Notes |
+| --- | --- | --- | --- | --- |
+| 11 | City Zoo | 82 px | 95 s | |
+| 12 | Splash Park | 80 px | 95 s | |
+| 13 | Grand Mall | 78 px | 90 s | |
+| 14 | Castle Fair | 75 px | 90 s | |
+| 15 | County Hospital | 73 px | 85 s | Came back with a classroom wing; the operating theatre settles what it is |
+| 16 | Building Site | 70 px | 85 s | |
+| 17 | City Marathon | 74 px | 80 s | |
+| 18 | Festival Field, day | 71 px | 80 s | |
+| 19 | Night Festival | 68 px | 75 s | Tinted 0.55 towards the scene's own light |
+
+### Two limits the real artwork exposed
+
+**She cannot be made smaller than 68 px.** A standing figure is about a third as
+wide as she is tall, so at 66 px her tap box is 23 px wide and the verifier
+rejects it. Shrinking her runs out of tap target before it runs out of map. Past
+level 17 the difficulty has to come from the scene and the clock instead, which
+is why 17 to 19 barely shrink at all.
+
+**A daylit character in a dusk scene gives itself away.** Composited unchanged
+into the night festival she was the brightest thing on the map, which would have
+made the hardest level the easiest. `build_level.py --tint` blends her towards
+the ambient colour sampled around where she lands, capped at 0.55 so she stays
+recognisable as the girl on the objective panel.
+
+### The one scene still to generate
+
+Level 20 is missing. Ask Gemini for this, save it, and register it:
+
+```
+A densely crowded scene for a children's seek-and-find puzzle book.
+
+STYLE
+Flat vector illustration. High-angle three-quarter aerial view, looking down at
+roughly 55 degrees, so both the ground and the fronts of buildings are visible.
+Every object and every person drawn with a uniform thick black outline of the
+same weight. Solid flat colour fills only: no gradients, no airbrushing, no soft
+shading, no photographic texture, no drop shadows, no glow, no blur, no depth of
+field. Saturated but not neon. Crisp, clean linework.
+
+CROWD
+About 700 small cartoon people, each drawn full body, each roughly one
+twenty-second of the image height. Wide variety of skin tones, hair colours,
+hairstyles and clothing colours. Spread evenly across the entire image with
+small gaps between them: never overlapping, never clustered into one half,
+never leaving a large empty area. This is the busiest scene in the game, so
+fill the frame right to the edges.
+
+POSES - every figure is doing something
+No two people share the same pose. Each is doing something that belongs to this
+place: hauling a crate, coiling rope, pointing out to sea, crouching by a net,
+leaning on a railing, carrying a fish box on a shoulder, turning to talk,
+kneeling to a child, shielding their eyes. Vary which way they face - some
+towards the viewer, some away, some in profile. Vary build, age and height.
+Put small interactions between pairs and groups, so the crowd reads as a
+working morning rather than a field of figures.
+
+Keep about a third of them simply standing or walking normally, mixed evenly in
+among the rest, so that a person standing still is an ordinary sight in the
+scene and not the one thing that catches the eye.
+
+SCENE
+A working fishing harbour at full tilt. Wooden quaysides with fishing boats
+moored two deep along them, stacks of crab pots and coiled rope, a long fish
+market under an open awning with crates of ice and buyers pressing in, gulls
+everywhere, a tall crane lifting a container, a row of warehouses with big
+sliding doors, forklifts weaving between pallets, a lighthouse at one edge, nets
+hung to dry on frames, a chandlery, a slipway with a boat being winched out.
+
+DO NOT INCLUDE
+No girl or woman wearing a violet or purple skirt or a purple dress. No figure
+in a bright yellow sleeveless top. No text, letters, numbers, written signs,
+logos, signatures or watermarks. No border, frame, vignette, margin or white
+edge: the illustration fills the entire square canvas edge to edge.
+
+Square 1:1 aspect ratio, highest resolution available.
+```
+
+Then:
+
+```powershell
+python tool/build_level.py level `
+    --scene C:\temp\findo\docks.png `
+    --id level_20 --index 20 --name-key level.docks `
+    --feet X Y --height 68 --time 70
+```
+
+`level.docks` is already translated in both languages. 68 px is the floor, so
+the finale takes its extra difficulty from the crowd and from having only 70
+seconds.
+
+---
+
 ## The prompt
 
 ```

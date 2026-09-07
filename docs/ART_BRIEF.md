@@ -312,25 +312,43 @@ translated name or the level numbering has a gap.
 
 ## 6. What is in the repo now
 
-All ten maps are illustrated and in place, generated from the prompts in
-`docs/GEMINI_PROMPTS.md` and composited with `tool/build_level.py`.
+**Nineteen of the twenty levels are built and playable.** Levels 1 to 10 came
+from the first prompt set, 11 to 19 from the second. Level 20 is the only gap:
+Fishing Docks was never generated. `docs/GEMINI_LEVELS_11_20.md` carries a
+ready prompt for it and the one command that registers it.
+
+Two of the ten scenes asked for in the second batch never arrived — Fishing
+Docks and Riverside School — and one came back twice, as a daytime festival and
+a dusk one. Both festivals were kept, because they look different enough to
+carry two levels and the dusk one makes a better finale. That is why the
+running order below diverges from the table in section 3.
 
 `tool/generate_maps.py` still builds the original geometric placeholders. It is
 kept as a working reference for what these rules mean in practice: the same
 routine draws Findo and the crowd, and it refuses to give any crowd member two
 of her signature traits.
 
-### The rule the tool enforces for you
+### Three rules the tool enforces for you
 
-This brief says `#923EA8` is Findo's alone. Generators do not obey that. The
-supplied Fountain Square artwork contained a woman in a yellow top *and* a
-violet skirt -- two of the three signature traits, which reads as a second Findo
-the game cannot register, and a player who taps her is penalised for finding
-the right-looking person.
+**Her colour really is hers.** This brief says `#923EA8` is Findo's alone.
+Generators do not obey that: the supplied Fountain Square artwork contained a
+woman in a yellow top *and* a violet skirt, two of the three signature traits,
+which reads as a second Findo the game cannot register. `tool/build_level.py`
+shifts every pixel near her skirt colour to `#6C52B0` before compositing her
+in, and reports how many it moved.
 
-So `tool/build_level.py` shifts every pixel near her skirt colour to `#6C52B0`
-before compositing her in, and reports how many it moved. After that the colour
-really is hers, on every map, whoever drew it.
+**She cannot be made smaller than 68 px.** A standing figure is about a third
+as wide as she is tall, so at 66 px her tap box is 23 px wide and the verifier
+rejects it. Shrinking her for difficulty runs out of tap target before it runs
+out of map. Past level 17, difficulty comes from the scene and the clock
+instead. The build tool warns and names the minimum height when a request falls
+under it.
+
+**She is lit by the scene she stands in.** Composited unchanged into the dusk
+festival she was the brightest thing on the map, which would have made the
+hardest level the easiest. `--tint` blends her towards the ambient colour
+sampled around where she lands, capped at 0.55 so she stays recognisable as the
+girl on the objective panel.
 
 Replacing a map is dropping in the new file and re-running its build command.
 Nothing in the Dart code names a particular map.

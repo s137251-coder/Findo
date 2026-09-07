@@ -1,0 +1,22 @@
+{
+  "id": "level_16",
+  "index": 16,
+  "nameKey": "level.site",
+  "map": "maps/level_16.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 85,
+  "starThresholds": {
+    "one": 185,
+    "two": 482,
+    "three": 712
+  },
+  "target": {
+    "x": 1508,
+    "y": 1343,
+    "width": 25,
+    "height": 70
+  }
+}

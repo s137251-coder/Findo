@@ -1,0 +1,22 @@
+{
+  "id": "level_15",
+  "index": 15,
+  "nameKey": "level.hospital",
+  "map": "maps/level_15.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 85,
+  "starThresholds": {
+    "one": 185,
+    "two": 482,
+    "three": 712
+  },
+  "target": {
+    "x": 1494,
+    "y": 1326,
+    "width": 26,
+    "height": 73
+  }
+}

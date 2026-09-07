@@ -47,6 +47,11 @@ FINDO_SKIRT = (146, 62, 168)
 ALTERNATE_PURPLE = (108, 82, 176)
 SKIRT_TOLERANCE = 70
 
+# How far a tinted Findo is allowed to travel towards the scene's ambient
+# colour. Past this she stops being recognisable as the girl on the objective
+# panel, which is the one thing the player has to go on.
+MAX_TINT = 0.55
+
 
 def fit_square(image: Image.Image, side: int = MAP_SIDE) -> tuple[Image.Image, str]:
     """Centre-crops to square, then scales to exactly [side].
@@ -98,6 +103,34 @@ def free_the_skirt_colour(scene: Image.Image) -> tuple[Image.Image, int]:
         pixels[hit] = np.clip(pixels[hit] - source + target, 0, 255)
 
     return Image.fromarray(pixels.astype("uint8"), "RGB"), count
+
+
+def tint_to_scene(findo: Image.Image, scene: Image.Image, box, strength: float):
+    """Pulls Findo part of the way towards the light the scene is lit by.
+
+    A daylit character pasted into a dusk scene is the brightest thing in it,
+    which makes the hardest level the easiest. This samples the ambient colour
+    of the map around where she lands and blends her towards it, leaving her
+    recognisable but no longer lit by a different sun. Only her colour moves;
+    the alpha channel, and so her hit area, is untouched.
+    """
+    import numpy as np
+
+    x, y, w, h = box
+    pad = 220
+    patch = np.asarray(scene.convert("RGB")).astype(np.float32)
+    y0, y1 = max(0, y - pad), min(patch.shape[0], y + h + pad)
+    x0, x1 = max(0, x - pad), min(patch.shape[1], x + w + pad)
+    ambient = np.median(patch[y0:y1, x0:x1].reshape(-1, 3), axis=0)
+
+    # Scale rather than blend flat, so her own hues survive the shift.
+    neutral = 150.0
+    gain = np.clip(ambient / neutral, 0.25, 1.4)
+    gain = 1.0 + (gain - 1.0) * strength
+
+    pixels = np.asarray(findo.convert("RGBA")).astype(np.float32)
+    pixels[..., :3] = np.clip(pixels[..., :3] * gain, 0, 255)
+    return Image.fromarray(pixels.astype("uint8"), "RGBA"), ambient, gain
 
 
 def key_out_background(image: Image.Image, tolerance: int = KEY_TOLERANCE) -> Image.Image:
@@ -219,6 +252,22 @@ def cmd_level(args: argparse.Namespace) -> int:
     x = feet_x - width // 2
     y = feet_y - height
 
+    if args.tint > 0:
+        strength = min(args.tint, MAX_TINT)
+        findo, ambient, gain = tint_to_scene(findo, scene, (x, y, width, height), strength)
+        print(f"  tinted her {strength:.2f} towards the local ambient "
+              f"rgb({ambient[0]:.0f}, {ambient[1]:.0f}, {ambient[2]:.0f}); "
+              f"gain {gain[0]:.2f}/{gain[1]:.2f}/{gain[2]:.2f}")
+
+    # Her aspect ratio puts a floor on how small she can be asked to go: a
+    # standing figure is about a third as wide as she is tall, so shrinking her
+    # for difficulty runs out of tap target before it runs out of height.
+    if width < 24:
+        needed = -(-24 * findo.height // findo.width)
+        print(f"  warning: at {height} px tall she is only {width} px wide, "
+              f"under the 24 px the verifier requires. Use --height {needed} "
+              f"or more")
+
     margin = 140
     if not (margin <= x and margin <= y
             and x + width <= MAP_SIDE - margin and y + height <= MAP_SIDE - margin):
@@ -287,6 +336,10 @@ def main() -> int:
     lv.add_argument("--height", type=int, required=True,
                     help="her full height in map pixels, from the brief's table")
     lv.add_argument("--time", type=int, required=True, help="time limit in seconds")
+    lv.add_argument("--tint", type=float, default=0.0,
+                    help="0 to 0.55: blend her towards the scene's own light. Use "
+                         "on dusk or night maps, where a daylit figure is the "
+                         "brightest thing on the map and gives itself away")
     lv.set_defaults(func=cmd_level)
 
     args = parser.parse_args()

@@ -1,0 +1,22 @@
+{
+  "id": "level_12",
+  "index": 12,
+  "nameKey": "level.water",
+  "map": "maps/level_12.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 95,
+  "starThresholds": {
+    "one": 195,
+    "two": 528,
+    "three": 784
+  },
+  "target": {
+    "x": 1375,
+    "y": 407,
+    "width": 28,
+    "height": 80
+  }
+}
