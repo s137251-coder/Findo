@@ -79,6 +79,21 @@ small gaps between them: never overlapping, never clustered into one half,
 never leaving a large empty area. These are the busiest scenes in the game, so
 fill the frame right to the edges.
 
+POSES - every figure is doing something
+No two people share the same pose. Each is doing something that belongs to this
+place: pointing at something, carrying a bag or a tray, crouching, leaning on a
+railing, reaching up, turning to talk to the person beside them, kneeling down
+to a child, lifting a toddler onto their shoulders, checking a pocket, shielding
+their eyes, waving across the frame. Vary which way they face - some towards the
+viewer, some away, some in profile. Vary build, age and height: small children,
+teenagers, adults, older people with walking sticks. Put small interactions
+between pairs and groups, so the crowd reads as a moment in a real place rather
+than a field of figures.
+
+Keep about a third of them simply standing or walking normally, mixed evenly in
+among the rest, so that a person standing still is an ordinary sight in the
+scene and not the one thing that catches the eye.
+
 THE MOST IMPORTANT RULE
 There must be NO girl matching this description anywhere in any scene: brown
 hair in two braids, a bright yellow sleeveless top, and a violet purple skirt.

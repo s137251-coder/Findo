@@ -88,7 +88,7 @@ the tool warns if she is not.
 
 ## Step 2 — the ten scenes
 
-Each prompt below is complete and standalone. The first three blocks are
+Each prompt below is complete and standalone. The first four blocks are
 identical in all ten on purpose: that is what makes the set look like one book
 rather than ten unrelated pictures. Change only the SCENE block.
 
@@ -126,6 +126,21 @@ colours. Spread evenly across the entire image with small gaps between them:
 never overlapping, never clustered into one half, never leaving a large empty
 area.
 
+POSES - every figure is doing something
+No two people share the same pose. Each is doing something that belongs to this
+place: pointing at something, carrying a bag or a tray, crouching, leaning on a
+railing, reaching up, turning to talk to the person beside them, kneeling down
+to a child, lifting a toddler onto their shoulders, checking a pocket, shielding
+their eyes, waving across the frame. Vary which way they face - some towards the
+viewer, some away, some in profile. Vary build, age and height: small children,
+teenagers, adults, older people with walking sticks. Put small interactions
+between pairs and groups, so the crowd reads as a moment in a real place rather
+than a field of figures.
+
+Keep about a third of them simply standing or walking normally, mixed evenly in
+among the rest, so that a person standing still is an ordinary sight in the
+scene and not the one thing that catches the eye.
+
 SCENE
 A town square. A round stone fountain with arching jets of water in the middle.
 Three and four storey shopfronts and apartment buildings with balconies, awnings
@@ -144,7 +159,7 @@ Square 1:1 aspect ratio, highest resolution available.
 
 ### Level 2 — Hollow Farm
 
-Same STYLE, CROWD (**210 people**) and DO NOT INCLUDE blocks. SCENE:
+Same STYLE, CROWD (**210 people**), POSES and DO NOT INCLUDE blocks. SCENE:
 
 ```
 SCENE

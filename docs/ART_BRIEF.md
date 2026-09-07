@@ -127,6 +127,25 @@ a heavier or lighter line on her is a giveaway.
 - No figure may be within 40 px of another figure's outline, or the crowd reads
   as a smear when zoomed out.
 
+### Poses
+
+The crowd has to look alive, or the map reads as wallpaper rather than a place.
+
+- **No two figures share a pose.** Each is doing something the scene explains:
+  pointing, carrying, crouching, leaning on a railing, reaching up, turning to
+  talk, kneeling to a child, shielding their eyes.
+- **Vary who they are**, not just what they wear: children, teenagers, adults,
+  older people. Vary height and build.
+- **Vary which way they face** — towards the viewer, away, in profile.
+- **Put pairs and groups in small interactions**, so the eye finds relationships
+  rather than a field of separate figures.
+
+One counterweight, and it matters more than it looks. **Keep about a third of
+the crowd simply standing or walking normally, mixed evenly through the rest.**
+Findo stands still with her arms at her sides. If every other figure is
+mid-gesture, the one calm person is the first thing the eye lands on, and the
+level solves itself. A still figure has to be an ordinary sight.
+
 ### Where Findo may stand
 
 - Her feet at least **140 px** from any edge of the map.
