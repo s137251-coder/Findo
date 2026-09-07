@@ -9,30 +9,44 @@ import 'package:flutter/material.dart';
 import '../../models/level_definition.dart';
 import '../findo_game.dart';
 
-/// The hit area over Findo, plus the effects that play on top of her.
+/// Findo, drawn onto the map at the spot chosen for this attempt.
 ///
-/// She is *drawn into the map* by whoever made it, not composited by the game:
-/// an illustrator draws her into the scene with the right style, lighting and
-/// occlusion, and the level metadata records where she ended up. So this
-/// component paints nothing of its own. It exists to catch the tap and to host
-/// the hint halo and the burst that fires when she is found.
+/// The map itself ships without her. Compositing her here rather than baking
+/// her into the artwork is what lets a level hide her somewhere else on a
+/// replay, which matters because the star rating is earned by playing a level
+/// again and beating your time.
 ///
-/// Hit testing samples `findo.png`'s alpha channel scaled onto the registered
-/// box rather than using the box itself, so tapping the gap between an arm and
-/// the skirt counts as a miss the way a player would expect -- with a finger's
-/// worth of tolerance, because a finger is not a mouse pointer.
-class ItemTargetComponent extends PositionComponent
+/// Hit testing samples her alpha channel rather than her bounding box, so
+/// tapping the gap between an arm and the skirt counts as a miss the way a
+/// player would expect -- with a finger's worth of tolerance, because a finger
+/// is not a mouse pointer.
+class ItemTargetComponent extends SpriteComponent
     with TapCallbacks, HasGameReference<FindoGame> {
   ItemTargetComponent({
     required this.target,
-    required this.silhouette,
+    required Sprite sprite,
     required this.alpha,
-  }) : super(
+    Color? tint,
+  })  : silhouette = sprite.image,
+        super(
+          sprite: sprite,
           size: Vector2(target.width, target.height),
           position: Vector2(target.x, target.y),
           anchor: Anchor.topLeft,
           priority: 10,
-        );
+        ) {
+    // She is drawn far below her source resolution at low zoom and far above
+    // it at full magnification; both want smoothing.
+    paint
+      ..filterQuality = FilterQuality.high
+      ..isAntiAlias = true;
+    if (tint != null) {
+      // Multiplied, so a dusk map dims her instead of recolouring her: a
+      // daylit figure in a night scene is the brightest thing on the map and
+      // gives itself away.
+      paint.colorFilter = ColorFilter.mode(tint, BlendMode.modulate);
+    }
+  }
 
   /// A tap this far outside an opaque pixel, as a fraction of the character
   /// sheet's size, still counts. Roughly a finger's worth of slack.
@@ -40,7 +54,7 @@ class ItemTargetComponent extends PositionComponent
 
   final LevelTarget target;
 
-  /// The character sheet, used only for its shape.
+  /// Her source image, used for the shape of the hit test.
   final ui.Image silhouette;
 
   /// Raw RGBA of [silhouette]. Null falls back to the whole box being tappable.

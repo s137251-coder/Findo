@@ -26,6 +26,7 @@ import 'components/map_background_component.dart';
 class FindoGame extends FlameGame with ScaleDetector {
   FindoGame({
     required this.level,
+    required this.target,
     required this.scoreManager,
     required this.levelManager,
     required this.audioManager,
@@ -33,8 +34,8 @@ class FindoGame extends FlameGame with ScaleDetector {
     required this.onTimeUp,
   });
 
-  /// The character sheet, relative to Flame's image prefix. Used for the
-  /// shape of her hit area, and by the HUD for her portrait.
+  /// The character sheet, relative to Flame's image prefix. Drawn on the map,
+  /// used for the shape of her hit area, and shown by the HUD as her portrait.
   static const targetSprite = 'targets/findo.png';
 
   /// How far past the fit-to-screen zoom the player may pinch in. The maps are
@@ -45,6 +46,11 @@ class FindoGame extends FlameGame with ScaleDetector {
   static const hintDurationSeconds = 3.0;
 
   final LevelDefinition level;
+
+  /// Where she is hiding this time round, chosen by [LevelManager] when the
+  /// level was opened.
+  final LevelTarget target;
+
   final ScoreManager scoreManager;
   final LevelManager levelManager;
   final AudioManager audioManager;
@@ -93,16 +99,17 @@ class FindoGame extends FlameGame with ScaleDetector {
       MapBackgroundComponent(sprite: Sprite(mapImage), mapSize: mapSize),
     );
 
-    // Findo is already painted into the map. The character sheet is loaded
-    // only so her silhouette can shape the hit area over her.
+    // The map ships without her. She is drawn here, at the spot chosen for
+    // this attempt, which is what lets a replay be a fresh search.
     final findoImage = await images.load(targetSprite);
-    final target = ItemTargetComponent(
-      target: level.target,
-      silhouette: findoImage,
+    final placed = ItemTargetComponent(
+      target: target,
+      sprite: Sprite(findoImage),
       alpha: await findoImage.toByteData(format: ui.ImageByteFormat.rawRgba),
+      tint: level.tint,
     );
-    _target = target;
-    world.add(target);
+    _target = placed;
+    world.add(placed);
 
     _applyViewport();
     _viewportDirty = false;
@@ -123,14 +130,21 @@ class FindoGame extends FlameGame with ScaleDetector {
   /// Sizes the camera viewport to the area the player can actually reach, then
   /// re-derives the zoom limits and bounds from it.
   void _applyViewport() {
+    // canvasSize, not size: on a FlameGame `size` is the camera viewport's
+    // size, so once a FixedSizeViewport is installed, measuring from `size`
+    // would shrink it against itself on every call. Worse, a FixedSizeViewport
+    // does not follow a resize, so after a rotation the stale portrait-shaped
+    // viewport stayed on a landscape screen and the map filled less than half
+    // of it.
+    final canvas = canvasSize;
     // Never give away more than a third of the screen, however tall the HUD
     // reports itself to be.
-    final height = math.max(size.y - _hudBottomInset, size.y * 0.66);
+    final height = math.max(canvas.y - _hudBottomInset, canvas.y * 0.66);
     final viewport = camera.viewport;
     if (viewport is FixedSizeViewport) {
-      viewport.size = Vector2(size.x, height);
+      viewport.size = Vector2(canvas.x, height);
     } else {
-      camera.viewport = FixedSizeViewport(size.x, height)
+      camera.viewport = FixedSizeViewport(canvas.x, height)
         ..position = Vector2.zero()
         ..anchor = Anchor.topLeft;
     }
@@ -205,10 +219,7 @@ class FindoGame extends FlameGame with ScaleDetector {
     }
     final awarded = scoreManager.registerFind();
     audioManager.play(GameSound.found);
-    _showFloatingScore(
-      Vector2(level.target.centerX, level.target.y),
-      awarded,
-    );
+    _showFloatingScore(Vector2(target.centerX, target.y), awarded);
 
     _finished = true;
     audioManager.play(GameSound.win);
@@ -233,18 +244,18 @@ class FindoGame extends FlameGame with ScaleDetector {
   /// Pans towards Findo and makes her glow, without giving her away entirely:
   /// the camera stops short so the player still has to spot her.
   void revealHint() {
-    final target = _target;
-    if (target == null || target.isFound) {
+    final hidden = _target;
+    if (hidden == null || hidden.isFound) {
       return;
     }
     audioManager.play(GameSound.hint);
     camera.viewfinder.add(
       MoveToEffect(
-        Vector2(level.target.centerX, level.target.centerY),
+        Vector2(target.centerX, target.centerY),
         EffectController(duration: 0.45, curve: Curves.easeOutCubic),
       ),
     );
-    target.highlight(seconds: hintDurationSeconds);
+    hidden.highlight(seconds: hintDurationSeconds);
   }
 
   /// Freezes gameplay while an overlay is up.

@@ -1,9 +1,12 @@
 import 'dart:convert';
+import 'dart:ui' show Color;
 
-/// Where Findo is hiding on a map, in map pixels.
+/// One place Findo may be hiding on a map, in map pixels.
 ///
-/// The box comes from `tool/level_data.py`, which reads it off the artwork, so
-/// it is exact rather than eyeballed.
+/// A level carries several of these and the game picks one when it opens, so
+/// replaying a level is another search rather than a memory test. The boxes
+/// come from `tool/build_level.py`, which finds crowded, well-separated spots
+/// in the artwork, so they are measured rather than eyeballed.
 class LevelTarget {
   const LevelTarget({
     required this.x,
@@ -73,7 +76,8 @@ class LevelDefinition {
     required this.mapHeight,
     required this.timeLimitSeconds,
     required this.starThresholds,
-    required this.target,
+    required this.targets,
+    this.tint,
   });
 
   final String id;
@@ -90,7 +94,13 @@ class LevelDefinition {
   final double mapHeight;
   final int timeLimitSeconds;
   final StarThresholds starThresholds;
-  final LevelTarget target;
+
+  /// Every place she may be. Never empty.
+  final List<LevelTarget> targets;
+
+  /// Multiplied over her sprite so she is lit like the map she stands in.
+  /// Null on maps shot in ordinary daylight.
+  final Color? tint;
 
   factory LevelDefinition.fromJson(Map<String, dynamic> json) {
     final size = json['mapSize'] as Map<String, dynamic>;
@@ -104,12 +114,26 @@ class LevelDefinition {
       timeLimitSeconds: (json['timeLimitSeconds'] as num).toInt(),
       starThresholds:
           StarThresholds.fromJson(json['starThresholds'] as Map<String, dynamic>),
-      target: LevelTarget.fromJson(json['target'] as Map<String, dynamic>),
+      targets: (json['targets'] as List<dynamic>)
+          .map((spot) => LevelTarget.fromJson(spot as Map<String, dynamic>))
+          .toList(growable: false),
+      tint: _tintFromJson(json['tint'] as Map<String, dynamic>?),
     );
   }
 
   static LevelDefinition parse(String source) =>
       LevelDefinition.fromJson(jsonDecode(source) as Map<String, dynamic>);
+}
+
+/// The tint is stored as per-channel gain around 1.0. It is carried as a
+/// [Color] because that is what `BlendMode.modulate` multiplies by.
+Color? _tintFromJson(Map<String, dynamic>? json) {
+  if (json == null) {
+    return null;
+  }
+  int channel(String key) =>
+      ((json[key] as num).toDouble() * 255).round().clamp(0, 255);
+  return Color.fromARGB(255, channel('r'), channel('g'), channel('b'));
 }
 
 /// What the player walked away from a level with.

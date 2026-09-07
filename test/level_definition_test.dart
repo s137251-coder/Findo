@@ -57,17 +57,48 @@ void main() {
       }
     });
 
-    test('Findo is inside her map and big enough to tap', () {
+    test('every hiding spot is inside its map and big enough to tap', () {
       for (final id in levelIds()) {
         final level = load(id);
-        final t = level.target;
+        expect(level.targets, isNotEmpty, reason: '${level.id} hides her nowhere');
 
-        expect(t.x, greaterThanOrEqualTo(0));
-        expect(t.y, greaterThanOrEqualTo(0));
-        expect(t.x + t.width, lessThanOrEqualTo(level.mapWidth));
-        expect(t.y + t.height, lessThanOrEqualTo(level.mapHeight));
-        expect(t.width, greaterThanOrEqualTo(24), reason: '${level.id} target too narrow');
-        expect(t.height, greaterThanOrEqualTo(24), reason: '${level.id} target too short');
+        for (final t in level.targets) {
+          expect(t.x, greaterThanOrEqualTo(0));
+          expect(t.y, greaterThanOrEqualTo(0));
+          expect(t.x + t.width, lessThanOrEqualTo(level.mapWidth));
+          expect(t.y + t.height, lessThanOrEqualTo(level.mapHeight));
+          expect(t.width, greaterThanOrEqualTo(24),
+              reason: '${level.id} spot too narrow');
+          expect(t.height, greaterThanOrEqualTo(24),
+              reason: '${level.id} spot too short');
+        }
+      }
+    });
+
+    test('levels offer more than one hiding spot', () {
+      // With a single spot a replay is recall rather than a search, and the
+      // star rating is earned by replaying a level faster -- so this is the
+      // difference between a game loop and a memory test.
+      for (final id in levelIds()) {
+        final level = load(id);
+        expect(level.targets.length, greaterThanOrEqualTo(2),
+            reason: '${level.id} always hides her in the same place');
+      }
+    });
+
+    test('hiding spots on a map are far enough apart to be different hunts', () {
+      for (final id in levelIds()) {
+        final level = load(id);
+        for (var i = 0; i < level.targets.length; i++) {
+          for (var j = i + 1; j < level.targets.length; j++) {
+            final a = level.targets[i];
+            final b = level.targets[j];
+            final dx = a.centerX - b.centerX;
+            final dy = a.centerY - b.centerY;
+            expect(dx * dx + dy * dy, greaterThan(400 * 400),
+                reason: '${level.id} spots $i and $j are nearly the same place');
+          }
+        }
       }
     });
 

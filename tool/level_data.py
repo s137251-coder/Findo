@@ -67,12 +67,17 @@ def write_level(
     name_key: str,
     map_rel: str,
     map_size: tuple[int, int],
-    target: tuple[int, int, int, int],
+    targets: list[tuple[int, int, int, int]],
     time_limit: int,
     stars: tuple[int, int, int],
+    tint: tuple[float, float, float] | None = None,
 ) -> Path:
-    """Writes one level's metadata and makes sure it is listed in the index."""
-    x, y, w, h = target
+    """Writes one level's metadata and makes sure it is listed in the index.
+
+    [targets] is every place Findo may be hiding on this map. The game picks
+    one when the level is opened, so replaying it is a fresh search rather
+    than a memory test.
+    """
     data = {
         "id": level_id,
         "index": index,
@@ -81,8 +86,15 @@ def write_level(
         "mapSize": {"width": map_size[0], "height": map_size[1]},
         "timeLimitSeconds": time_limit,
         "starThresholds": {"one": stars[0], "two": stars[1], "three": stars[2]},
-        "target": {"x": x, "y": y, "width": w, "height": h},
+        "targets": [
+            {"x": x, "y": y, "width": w, "height": h} for x, y, w, h in targets
+        ],
     }
+    if tint is not None:
+        # Multiplied over her sprite at runtime, so she is lit like the scene
+        # she is standing in.
+        data["tint"] = {"r": round(tint[0], 3), "g": round(tint[1], 3),
+                        "b": round(tint[2], 3)}
     META.mkdir(parents=True, exist_ok=True)
     path = META / f"{level_id}.json"
     path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
@@ -121,11 +133,21 @@ def _check(level_id: str) -> list[str]:
             "so it will blur at full zoom"
         )
 
-    t = data["target"]
-    if t["x"] < 0 or t["y"] < 0 or t["x"] + t["width"] > width or t["y"] + t["height"] > height:
-        problems.append(f"{level_id}: Findo's box falls outside the map")
-    if t["width"] < 24 or t["height"] < 24:
-        problems.append(f"{level_id}: Findo's box is too small to tap reliably")
+    spots = data.get("targets")
+    if not spots:
+        problems.append(f"{level_id}: no hiding spots registered")
+        return problems
+    if len(spots) < 2:
+        problems.append(
+            f"{level_id}: only one hiding spot, so replaying it is a memory "
+            f"test rather than a search"
+        )
+    for i, t in enumerate(spots):
+        if (t["x"] < 0 or t["y"] < 0
+                or t["x"] + t["width"] > width or t["y"] + t["height"] > height):
+            problems.append(f"{level_id}: hiding spot {i} falls outside the map")
+        if t["width"] < 24 or t["height"] < 24:
+            problems.append(f"{level_id}: hiding spot {i} is too small to tap reliably")
     return problems
 
 

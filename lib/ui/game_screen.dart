@@ -52,6 +52,8 @@ class _GameScreenState extends State<GameScreen> {
     _result = null;
     _game = FindoGame(
       level: level,
+      // Picked per attempt, so replaying a level is another search.
+      target: _services.levels.pickTarget(level),
       scoreManager: _scoreManager,
       levelManager: _services.levels,
       audioManager: _services.audio,

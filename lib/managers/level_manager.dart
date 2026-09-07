@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -15,6 +16,10 @@ class LevelManager extends ChangeNotifier {
   static const _indexPath = '$_metaDirectory/index.json';
 
   final SaveManager _saveManager;
+  final Random _random = Random();
+
+  /// Where she hid last time, per level, so a replay moves her.
+  final Map<String, int> _lastSpot = {};
 
   List<LevelDefinition> _levels = const [];
   LevelDefinition? _current;
@@ -53,6 +58,28 @@ class LevelManager extends ChangeNotifier {
   LevelDefinition? levelAfter(LevelDefinition level) {
     final next = _levels.where((candidate) => candidate.index == level.index + 1);
     return next.isEmpty ? null : next.first;
+  }
+
+  /// Chooses where Findo hides this time.
+  ///
+  /// Levels carry several spots and this avoids repeating the one used on the
+  /// previous attempt, because the star rating is earned by replaying a level
+  /// faster. If she were always in the same place, the second run would be
+  /// recall rather than a search and the whole loop would collapse.
+  LevelTarget pickTarget(LevelDefinition level) {
+    final spots = level.targets;
+    if (spots.length < 2) {
+      return spots.first;
+    }
+    final previous = _lastSpot[level.id];
+    var index = _random.nextInt(spots.length);
+    if (index == previous) {
+      // Step to any of the others, so the repeat is impossible rather than
+      // merely unlikely.
+      index = (index + 1 + _random.nextInt(spots.length - 1)) % spots.length;
+    }
+    _lastSpot[level.id] = index;
+    return spots[index];
   }
 
   void startLevel(LevelDefinition level) {

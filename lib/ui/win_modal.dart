@@ -35,92 +35,127 @@ class WinModal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    // On a landscape phone the one-column panel is taller than the screen and
+    // the buttons end up below the fold, with nothing to say the panel
+    // scrolls. This is the panel a player meets at the end of every level, so
+    // when the screen is short the celebration and the summary sit side by
+    // side instead of stacked.
+    final short = MediaQuery.sizeOf(context).height < 560;
+
     return AnimatedPanel(
       builder: (context, close) {
-        return ModalScrim(
-          child: FindoPanel(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  l10n.t('win.title'),
-                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 14),
-                const FindoPortrait(size: 76),
-                const SizedBox(height: 12),
-                _LandingStars(stars: result.stars),
-                const SizedBox(height: 8),
-                Text(
-                  l10n.t('win.time', params: {'seconds': result.secondsTaken}),
-                  style: const TextStyle(fontSize: 14, color: FindoColors.textMuted),
-                ),
-                const SizedBox(height: 14),
-                _SummaryRow(
-                  label: l10n.t('win.baseScore'),
-                  value: result.baseScore,
-                  prefix: '+',
-                ),
-                if (result.penalty > 0)
-                  _SummaryRow(
-                    label: l10n.t('win.penalty'),
-                    value: result.penalty,
-                    prefix: '-',
-                    color: FindoColors.danger,
-                  ),
-                _SummaryRow(
-                  label: l10n.t('win.timeBonus'),
-                  value: result.timeBonus,
-                  prefix: '+',
-                  color: FindoColors.accent,
-                ),
-                const Divider(height: 26, color: FindoColors.surfaceRaised),
-                _SummaryRow(
-                  label: l10n.t('win.total'),
-                  value: result.total,
-                  emphasised: true,
-                ),
-                if (result.isNewBest) ...[
-                  const SizedBox(height: 10),
-                  Text(
-                    l10n.t('win.newBest'),
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                      color: FindoColors.success,
-                    ),
-                  ),
-                ],
-                const SizedBox(height: 22),
-                if (hasNextLevel)
-                  SizedBox(
-                    width: double.infinity,
-                    child: FilledButton(
-                      onPressed: () => close(onNext),
-                      child: Text(l10n.t('win.next')),
-                    ),
-                  ),
-                if (hasNextLevel) const SizedBox(height: 10),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => close(onReplay),
-                        child: Text(l10n.t('win.replay')),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => close(onLevelList),
-                        child: Text(l10n.t('win.menu')),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+        final celebration = <Widget>[
+          Text(
+            l10n.t('win.title'),
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: short ? 10 : 14),
+          FindoPortrait(size: short ? 64 : 76),
+          SizedBox(height: short ? 8 : 12),
+          _LandingStars(stars: result.stars),
+          const SizedBox(height: 8),
+          Text(
+            l10n.t('win.time', params: {'seconds': result.secondsTaken}),
+            style: const TextStyle(fontSize: 14, color: FindoColors.textMuted),
+          ),
+        ];
+
+        final summary = <Widget>[
+          _SummaryRow(
+            label: l10n.t('win.baseScore'),
+            value: result.baseScore,
+            prefix: '+',
+          ),
+          if (result.penalty > 0)
+            _SummaryRow(
+              label: l10n.t('win.penalty'),
+              value: result.penalty,
+              prefix: '-',
+              color: FindoColors.danger,
             ),
+          _SummaryRow(
+            label: l10n.t('win.timeBonus'),
+            value: result.timeBonus,
+            prefix: '+',
+            color: FindoColors.accent,
+          ),
+          Divider(height: short ? 20 : 26, color: FindoColors.surfaceRaised),
+          _SummaryRow(
+            label: l10n.t('win.total'),
+            value: result.total,
+            emphasised: true,
+          ),
+          if (result.isNewBest) ...[
+            const SizedBox(height: 10),
+            Text(
+              l10n.t('win.newBest'),
+              style: const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+                color: FindoColors.success,
+              ),
+            ),
+          ],
+          SizedBox(height: short ? 16 : 22),
+          if (hasNextLevel) ...[
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                onPressed: () => close(onNext),
+                child: Text(l10n.t('win.next')),
+              ),
+            ),
+            const SizedBox(height: 10),
+          ],
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => close(onReplay),
+                  child: Text(l10n.t('win.replay')),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => close(onLevelList),
+                  child: Text(l10n.t('win.menu')),
+                ),
+              ),
+            ],
+          ),
+        ];
+
+        return ModalScrim(
+          maxContentWidth: short ? 660 : 420,
+          child: FindoPanel(
+            padding: EdgeInsets.all(short ? 18 : 24),
+            child: short
+                ? Row(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: celebration,
+                        ),
+                      ),
+                      const SizedBox(width: 24),
+                      Expanded(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: summary,
+                        ),
+                      ),
+                    ],
+                  )
+                : Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [...celebration, const SizedBox(height: 14), ...summary],
+                  ),
           ),
         );
       },

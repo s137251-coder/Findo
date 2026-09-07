@@ -12,7 +12,7 @@ LevelDefinition _level({int timeLimit = 100}) {
     mapHeight: 2048,
     timeLimitSeconds: timeLimit,
     starThresholds: const StarThresholds(one: 100, two: 400, three: 900),
-    target: const LevelTarget(x: 500, y: 600, width: 44, height: 118),
+    targets: const [LevelTarget(x: 500, y: 600, width: 44, height: 118)],
   );
 }
 

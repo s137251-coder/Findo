@@ -105,32 +105,152 @@ def free_the_skirt_colour(scene: Image.Image) -> tuple[Image.Image, int]:
     return Image.fromarray(pixels.astype("uint8"), "RGB"), count
 
 
-def tint_to_scene(findo: Image.Image, scene: Image.Image, box, strength: float):
-    """Pulls Findo part of the way towards the light the scene is lit by.
+def scene_tint(scene: Image.Image, strength: float):
+    """A multiplier that puts Findo under the same light as the map.
 
-    A daylit character pasted into a dusk scene is the brightest thing in it,
-    which makes the hardest level the easiest. This samples the ambient colour
-    of the map around where she lands and blends her towards it, leaving her
-    recognisable but no longer lit by a different sun. Only her colour moves;
-    the alpha channel, and so her hit area, is untouched.
+    A daylit character dropped into a dusk scene is the brightest thing in it,
+    which makes the hardest level the easiest. The gain is applied to her
+    sprite at runtime, so it holds wherever on the map she turns up.
     """
     import numpy as np
 
-    x, y, w, h = box
-    pad = 220
-    patch = np.asarray(scene.convert("RGB")).astype(np.float32)
-    y0, y1 = max(0, y - pad), min(patch.shape[0], y + h + pad)
-    x0, x1 = max(0, x - pad), min(patch.shape[1], x + w + pad)
-    ambient = np.median(patch[y0:y1, x0:x1].reshape(-1, 3), axis=0)
-
-    # Scale rather than blend flat, so her own hues survive the shift.
+    pixels = np.asarray(scene.convert("RGB")).astype(np.float32)
+    ambient = np.median(pixels.reshape(-1, 3), axis=0)
     neutral = 150.0
     gain = np.clip(ambient / neutral, 0.25, 1.4)
     gain = 1.0 + (gain - 1.0) * strength
+    return ambient, tuple(float(g) for g in gain)
 
-    pixels = np.asarray(findo.convert("RGBA")).astype(np.float32)
-    pixels[..., :3] = np.clip(pixels[..., :3] * gain, 0, 255)
-    return Image.fromarray(pixels.astype("uint8"), "RGBA"), ambient, gain
+
+def _box_sums(mask, window: int):
+    """Sum of `mask` over every window x window square, as an integral image."""
+    import numpy as np
+
+    total = np.cumsum(np.cumsum(mask, axis=0), axis=1)
+    total = np.pad(total, ((1, 0), (1, 0)))
+    return (total[window:, window:] - total[:-window, window:]
+            - total[window:, :-window] + total[:-window, :-window])
+
+
+def people_mask(scene: Image.Image):
+    """Where the people are, as opposed to where skin-coloured paint is.
+
+    Colour alone is not enough. A plain skin-tone test also selects tan
+    stucco, sand, cardboard and pine, and an earlier version of this put Findo
+    on a stable wall, on a chalet roof and standing in a first-floor window box.
+
+    What separates a face from a facade is size: a face is a patch tens of
+    pixels across surrounded by things that are not skin, while a wall is
+    thousands of pixels of it. So the colour mask is kept only where the
+    surrounding 96px square is mostly *not* skin, which erases large fields of
+    it and leaves faces and hands behind.
+    """
+    import numpy as np
+
+    pixels = np.asarray(scene.convert("RGB")).astype(np.int16)
+    r, g, b = pixels[:, :, 0], pixels[:, :, 1], pixels[:, :, 2]
+    skin = ((r > 140) & (r > g + 12) & (g > b + 6)
+            & (r - b > 28) & (r - b < 130) & (r < 252)).astype(np.float32)
+
+    window = 96
+    fraction = _box_sums(skin, window) / float(window * window)
+    # Pad the fraction back to full size so it lines up with the mask; the
+    # border is unusable anyway, the margin keeps her well clear of it.
+    isolated = np.zeros_like(skin)
+    half = window // 2
+    isolated[half:half + fraction.shape[0], half:half + fraction.shape[1]] = (
+        fraction < 0.28)
+    return skin * isolated
+
+
+def _against_sky(pixels, fx: int, fy: int, width: int, height: int) -> bool:
+    """Would she be standing in open sky here?
+
+    A figure on a battlement or a rooftop is outlined against a big flat field
+    of blue, which makes her the easiest thing on the map to find -- the
+    opposite of what the late levels want. Ground can be just as flat (a lawn,
+    a plaza) and is perfectly good cover, so the test is specifically for sky
+    rather than for flatness.
+    """
+    import numpy as np
+
+    pad = max(width, 24)
+    y0 = max(0, fy - height - pad)
+    y1 = min(pixels.shape[0], fy)
+    x0 = max(0, fx - width // 2 - pad)
+    x1 = min(pixels.shape[1], fx + width // 2 + pad)
+    patch = pixels[y0:y1, x0:x1].astype(np.int16)
+    if patch.size == 0:
+        return True
+
+    r, g, b = patch[:, :, 0], patch[:, :, 1], patch[:, :, 2]
+    # Daylight sky and the pale blue-grey overcast these scenes use: blue
+    # leads, nothing is dark, and it never goes green.
+    sky = (b > r + 12) & (b > 150) & (g > r) & (r > 90)
+    return float(sky.mean()) > 0.42
+
+
+def find_spots(scene: Image.Image, count: int, width: int, height: int,
+               margin: int = 140, separation: int = 520):
+    """Picks places to hide her: among people, and far enough apart to matter.
+
+    Two spots 200px apart on a 2048px map are the same hiding place as far as
+    a player is concerned, so the separation is what makes a replay feel like
+    a new hunt. It is relaxed rather than abandoned when a map has fewer
+    distinct crowds, because two real spots beat five that overlap.
+    """
+    import numpy as np
+
+    people = people_mask(scene)
+    backdrop = np.asarray(scene.convert("RGB"))
+    window = 200
+    density = _box_sums(people, window)
+
+    # Only consider feet positions that leave her fully inside the margin.
+    side = scene.size[0]
+    low_x, high_x = margin + width // 2, side - margin - width // 2
+    low_y, high_y = margin + height, side - margin
+
+    # A spot has to sit in a genuine crowd, not on the one stray face in an
+    # empty corner, or she ends up somewhere nobody would think to look.
+    floor = max(160.0, float(density.max()) * 0.12)
+
+    best = []
+    for gap in (separation, int(separation * 0.75), int(separation * 0.55)):
+        spots = []
+        scores = density.copy()
+        for _ in range(count):
+            if scores.max() < floor:
+                break
+            order = np.argsort(scores, axis=None)[::-1]
+            chosen = None
+            for index in order[:20000]:
+                if scores.flat[index] < floor:
+                    break
+                yy, xx = np.unravel_index(index, scores.shape)
+                fx, fy = int(xx + window // 2), int(yy + window // 2)
+                if not (low_x <= fx <= high_x and low_y <= fy <= high_y):
+                    continue
+                if any((fx - px) ** 2 + (fy - py) ** 2 < gap ** 2
+                       for px, py in spots):
+                    continue
+                if _against_sky(backdrop, fx, fy, width, height):
+                    continue
+                chosen = (fx, fy)
+                break
+            if chosen is None:
+                break
+            spots.append(chosen)
+            cx, cy = chosen[0] - window // 2, chosen[1] - window // 2
+            y0, y1 = max(0, cy - gap), min(scores.shape[0], cy + gap)
+            x0, x1 = max(0, cx - gap), min(scores.shape[1], cx + gap)
+            scores[y0:y1, x0:x1] = 0
+        if len(spots) > len(best):
+            best = spots
+        if len(best) >= count:
+            break
+
+    return [(fx - width // 2, fy - height, width, height) for fx, fy in best]
 
 
 def key_out_background(image: Image.Image, tolerance: int = KEY_TOLERANCE) -> Image.Image:
@@ -246,18 +366,6 @@ def cmd_level(args: argparse.Namespace) -> int:
     findo = Image.open(FINDO).convert("RGBA")
     height = args.height
     width = max(1, round(findo.width * height / findo.height))
-    findo = findo.resize((width, height), Image.LANCZOS)
-
-    feet_x, feet_y = args.feet
-    x = feet_x - width // 2
-    y = feet_y - height
-
-    if args.tint > 0:
-        strength = min(args.tint, MAX_TINT)
-        findo, ambient, gain = tint_to_scene(findo, scene, (x, y, width, height), strength)
-        print(f"  tinted her {strength:.2f} towards the local ambient "
-              f"rgb({ambient[0]:.0f}, {ambient[1]:.0f}, {ambient[2]:.0f}); "
-              f"gain {gain[0]:.2f}/{gain[1]:.2f}/{gain[2]:.2f}")
 
     # Her aspect ratio puts a floor on how small she can be asked to go: a
     # standing figure is about a third as wide as she is tall, so shrinking her
@@ -268,13 +376,24 @@ def cmd_level(args: argparse.Namespace) -> int:
               f"under the 24 px the verifier requires. Use --height {needed} "
               f"or more")
 
-    margin = 140
-    if not (margin <= x and margin <= y
-            and x + width <= MAP_SIDE - margin and y + height <= MAP_SIDE - margin):
-        print(f"  warning: she lands at ({x}, {y}) {width}x{height}, which is "
-              f"inside the {margin}px edge margin the brief asks for")
+    # The map ships without her on it. She is drawn by the game at one of these
+    # spots, chosen when the level opens, so replaying a level is a fresh
+    # search instead of a memory test.
+    spots = find_spots(scene, args.spots, width, height)
+    if not spots:
+        print("could not find anywhere crowded enough to hide her", file=sys.stderr)
+        return 1
+    if len(spots) < args.spots:
+        print(f"  note: found {len(spots)} usable hiding spots, not {args.spots}; "
+              f"this map has fewer well-separated crowds than asked for")
 
-    scene.paste(findo, (x, y), findo)
+    tint = None
+    if args.tint > 0:
+        strength = min(args.tint, MAX_TINT)
+        ambient, tint = scene_tint(scene, strength)
+        print(f"  tint {strength:.2f} towards ambient "
+              f"rgb({ambient[0]:.0f}, {ambient[1]:.0f}, {ambient[2]:.0f}); "
+              f"gain {tint[0]:.2f}/{tint[1]:.2f}/{tint[2]:.2f}")
 
     MAPS.mkdir(parents=True, exist_ok=True)
     # WebP, not PNG. These are dense illustrations: the same map is 5.9 MB as a
@@ -296,23 +415,29 @@ def cmd_level(args: argparse.Namespace) -> int:
         name_key=args.name_key,
         map_rel=f"maps/{map_name}",
         map_size=(MAP_SIDE, MAP_SIDE),
-        target=(x, y, width, height),
+        targets=spots,
         time_limit=args.time,
         stars=stars,
+        tint=tint,
     )
-    print(f"registered {args.id}: Findo at ({x}, {y}) {width}x{height}, "
-          f"{args.time}s, stars at {stars[0]}/{stars[1]}/{stars[2]}")
+    where = ", ".join(f"({x},{y})" for x, y, _, _ in spots)
+    print(f"registered {args.id}: {len(spots)} hiding spots at {where}, "
+          f"{width}x{height}, {args.time}s, stars at {stars[0]}/{stars[1]}/{stars[2]}")
 
-    # Crop around her so you can check she is hidden, not stranded.
+    # One preview per spot, so each can be checked for being among people
+    # rather than stranded. She is pasted here for the preview only.
     PREVIEWS.mkdir(parents=True, exist_ok=True)
-    pad = 320
-    crop = scene.crop((
-        max(0, x - pad), max(0, y - pad),
-        min(MAP_SIDE, x + width + pad), min(MAP_SIDE, y + height + pad),
-    ))
-    crop.save(PREVIEWS / f"{args.id}_where.png")
+    sprite = findo.resize((width, height), Image.LANCZOS)
+    pad = 300
+    for i, (x, y, w, h) in enumerate(spots):
+        shot = scene.copy()
+        shot.paste(sprite, (x, y), sprite)
+        shot.crop((max(0, x - pad), max(0, y - pad),
+                   min(MAP_SIDE, x + w + pad),
+                   min(MAP_SIDE, y + h + pad))).save(
+            PREVIEWS / f"{args.id}_spot{i}.png")
     scene.resize((512, 512), Image.LANCZOS).save(PREVIEWS / f"{args.id}_map.png")
-    print(f"preview: store/previews/{args.id}_where.png and {args.id}_map.png")
+    print(f"preview: store/previews/{args.id}_spot0..{len(spots) - 1}.png")
     return 0
 
 
@@ -331,8 +456,9 @@ def main() -> int:
     lv.add_argument("--id", required=True)
     lv.add_argument("--index", type=int, required=True)
     lv.add_argument("--name-key", required=True, dest="name_key")
-    lv.add_argument("--feet", nargs=2, type=int, required=True, metavar=("X", "Y"),
-                    help="where her shoes touch the ground, in map pixels")
+    lv.add_argument("--spots", type=int, default=5,
+                    help="how many hiding places to find. The game picks one "
+                         "per play, so a replay is a fresh search")
     lv.add_argument("--height", type=int, required=True,
                     help="her full height in map pixels, from the brief's table")
     lv.add_argument("--time", type=int, required=True, help="time limit in seconds")
