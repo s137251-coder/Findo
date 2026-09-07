@@ -46,26 +46,29 @@ void main() {
     }
   });
 
-  test('every level and item name used by the levels has a translation', () {
+  test('every level name used by a map has a translation', () {
     final en = load('en');
     final he = load('he');
     final manifest =
-        jsonDecode(File('assets/levels/index.json').readAsStringSync())
+        jsonDecode(File('assets/images/maps/meta/index.json').readAsStringSync())
             as Map<String, dynamic>;
 
     for (final id in (manifest['levels'] as List<dynamic>).cast<String>()) {
       final level =
-          jsonDecode(File('assets/levels/$id.json').readAsStringSync())
+          jsonDecode(File('assets/images/maps/meta/$id.json').readAsStringSync())
               as Map<String, dynamic>;
 
       final nameKey = level['nameKey'] as String;
       expect(en.containsKey(nameKey), isTrue, reason: 'en is missing $nameKey');
       expect(he.containsKey(nameKey), isTrue, reason: 'he is missing $nameKey');
+    }
+  });
 
-      for (final item in (level['items'] as List<dynamic>)) {
-        final itemKey = 'item.${(item as Map<String, dynamic>)['id']}';
-        expect(en.containsKey(itemKey), isTrue, reason: 'en is missing $itemKey');
-        expect(he.containsKey(itemKey), isTrue, reason: 'he is missing $itemKey');
+  test('the strings the objective panel needs are present', () {
+    for (final code in ['en', 'he']) {
+      final d = load(code);
+      for (final key in ['hud.find', 'hud.objective', 'target.findo', 'win.time']) {
+        expect(d.containsKey(key), isTrue, reason: '$code is missing $key');
       }
     }
   });

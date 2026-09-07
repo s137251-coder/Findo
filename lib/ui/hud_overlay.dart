@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../game/findo_game.dart';
-import '../managers/level_manager.dart';
 import '../managers/localization_manager.dart';
 import '../managers/monetization_manager.dart';
 import '../managers/score_manager.dart';
@@ -11,7 +10,7 @@ import 'safe_area_wrapper.dart';
 import 'widgets/common.dart';
 
 /// The heads-up display drawn over the Flame canvas: score and timer on top,
-/// the list of things still to find along the bottom.
+/// the single objective along the bottom.
 class HudOverlay extends StatelessWidget {
   const HudOverlay({
     super.key,
@@ -30,24 +29,88 @@ class HudOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeAreaEdges(
-      minimum: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      child: Column(
-        children: [
-          _TopBar(
-            scoreManager: game.scoreManager,
-            level: game.level,
-            onPause: onPause,
-          ),
-          const Spacer(),
-          _SearchBar(
-            levelManager: game.levelManager,
-            monetization: monetization,
-            onHint: onHint,
-          ),
-        ],
+    return _HudInsetReporter(
+      game: game,
+      panelKey: _panelKey,
+      child: SafeAreaEdges(
+        minimum: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        child: Column(
+          children: [
+            _TopBar(
+              scoreManager: game.scoreManager,
+              level: game.level,
+              onPause: onPause,
+            ),
+            const Spacer(),
+            KeyedSubtree(
+              key: _panelKey,
+              child: _ObjectiveBar(
+                monetization: monetization,
+                onHint: onHint,
+              ),
+            ),
+          ],
+        ),
       ),
     );
+  }
+}
+
+/// One key per HUD, created once so the panel's render object is findable
+/// across rebuilds.
+final GlobalKey _panelKey = GlobalKey(debugLabel: 'findo.hud.objectivePanel');
+
+/// Measures how much of the bottom of the game canvas the objective panel
+/// covers and reports it to the game, which then keeps the map above it.
+///
+/// Measurement is relative to this widget's own box rather than to
+/// `MediaQuery`: the overlay sits inside the game widget, where the media
+/// query's height has already had the system navigation bar taken out of it,
+/// which under-reports the inset by exactly the height of that bar.
+///
+/// The check repeats every frame. It is two render-object lookups and a
+/// comparison, and it keeps the camera correct through rotation or a changed
+/// text scale.
+class _HudInsetReporter extends StatefulWidget {
+  const _HudInsetReporter({
+    required this.game,
+    required this.panelKey,
+    required this.child,
+  });
+
+  final FindoGame game;
+  final GlobalKey panelKey;
+  final Widget child;
+
+  @override
+  State<_HudInsetReporter> createState() => _HudInsetReporterState();
+}
+
+class _HudInsetReporterState extends State<_HudInsetReporter> {
+  final GlobalKey _rootKey = GlobalKey(debugLabel: 'findo.hud.root');
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback(_measure);
+  }
+
+  void _measure(Duration _) {
+    if (!mounted) {
+      return;
+    }
+    final root = _rootKey.currentContext?.findRenderObject() as RenderBox?;
+    final panel = widget.panelKey.currentContext?.findRenderObject() as RenderBox?;
+    if (root != null && panel != null && root.hasSize && panel.hasSize) {
+      final panelTop = root.globalToLocal(panel.localToGlobal(Offset.zero)).dy;
+      widget.game.hudBottomInset = root.size.height - panelTop;
+    }
+    WidgetsBinding.instance.addPostFrameCallback(_measure);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return KeyedSubtree(key: _rootKey, child: widget.child);
   }
 }
 
@@ -95,21 +158,11 @@ class _TopBar extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
-                          color: lowOnTime ? FindoColors.danger : FindoColors.textPrimary,
+                          color: lowOnTime
+                              ? FindoColors.danger
+                              : FindoColors.textPrimary,
                         ),
                       ),
-                      if (scoreManager.comboActive) ...[
-                        const SizedBox(width: 10),
-                        Text(
-                          l10n.t('hud.combo',
-                              params: {'multiplier': scoreManager.multiplier}),
-                          style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w700,
-                            color: FindoColors.success,
-                          ),
-                        ),
-                      ],
                     ],
                   ),
                   const SizedBox(height: 5),
@@ -148,121 +201,57 @@ class _TopBar extends StatelessWidget {
   }
 }
 
-class _SearchBar extends StatelessWidget {
-  const _SearchBar({
-    required this.levelManager,
-    required this.monetization,
-    required this.onHint,
-  });
+/// The single objective: who to look for, and the hint button.
+///
+/// Deliberately short. Every logical pixel this panel occupies is a pixel of
+/// map the player cannot see, because the camera stops above it.
+class _ObjectiveBar extends StatelessWidget {
+  const _ObjectiveBar({required this.monetization, required this.onHint});
 
-  final LevelManager levelManager;
   final MonetizationManager monetization;
   final VoidCallback onHint;
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    return ListenableBuilder(
-      listenable: Listenable.merge([levelManager, monetization]),
-      builder: (context, _) {
-        final level = levelManager.current;
-        if (level == null) {
-          return const SizedBox.shrink();
-        }
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          decoration: BoxDecoration(
-            color: const Color(0xE61E2333),
-            borderRadius: BorderRadius.circular(FindoMetrics.radiusPanel),
-            border: Border.all(color: FindoColors.surfaceRaised),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      l10n.t('hud.find'),
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: FindoColors.textMuted,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    SizedBox(
-                      height: 64,
-                      child: ListView.separated(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: level.items.length,
-                        separatorBuilder: (context, index) => const SizedBox(width: 10),
-                        itemBuilder: (context, index) {
-                          final item = level.items[index];
-                          return _SearchChip(
-                            item: item,
-                            found: levelManager.foundIds.contains(item.id),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 10),
-              _HintButton(monetization: monetization, onHint: onHint),
-            ],
-          ),
-        );
-      },
-    );
-  }
-}
-
-class _SearchChip extends StatelessWidget {
-  const _SearchChip({required this.item, required this.found});
-
-  final LevelItem item;
-  final bool found;
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedOpacity(
-      duration: const Duration(milliseconds: 250),
-      opacity: found ? 0.35 : 1,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: const Color(0xE61E2333),
+        borderRadius: BorderRadius.circular(FindoMetrics.radiusPanel),
+        border: Border.all(color: FindoColors.surfaceRaised),
+      ),
+      child: Row(
         children: [
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              Container(
-                width: 44,
-                height: 44,
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  color: FindoColors.surfaceRaised,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: found ? FindoColors.success : FindoColors.surfaceRaised,
-                    width: 2,
+          const FindoPortrait(size: 54),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  l10n.t('hud.find'),
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
-                child: Image.asset(
-                  'assets/images/${item.sprite}',
-                  filterQuality: FilterQuality.medium,
+                const SizedBox(height: 2),
+                Text(
+                  l10n.t('hud.objective'),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: FindoColors.textMuted,
+                  ),
                 ),
-              ),
-              if (found)
-                const Icon(Icons.check_rounded, color: FindoColors.success, size: 26),
-            ],
+              ],
+            ),
           ),
-          const SizedBox(height: 3),
-          Text(
-            context.l10n.t(item.nameKey),
-            style: const TextStyle(fontSize: 11, color: FindoColors.textMuted),
-          ),
+          const SizedBox(width: 10),
+          _HintButton(monetization: monetization, onHint: onHint),
         ],
       ),
     );
@@ -277,32 +266,37 @@ class _HintButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Material(
-          color: FindoColors.primary,
-          borderRadius: BorderRadius.circular(FindoMetrics.radiusControl),
-          child: InkWell(
-            onTap: onHint,
-            borderRadius: BorderRadius.circular(FindoMetrics.radiusControl),
-            child: const Padding(
-              padding: EdgeInsets.all(12),
-              child: Icon(Icons.lightbulb_rounded,
-                  color: FindoColors.onPrimary, size: 26),
+    return ListenableBuilder(
+      listenable: monetization,
+      builder: (context, _) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Material(
+              color: FindoColors.primary,
+              borderRadius: BorderRadius.circular(FindoMetrics.radiusControl),
+              child: InkWell(
+                onTap: onHint,
+                borderRadius: BorderRadius.circular(FindoMetrics.radiusControl),
+                child: const Padding(
+                  padding: EdgeInsets.all(11),
+                  child: Icon(Icons.lightbulb_rounded,
+                      color: FindoColors.onPrimary, size: 24),
+                ),
+              ),
             ),
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          '${monetization.hintCount}',
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
-            color: FindoColors.textMuted,
-          ),
-        ),
-      ],
+            const SizedBox(height: 3),
+            Text(
+              '${monetization.hintCount}',
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: FindoColors.textMuted,
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

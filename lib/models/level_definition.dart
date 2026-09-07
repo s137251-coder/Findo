@@ -1,37 +1,32 @@
 import 'dart:convert';
 
-/// One collectable placed on a level's map.
-class LevelItem {
-  const LevelItem({
-    required this.id,
-    required this.sprite,
+/// Where Findo is hiding on a map, in map pixels.
+///
+/// The box comes from `tool/level_data.py`, which reads it off the artwork, so
+/// it is exact rather than eyeballed.
+class LevelTarget {
+  const LevelTarget({
     required this.x,
     required this.y,
-    required this.size,
-    required this.angle,
+    required this.width,
+    required this.height,
   });
-
-  /// Stable identifier, also the suffix of its `item.<id>` translation key.
-  final String id;
-
-  /// Path relative to `assets/images/`, which is Flame's image cache prefix.
-  final String sprite;
 
   final double x;
   final double y;
-  final double size;
-  final double angle;
+  final double width;
+  final double height;
 
-  String get nameKey => 'item.$id';
+  double get centerX => x + width / 2;
 
-  factory LevelItem.fromJson(Map<String, dynamic> json) {
-    return LevelItem(
-      id: json['id'] as String,
-      sprite: json['sprite'] as String,
+  double get centerY => y + height / 2;
+
+  factory LevelTarget.fromJson(Map<String, dynamic> json) {
+    return LevelTarget(
       x: (json['x'] as num).toDouble(),
       y: (json['y'] as num).toDouble(),
-      size: (json['size'] as num).toDouble(),
-      angle: (json['angle'] as num?)?.toDouble() ?? 0,
+      width: (json['width'] as num).toDouble(),
+      height: (json['height'] as num).toDouble(),
     );
   }
 }
@@ -44,7 +39,7 @@ class StarThresholds {
   final int two;
   final int three;
 
-  /// Stars earned for [score], from 0 (level failed the lowest bar) to 3.
+  /// Stars earned for [score], from 0 (below the lowest bar) to 3.
   int starsFor(int score) {
     if (score >= three) {
       return 3;
@@ -67,18 +62,18 @@ class StarThresholds {
   }
 }
 
-/// A playable map: its artwork, its collectables and its scoring rules.
+/// One playable map: the artwork, where Findo is in it, and the scoring rules.
 class LevelDefinition {
   const LevelDefinition({
     required this.id,
     required this.index,
     required this.nameKey,
-    required this.background,
-    required this.worldWidth,
-    required this.worldHeight,
+    required this.map,
+    required this.mapWidth,
+    required this.mapHeight,
     required this.timeLimitSeconds,
     required this.starThresholds,
-    required this.items,
+    required this.target,
   });
 
   final String id;
@@ -88,30 +83,28 @@ class LevelDefinition {
 
   final String nameKey;
 
-  /// Path relative to `assets/images/`.
-  final String background;
+  /// Path relative to `assets/images/`, which is Flame's image cache prefix.
+  final String map;
 
-  final double worldWidth;
-  final double worldHeight;
+  final double mapWidth;
+  final double mapHeight;
   final int timeLimitSeconds;
   final StarThresholds starThresholds;
-  final List<LevelItem> items;
+  final LevelTarget target;
 
   factory LevelDefinition.fromJson(Map<String, dynamic> json) {
-    final size = json['worldSize'] as Map<String, dynamic>;
+    final size = json['mapSize'] as Map<String, dynamic>;
     return LevelDefinition(
       id: json['id'] as String,
       index: (json['index'] as num).toInt(),
       nameKey: json['nameKey'] as String,
-      background: json['background'] as String,
-      worldWidth: (size['width'] as num).toDouble(),
-      worldHeight: (size['height'] as num).toDouble(),
+      map: json['map'] as String,
+      mapWidth: (size['width'] as num).toDouble(),
+      mapHeight: (size['height'] as num).toDouble(),
       timeLimitSeconds: (json['timeLimitSeconds'] as num).toInt(),
       starThresholds:
           StarThresholds.fromJson(json['starThresholds'] as Map<String, dynamic>),
-      items: (json['items'] as List<dynamic>)
-          .map((item) => LevelItem.fromJson(item as Map<String, dynamic>))
-          .toList(growable: false),
+      target: LevelTarget.fromJson(json['target'] as Map<String, dynamic>),
     );
   }
 
@@ -123,22 +116,21 @@ class LevelDefinition {
 class LevelResult {
   const LevelResult({
     required this.levelId,
-    required this.cleared,
-    required this.foundCount,
-    required this.totalCount,
+    required this.found,
     required this.baseScore,
     required this.penalty,
     required this.timeBonus,
     required this.stars,
     required this.isNewBest,
+    required this.secondsTaken,
   });
 
   final String levelId;
-  final bool cleared;
-  final int foundCount;
-  final int totalCount;
 
-  /// Points from finding items, combo multipliers included.
+  /// Whether Findo was spotted before the clock ran out.
+  final bool found;
+
+  /// Points for finding her.
   final int baseScore;
 
   /// Points lost to wrong taps, as a positive number.
@@ -147,6 +139,9 @@ class LevelResult {
   final int timeBonus;
   final int stars;
   final bool isNewBest;
+
+  /// How long the hunt took, for the summary line.
+  final int secondsTaken;
 
   int get total => baseScore - penalty + timeBonus;
 }

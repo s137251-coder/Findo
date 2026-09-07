@@ -124,7 +124,7 @@ class _LevelCard extends StatelessWidget {
                 width: 118,
                 height: double.infinity,
                 child: Image.asset(
-                  'assets/images/${level.background}',
+                  'assets/images/${level.map}',
                   fit: BoxFit.cover,
                 ),
               ),

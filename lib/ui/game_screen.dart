@@ -79,8 +79,7 @@ class _GameScreenState extends State<GameScreen> {
     );
     final result = _scoreManager.finish(
       level: level,
-      cleared: true,
-      foundCount: _services.levels.foundCount,
+      found: true,
       isNewBest: isNewBest,
     );
     if (!mounted) {
@@ -145,8 +144,7 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   Future<void> _requestHint() async {
-    final target = _services.levels.nextHintTarget();
-    if (target == null) {
+    if (_services.levels.isFound) {
       return;
     }
     _services.audio.play(GameSound.tap);
@@ -173,7 +171,7 @@ class _GameScreenState extends State<GameScreen> {
     }
     _game.setAccepting(true);
     if (granted) {
-      _game.revealHint(target);
+      _game.revealHint();
     }
   }
 
@@ -230,8 +228,6 @@ class _GameScreenState extends State<GameScreen> {
               );
             },
             TimeUpModal.overlayId: (context, game) => TimeUpModal(
-                  foundCount: _services.levels.foundCount,
-                  totalCount: game.level.items.length,
                   onRetry: () => _leaveLevel(() => _restart(game.level)),
                   onLevelList: () => _leaveLevel(_backToLevelList),
                 ),

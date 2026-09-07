@@ -38,11 +38,11 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/images/levels/
-    - assets/images/items/
+    - assets/images/maps/
+    - assets/images/maps/meta/
+    - assets/images/targets/
     - assets/audio/
     - assets/locales/
-    - assets/levels/
 
   fonts:
     - family: Findo

@@ -122,3 +122,30 @@ class ModalScrim extends StatelessWidget {
     );
   }
 }
+
+/// Findo's portrait, drawn from the very same sprite the map hides, so the
+/// player is looking for exactly what they were shown.
+class FindoPortrait extends StatelessWidget {
+  const FindoPortrait({super.key, required this.size});
+
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      padding: EdgeInsets.all(size * 0.10),
+      decoration: BoxDecoration(
+        color: FindoColors.surfaceRaised,
+        borderRadius: BorderRadius.circular(size * 0.24),
+        border: Border.all(color: FindoColors.primary, width: 2),
+      ),
+      child: Image.asset(
+        'assets/images/targets/findo.png',
+        filterQuality: FilterQuality.high,
+        fit: BoxFit.contain,
+      ),
+    );
+  }
+}

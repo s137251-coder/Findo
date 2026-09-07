@@ -137,24 +137,22 @@ class ScoreManager extends ChangeNotifier {
   /// Freezes the clock and works out the final tally for [level].
   LevelResult finish({
     required LevelDefinition level,
-    required bool cleared,
-    required int foundCount,
+    required bool found,
     required bool isNewBest,
   }) {
     _running = false;
-    final bonus = cleared ? _timeRemaining.floor() * timeBonusPerSecond : 0;
+    final bonus = found ? _timeRemaining.floor() * timeBonusPerSecond : 0;
     final total = score + bonus;
     notifyListeners();
     return LevelResult(
       levelId: level.id,
-      cleared: cleared,
-      foundCount: foundCount,
-      totalCount: level.items.length,
+      found: found,
       baseScore: _baseScore,
       penalty: _penalty,
       timeBonus: bonus,
-      stars: cleared ? level.starThresholds.starsFor(total) : 0,
+      stars: found ? level.starThresholds.starsFor(total) : 0,
       isNewBest: isNewBest,
+      secondsTaken: (_timeLimit - _timeRemaining).round(),
     );
   }
 

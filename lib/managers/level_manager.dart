@@ -6,42 +6,37 @@ import 'package:flutter/services.dart';
 import '../models/level_definition.dart';
 import 'save_manager.dart';
 
-/// Loads level definitions from `assets/levels/` and tracks the hunt in
-/// progress: which collectables are still missing on the current map.
+/// Loads level metadata from `assets/images/maps/meta/` and tracks the hunt in
+/// progress: whether Findo has been spotted on the current map.
 class LevelManager extends ChangeNotifier {
   LevelManager(this._saveManager);
 
-  static const _indexPath = 'assets/levels/index.json';
+  static const _metaDirectory = 'assets/images/maps/meta';
+  static const _indexPath = '$_metaDirectory/index.json';
 
   final SaveManager _saveManager;
 
   List<LevelDefinition> _levels = const [];
   LevelDefinition? _current;
-  final Set<String> _found = <String>{};
+  bool _found = false;
 
   List<LevelDefinition> get levels => List.unmodifiable(_levels);
 
   LevelDefinition? get current => _current;
 
-  Set<String> get foundIds => Set.unmodifiable(_found);
+  /// True once Findo has been tapped on the current map.
+  bool get isFound => _found;
 
-  int get foundCount => _found.length;
-
-  /// Items still to find, in their level order.
-  List<LevelItem> get remainingItems =>
-      _current == null
-          ? const []
-          : _current!.items.where((item) => !_found.contains(item.id)).toList(growable: false);
-
-  bool get isCleared => _current != null && _found.length >= _current!.items.length;
+  bool get isCleared => _current != null && _found;
 
   /// Reads every level named in the manifest, ordered by [LevelDefinition.index].
   Future<void> loadCatalogue() async {
-    final manifest = jsonDecode(await rootBundle.loadString(_indexPath)) as Map<String, dynamic>;
+    final manifest =
+        jsonDecode(await rootBundle.loadString(_indexPath)) as Map<String, dynamic>;
     final ids = (manifest['levels'] as List<dynamic>).cast<String>();
     final loaded = <LevelDefinition>[];
     for (final id in ids) {
-      final source = await rootBundle.loadString('assets/levels/$id.json');
+      final source = await rootBundle.loadString('$_metaDirectory/$id.json');
       loaded.add(LevelDefinition.parse(source));
     }
     loaded.sort((a, b) => a.index.compareTo(b.index));
@@ -49,9 +44,11 @@ class LevelManager extends ChangeNotifier {
     notifyListeners();
   }
 
-  bool isUnlocked(LevelDefinition level) => level.index <= _saveManager.unlockedLevelIndex;
+  bool isUnlocked(LevelDefinition level) =>
+      level.index <= _saveManager.unlockedLevelIndex;
 
-  LevelProgress progressOf(LevelDefinition level) => _saveManager.progressFor(level.id);
+  LevelProgress progressOf(LevelDefinition level) =>
+      _saveManager.progressFor(level.id);
 
   LevelDefinition? levelAfter(LevelDefinition level) {
     final next = _levels.where((candidate) => candidate.index == level.index + 1);
@@ -60,24 +57,19 @@ class LevelManager extends ChangeNotifier {
 
   void startLevel(LevelDefinition level) {
     _current = level;
-    _found.clear();
+    _found = false;
     notifyListeners();
   }
 
-  /// Marks [itemId] as found. Returns false if it was already collected, which
-  /// keeps a double tap from scoring twice.
-  bool markFound(String itemId) {
-    final added = _found.add(itemId);
-    if (added) {
-      notifyListeners();
+  /// Marks Findo as found. Returns false if she already was, which keeps a
+  /// double tap from scoring twice.
+  bool markFound() {
+    if (_found) {
+      return false;
     }
-    return added;
-  }
-
-  /// The next item a hint should point at, or null once the map is clear.
-  LevelItem? nextHintTarget() {
-    final remaining = remainingItems;
-    return remaining.isEmpty ? null : remaining.first;
+    _found = true;
+    notifyListeners();
+    return true;
   }
 
   /// Persists the outcome and opens the following level when it was cleared.
@@ -101,7 +93,7 @@ class LevelManager extends ChangeNotifier {
 
   void clearCurrent() {
     _current = null;
-    _found.clear();
+    _found = false;
     notifyListeners();
   }
 }

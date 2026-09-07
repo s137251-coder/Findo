@@ -89,3 +89,10 @@ preview.png
 
 # Kotlin compiler session files
 **/android/.kotlin/
+
+# Python bytecode from the asset tools
+__pycache__/
+*.pyc
+
+# Scratch previews from the asset tools
+store/_*.png

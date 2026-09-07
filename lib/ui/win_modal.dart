@@ -39,8 +39,15 @@ class WinModal extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 14),
+            const FindoPortrait(size: 76),
+            const SizedBox(height: 12),
             StarRow(stars: result.stars, size: 40),
-            const SizedBox(height: 18),
+            const SizedBox(height: 8),
+            Text(
+              l10n.t('win.time', params: {'seconds': result.secondsTaken}),
+              style: const TextStyle(fontSize: 14, color: FindoColors.textMuted),
+            ),
+            const SizedBox(height: 14),
             _SummaryRow(
               label: l10n.t('win.baseScore'),
               value: '+${result.baseScore}',
@@ -111,16 +118,12 @@ class WinModal extends StatelessWidget {
 class TimeUpModal extends StatelessWidget {
   const TimeUpModal({
     super.key,
-    required this.foundCount,
-    required this.totalCount,
     required this.onRetry,
     required this.onLevelList,
   });
 
   static const overlayId = 'timeUp';
 
-  final int foundCount;
-  final int totalCount;
   final VoidCallback onRetry;
   final VoidCallback onLevelList;
 
@@ -140,8 +143,7 @@ class TimeUpModal extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             Text(
-              l10n.t('lose.body',
-                  params: {'found': foundCount, 'total': totalCount}),
+              l10n.t('lose.body'),
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 15, color: FindoColors.textMuted),
             ),
