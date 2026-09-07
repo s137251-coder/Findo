@@ -7,6 +7,7 @@ import '../managers/save_manager.dart';
 import '../models/level_definition.dart';
 import '../theme.dart';
 import 'game_screen.dart';
+import 'motion.dart';
 import 'safe_area_wrapper.dart';
 import 'settings_dialog.dart';
 import 'widgets/common.dart';
@@ -112,9 +113,7 @@ class _LevelCard extends StatelessWidget {
               ? () {
                   AppServices.of(context).audio.play(GameSound.tap);
                   Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => GameScreen(level: level),
-                    ),
+                    findoRoute<void>(GameScreen(level: level)),
                   );
                 }
               : null,

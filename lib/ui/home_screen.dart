@@ -5,12 +5,48 @@ import '../managers/audio_manager.dart';
 import '../managers/localization_manager.dart';
 import '../theme.dart';
 import 'level_select_screen.dart';
+import 'motion.dart';
 import 'safe_area_wrapper.dart';
+import 'rules_screen.dart';
 import 'settings_dialog.dart';
 
 /// The title screen: play, or open settings.
-class HomeScreen extends StatelessWidget {
+///
+/// It also owns the first-run moment. A new player is shown the rules before
+/// anything else, once, and can reach them again from Settings.
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  bool _checkedFirstRun = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_checkedFirstRun) {
+      return;
+    }
+    _checkedFirstRun = true;
+    final services = AppServices.of(context);
+    if (services.save.introSeen) {
+      return;
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) {
+        return;
+      }
+      // Marked before showing, so a player who kills the app mid-read is not
+      // shown it again on every launch.
+      await services.save.markIntroSeen();
+      if (mounted) {
+        await showRules(context, isFirstRun: true);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,9 +92,7 @@ class HomeScreen extends StatelessWidget {
                   services.audio.play(GameSound.tap);
                   services.audio.startMusic();
                   Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => const LevelSelectScreen(),
-                    ),
+                    findoRoute<void>(const LevelSelectScreen()),
                   );
                 },
                 icon: const Icon(Icons.play_arrow_rounded, size: 26),

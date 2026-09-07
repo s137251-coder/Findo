@@ -7,6 +7,7 @@ import '../managers/audio_manager.dart';
 import '../managers/localization_manager.dart';
 import '../managers/score_manager.dart';
 import '../models/level_definition.dart';
+import 'character_sheet_modal.dart';
 import 'hint_dialog.dart';
 import 'hud_overlay.dart';
 import 'pause_modal.dart';
@@ -137,6 +138,22 @@ class _GameScreenState extends State<GameScreen> {
     _game.overlays.add(PauseModal.overlayId);
   }
 
+  /// Opens Findo full size. The clock stops while she is up: otherwise the
+  /// panel is free thinking time, and taps aimed at it fall through to the map.
+  void _openCharacterSheet() {
+    if (_game.overlays.isActive(CharacterSheetModal.overlayId)) {
+      return;
+    }
+    _services.audio.play(GameSound.peek);
+    _game.setAccepting(false);
+    _game.overlays.add(CharacterSheetModal.overlayId);
+  }
+
+  void _closeCharacterSheet() {
+    _game.overlays.remove(CharacterSheetModal.overlayId);
+    _game.setAccepting(true);
+  }
+
   void _resume() {
     _services.audio.play(GameSound.tap);
     _game.overlays.remove(PauseModal.overlayId);
@@ -183,7 +200,9 @@ class _GameScreenState extends State<GameScreen> {
         if (didPop) {
           return;
         }
-        if (_game.overlays.isActive(PauseModal.overlayId)) {
+        if (_game.overlays.isActive(CharacterSheetModal.overlayId)) {
+          _closeCharacterSheet();
+        } else if (_game.overlays.isActive(PauseModal.overlayId)) {
           _resume();
         } else if (_game.overlays.isActive(WinModal.overlayId) ||
             _game.overlays.isActive(TimeUpModal.overlayId)) {
@@ -208,7 +227,10 @@ class _GameScreenState extends State<GameScreen> {
                   monetization: _services.monetization,
                   onPause: _pause,
                   onHint: _requestHint,
+                  onOpenCharacter: _openCharacterSheet,
                 ),
+            CharacterSheetModal.overlayId: (context, game) =>
+                CharacterSheetModal(onClose: _closeCharacterSheet),
             PauseModal.overlayId: (context, game) => PauseModal(
                   onResume: _resume,
                   onQuit: () => _leaveLevel(_backToLevelList),

@@ -11,6 +11,9 @@ enum GameSound {
   combo('combo.wav'),
   hint('hint.wav'),
   win('win.wav'),
+  star('star.wav'),
+  peek('peek.wav'),
+  swoosh('swoosh.wav'),
   tap('click.wav');
 
   const GameSound(this.fileName);

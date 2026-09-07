@@ -126,12 +126,35 @@ class ModalScrim extends StatelessWidget {
 /// Findo's portrait, drawn from the very same sprite the map hides, so the
 /// player is looking for exactly what they were shown.
 class FindoPortrait extends StatelessWidget {
-  const FindoPortrait({super.key, required this.size});
+  const FindoPortrait({super.key, required this.size, this.onTap});
 
   final double size;
 
+  /// When supplied the portrait becomes a control: the objective bar uses it
+  /// to open Findo full size mid-hunt.
+  final VoidCallback? onTap;
+
   @override
   Widget build(BuildContext context) {
+    final portrait = _portrait();
+    if (onTap == null) {
+      return portrait;
+    }
+    return Semantics(
+      button: true,
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(size * 0.24),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(size * 0.24),
+          child: portrait,
+        ),
+      ),
+    );
+  }
+
+  Widget _portrait() {
     return Container(
       width: size,
       height: size,

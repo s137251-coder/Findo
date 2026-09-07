@@ -4,6 +4,7 @@ import '../app_services.dart';
 import '../managers/localization_manager.dart';
 import '../managers/monetization_manager.dart';
 import '../theme.dart';
+import 'rules_screen.dart';
 import 'widgets/common.dart';
 
 /// Opens the settings sheet. Returns once it is dismissed.
@@ -173,6 +174,14 @@ class _SettingsDialogState extends State<SettingsDialog> {
                           : () => _run(services.monetization.showPrivacyOptions),
                       icon: const Icon(Icons.privacy_tip_outlined, size: 20),
                       label: Text(l10n.t('settings.privacy')),
+                    ),
+                    const SizedBox(height: 10),
+                    // The rules are shown once on a first run; this is how a
+                    // player gets back to them afterwards.
+                    OutlinedButton.icon(
+                      onPressed: () => showRules(context, isFirstRun: false),
+                      icon: const Icon(Icons.help_outline_rounded, size: 20),
+                      label: Text(l10n.t('settings.howToPlay')),
                     ),
                     const SizedBox(height: 18),
                     FilledButton(

@@ -18,6 +18,7 @@ class HudOverlay extends StatelessWidget {
     required this.monetization,
     required this.onPause,
     required this.onHint,
+    required this.onOpenCharacter,
   });
 
   static const overlayId = 'hud';
@@ -26,6 +27,9 @@ class HudOverlay extends StatelessWidget {
   final MonetizationManager monetization;
   final VoidCallback onPause;
   final VoidCallback onHint;
+
+  /// Opens Findo full size. Reached by tapping her portrait in the bar.
+  final VoidCallback onOpenCharacter;
 
   @override
   Widget build(BuildContext context) {
@@ -44,9 +48,18 @@ class HudOverlay extends StatelessWidget {
             const Spacer(),
             KeyedSubtree(
               key: _panelKey,
+              // Orientation, not LayoutBuilder: inside a Column the builder
+              // is handed an unbounded height, so comparing its constraints
+              // would call every screen portrait.
+              //
+              // Turned sideways the short dimension is height, and every
+              // logical pixel this panel takes is map the player cannot see.
+              // The compact form drops the subtitle and shrinks the portrait.
               child: _ObjectiveBar(
                 monetization: monetization,
                 onHint: onHint,
+                onOpenCharacter: onOpenCharacter,
+                compact: MediaQuery.orientationOf(context) == Orientation.landscape,
               ),
             ),
           ],
@@ -206,16 +219,25 @@ class _TopBar extends StatelessWidget {
 /// Deliberately short. Every logical pixel this panel occupies is a pixel of
 /// map the player cannot see, because the camera stops above it.
 class _ObjectiveBar extends StatelessWidget {
-  const _ObjectiveBar({required this.monetization, required this.onHint});
+  const _ObjectiveBar({
+    required this.monetization,
+    required this.onHint,
+    required this.onOpenCharacter,
+    required this.compact,
+  });
 
   final MonetizationManager monetization;
   final VoidCallback onHint;
+  final VoidCallback onOpenCharacter;
+
+  /// Set when the screen is wider than it is tall.
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: compact ? 7 : 10),
       decoration: BoxDecoration(
         color: const Color(0xE61E2333),
         borderRadius: BorderRadius.circular(FindoMetrics.radiusPanel),
@@ -223,7 +245,7 @@ class _ObjectiveBar extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const FindoPortrait(size: 54),
+          FindoPortrait(size: compact ? 40 : 54, onTap: onOpenCharacter),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -232,21 +254,22 @@ class _ObjectiveBar extends StatelessWidget {
               children: [
                 Text(
                   l10n.t('hud.find'),
-                  style: const TextStyle(
-                    fontSize: 18,
+                  style: TextStyle(
+                    fontSize: compact ? 16 : 18,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  l10n.t('hud.objective'),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: FindoColors.textMuted,
+                if (!compact) const SizedBox(height: 2),
+                if (!compact)
+                  Text(
+                    l10n.t('hud.objective'),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: FindoColors.textMuted,
+                    ),
                   ),
-                ),
               ],
             ),
           ),

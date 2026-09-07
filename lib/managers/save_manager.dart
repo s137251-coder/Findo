@@ -35,6 +35,7 @@ class SaveManager {
   static const _keyProgress = 'findo.progress.levels';
   static const _keyAdsRemoved = 'findo.iap.adsRemoved';
   static const _keyHints = 'findo.iap.hints';
+  static const _keyIntroSeen = 'findo.intro.seen';
 
   /// Hints the player starts with, so the hint button is usable on day one.
   static const startingHints = 3;
@@ -56,6 +57,13 @@ class SaveManager {
   String? get languageCode => _prefs.getString(_keyLanguage);
 
   Future<void> setLanguageCode(String code) => _prefs.setString(_keyLanguage, code);
+
+  // -- first run -----------------------------------------------------------
+
+  /// False until the player has been shown the rules once.
+  bool get introSeen => _prefs.getBool(_keyIntroSeen) ?? false;
+
+  Future<void> markIntroSeen() => _prefs.setBool(_keyIntroSeen, true);
 
   // -- audio ---------------------------------------------------------------
 

@@ -165,6 +165,50 @@ def bgm_loop() -> list[float]:
     return sequence(parts)
 
 
+def sfx_peek() -> list[float]:
+    """A cartoon slide whistle, for opening Findo's character sheet.
+
+    Up fast, down slower, with a wobble at the bottom. The detune argument
+    sweeps the frequency across the note rather than holding it, which is what
+    makes a whistle read as a slide rather than a beep.
+    """
+    return sequence([
+        (0.00, tone(420, 0.26, gain=0.75, attack=0.03, release=0.15,
+                    harmonics=(1.0, 0.06), detune=6.9)),
+        (0.24, tone(1180, 0.30, gain=0.75, attack=0.02, release=0.25,
+                    harmonics=(1.0, 0.06), detune=-2.1)),
+        (0.52, tone(520, 0.22, gain=0.55, attack=0.02, release=0.6,
+                    harmonics=(1.0, 0.2), vibrato=0.045)),
+    ])
+
+
+def sfx_star() -> list[float]:
+    """One bright ping. The win panel plays it once per star, and the caller
+    pitches later stars up by playing them in sequence."""
+    return overlay(
+        tone(NOTE["E5"], 0.30, gain=0.7, attack=0.005, release=0.85,
+             harmonics=(1.0, 0.45, 0.2)),
+        tone(NOTE["B4"], 0.30, gain=0.28, attack=0.005, release=0.85),
+    )
+
+
+def sfx_swoosh() -> list[float]:
+    """A short, quiet breath under a screen change. Deliberately faint: this
+    plays on navigation, and anything with character here grates within
+    minutes of ordinary play."""
+    n = int(SAMPLE_RATE * 0.20)
+    rnd = random.Random(19)
+    out, prev = [], 0.0
+    for i in range(n):
+        t = i / n
+        # Sweep the filter open then shut, which reads as movement.
+        cutoff = 900 + 2600 * math.sin(math.pi * t)
+        alpha = cutoff / (cutoff + SAMPLE_RATE)
+        prev = prev + alpha * (rnd.uniform(-1, 1) - prev)
+        out.append(prev * envelope(i, n, 0.18, 0.55) * 0.30)
+    return out
+
+
 AUDIO_BUILDERS = {
     "click": sfx_click,
     "found": sfx_found,
@@ -172,6 +216,9 @@ AUDIO_BUILDERS = {
     "combo": sfx_combo,
     "hint": sfx_hint,
     "win": sfx_win,
+    "star": sfx_star,
+    "peek": sfx_peek,
+    "swoosh": sfx_swoosh,
     "bgm_main": bgm_loop,
 }
 
