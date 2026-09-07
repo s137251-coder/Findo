@@ -3,49 +3,50 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flame/components.dart';
-import 'package:flame/effects.dart';
 import 'package:flame/events.dart';
 import 'package:flutter/material.dart';
 
 import '../../models/level_definition.dart';
 import '../findo_game.dart';
 
-/// Findo herself, standing wherever the level metadata says she is hiding.
+/// The hit area over Findo, plus the effects that play on top of her.
 ///
-/// There is exactly one of these per map. Hit testing samples the character's
-/// own alpha channel rather than her bounding box, so tapping the gap between
-/// an arm and the skirt counts as a miss the way a player would expect -- but
-/// with a small tolerance, because a finger is not a mouse pointer.
-class ItemTargetComponent extends SpriteComponent
+/// She is *drawn into the map* by whoever made it, not composited by the game:
+/// an illustrator draws her into the scene with the right style, lighting and
+/// occlusion, and the level metadata records where she ended up. So this
+/// component paints nothing of its own. It exists to catch the tap and to host
+/// the hint halo and the burst that fires when she is found.
+///
+/// Hit testing samples `findo.png`'s alpha channel scaled onto the registered
+/// box rather than using the box itself, so tapping the gap between an arm and
+/// the skirt counts as a miss the way a player would expect -- with a finger's
+/// worth of tolerance, because a finger is not a mouse pointer.
+class ItemTargetComponent extends PositionComponent
     with TapCallbacks, HasGameReference<FindoGame> {
   ItemTargetComponent({
     required this.target,
-    required Sprite sprite,
+    required this.silhouette,
     required this.alpha,
   }) : super(
-          sprite: sprite,
           size: Vector2(target.width, target.height),
           position: Vector2(target.x, target.y),
           anchor: Anchor.topLeft,
           priority: 10,
-        ) {
-    // The character is drawn far below her source resolution at low zoom and
-    // far above it at high zoom; both want smoothing.
-    paint
-      ..filterQuality = FilterQuality.high
-      ..isAntiAlias = true;
-  }
+        );
 
-  /// A tap this far outside an opaque pixel, as a fraction of the sprite's
-  /// width, still counts. Roughly a finger's worth of slack.
+  /// A tap this far outside an opaque pixel, as a fraction of the character
+  /// sheet's size, still counts. Roughly a finger's worth of slack.
   static const _touchSlack = 0.18;
 
   final LevelTarget target;
-  /// Raw RGBA of the sprite, used for the hit test.
+
+  /// The character sheet, used only for its shape.
+  final ui.Image silhouette;
+
+  /// Raw RGBA of [silhouette]. Null falls back to the whole box being tappable.
   final ByteData? alpha;
 
   bool _found = false;
-  _FoundBurst? _burst;
   _HintHalo? _halo;
 
   bool get isFound => _found;
@@ -56,23 +57,20 @@ class ItemTargetComponent extends SpriteComponent
       return false;
     }
     final pixels = alpha;
-    final image = sprite?.image;
-    if (pixels == null || image == null) {
+    if (pixels == null) {
       return true;
     }
 
-    final u = point.x / size.x;
-    final v = point.y / size.y;
-    final slackX = math.max(1, (image.width * _touchSlack).round());
-    final slackY = math.max(1, (image.height * _touchSlack).round());
-    final cx = (u * image.width).round();
-    final cy = (v * image.height).round();
+    final slackX = math.max(1, (silhouette.width * _touchSlack).round());
+    final slackY = math.max(1, (silhouette.height * _touchSlack).round());
+    final cx = (point.x / size.x * silhouette.width).round();
+    final cy = (point.y / size.y * silhouette.height).round();
 
     // Nine samples: the point itself plus a ring at the slack radius. Enough
     // to forgive a near miss without turning the test back into a rectangle.
     for (final dx in [0, -slackX, slackX]) {
       for (final dy in [0, -slackY, slackY]) {
-        if (_isOpaque(image, pixels, cx + dx, cy + dy)) {
+        if (_isOpaque(pixels, cx + dx, cy + dy)) {
           return true;
         }
       }
@@ -80,11 +78,11 @@ class ItemTargetComponent extends SpriteComponent
     return false;
   }
 
-  bool _isOpaque(ui.Image image, ByteData pixels, int x, int y) {
-    if (x < 0 || y < 0 || x >= image.width || y >= image.height) {
+  bool _isOpaque(ByteData pixels, int x, int y) {
+    if (x < 0 || y < 0 || x >= silhouette.width || y >= silhouette.height) {
       return false;
     }
-    final offset = (y * image.width + x) * 4 + 3;
+    final offset = (y * silhouette.width + x) * 4 + 3;
     if (offset >= pixels.lengthInBytes) {
       return false;
     }
@@ -101,29 +99,15 @@ class ItemTargetComponent extends SpriteComponent
     }
   }
 
-  /// Rings Findo and gives her a little jump, so the moment of finding her
-  /// reads clearly before the win panel appears.
+  /// Rings Findo where she stands, so the moment of finding her reads clearly
+  /// before the win panel appears.
   void celebrate() {
     if (_found) {
       return;
     }
     _found = true;
     _clearHalo();
-    _burst = _FoundBurst(radius: math.max(size.x, size.y) * 1.1);
-    add(_burst!);
-    add(
-      ColorEffect(
-        Colors.white,
-        EffectController(duration: 0.14, reverseDuration: 0.14),
-        opacityTo: 0.75,
-      ),
-    );
-    add(
-      ScaleEffect.to(
-        Vector2.all(1.22),
-        EffectController(duration: 0.20, reverseDuration: 0.22, repeatCount: 2),
-      ),
-    );
+    add(_FoundBurst(radius: math.max(size.x, size.y) * 1.1));
   }
 
   /// Pulses a ring around Findo, used by the hint system.
@@ -138,16 +122,6 @@ class ItemTargetComponent extends SpriteComponent
     );
     _halo = halo;
     add(halo);
-    add(
-      ScaleEffect.to(
-        Vector2.all(1.15),
-        EffectController(
-          duration: 0.45,
-          reverseDuration: 0.45,
-          repeatCount: math.max(1, (seconds / 0.9).round()),
-        ),
-      ),
-    );
   }
 
   void _clearHalo() {
@@ -158,9 +132,9 @@ class ItemTargetComponent extends SpriteComponent
 
 /// The expanding ring drawn the instant Findo is found.
 class _FoundBurst extends PositionComponent {
-  _FoundBurst({required this.radius}) : super(priority: -1);
+  _FoundBurst({required this.radius});
 
-  static const _duration = 0.75;
+  static const _duration = 0.9;
 
   final double radius;
   double _elapsed = 0;
@@ -178,22 +152,28 @@ class _FoundBurst extends PositionComponent {
   void render(Canvas canvas) {
     final parentSize = (parent as PositionComponent).size;
     final center = Offset(parentSize.x / 2, parentSize.y / 2);
-    final t = (_elapsed / _duration).clamp(0.0, 1.0);
-    final fade = 1.0 - t;
-    canvas.drawCircle(
-      center,
-      radius * (0.35 + 1.05 * t),
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 6.0 * fade + 1.5
-        ..color = const Color(0xFF4ADE80).withValues(alpha: 0.85 * fade),
-    );
+    // Two rings chasing each other outwards, so the eye is pulled to the spot.
+    for (final phase in const [0.0, 0.28]) {
+      final t = ((_elapsed / _duration) - phase).clamp(0.0, 1.0);
+      if (t <= 0) {
+        continue;
+      }
+      final fade = 1.0 - t;
+      canvas.drawCircle(
+        center,
+        radius * (0.30 + 1.15 * t),
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 7.0 * fade + 1.5
+          ..color = const Color(0xFF4ADE80).withValues(alpha: 0.9 * fade),
+      );
+    }
   }
 }
 
 /// The pulsing ring drawn while a hint is active.
 class _HintHalo extends PositionComponent {
-  _HintHalo({required this.radius, required this.lifetime}) : super(priority: -1);
+  _HintHalo({required this.radius, required this.lifetime});
 
   final double radius;
   final double lifetime;

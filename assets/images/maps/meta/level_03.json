@@ -9,9 +9,9 @@
   },
   "timeLimitSeconds": 130,
   "starThresholds": {
-    "one": 500,
-    "two": 900,
-    "three": 1300
+    "one": 230,
+    "two": 685,
+    "three": 1036
   },
   "target": {
     "x": 879,

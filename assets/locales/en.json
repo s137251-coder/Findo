@@ -58,5 +58,12 @@
   "level.fair": "The Funfair",
   "target.findo": "Findo",
   "hud.objective": "She is somewhere on this map",
-  "win.time": "Found in {seconds}s"
+  "win.time": "Found in {seconds}s",
+  "level.beach": "Harbour Beach",
+  "level.station": "Central Station",
+  "level.market": "Night Market",
+  "level.snow": "Snow Village",
+  "level.museum": "The Museum",
+  "level.stadium": "Cup Final",
+  "level.airport": "Terminal Two"
 }

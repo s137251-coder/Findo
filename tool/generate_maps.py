@@ -191,13 +191,26 @@ def scene_fair(d, rnd):
     add_crowd(d, rnd, (S * 0.02, S * 0.34, S * 0.98, S * 0.97), 250, S * 0.030)
 
 
+def star_thresholds(time_limit: int) -> tuple[int, int, int]:
+    """Score is 100 + 10 per second left on the clock, so the ceiling is
+    100 + time_limit * 10 and it is only reached by finding her instantly.
+    These cuts ask for the level to be cleared inside roughly the first 28%,
+    55% and 90% of the time allowed."""
+    ceiling = time_limit * 10
+    return (
+        round(100 + ceiling * 0.10),
+        round(100 + ceiling * 0.45),
+        round(100 + ceiling * 0.72),
+    )
+
+
 LEVELS = [
     {"id": "level_01", "index": 1, "nameKey": "level.town", "scene": scene_town,
-     "seed": 11, "time": 120, "stars": (500, 900, 1300), "spot": (0.30, 0.86)},
+     "seed": 11, "time": 120, "spot": (0.30, 0.86)},
     {"id": "level_02", "index": 2, "nameKey": "level.farm", "scene": scene_farm,
-     "seed": 23, "time": 120, "stars": (500, 900, 1300), "spot": (0.72, 0.70)},
+     "seed": 23, "time": 120, "spot": (0.72, 0.70)},
     {"id": "level_03", "index": 3, "nameKey": "level.fair", "scene": scene_fair,
-     "seed": 37, "time": 130, "stars": (500, 900, 1300), "spot": (0.44, 0.92)},
+     "seed": 37, "time": 130, "spot": (0.44, 0.92)},
 ]
 
 
@@ -241,7 +254,7 @@ def main() -> None:
                 sprite.height // SUPERSAMPLE,
             ),
             time_limit=plan["time"],
-            stars=plan["stars"],
+            stars=star_thresholds(plan["time"]),
         )
         print(f"{plan['id']}: {SIZE}x{SIZE}, Findo at "
               f"({fx // SUPERSAMPLE}, {fy // SUPERSAMPLE}) "

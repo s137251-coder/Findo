@@ -35,6 +35,20 @@ INDEX = META / "index.json"
 MIN_MAP_SIDE = 2048
 
 
+def star_thresholds(time_limit: int) -> tuple[int, int, int]:
+    """Score is 100 for the find plus 10 per second left on the clock, so the
+    ceiling is 100 + time_limit * 10 and it is only reached by finding her the
+    instant the level opens. These cuts ask for the level to be cleared inside
+    roughly the first 28%, 55% and 90% of the time allowed -- demanding at the
+    top, but reachable, which a flat 1400 was not."""
+    ceiling = time_limit * 10
+    return (
+        round(100 + ceiling * 0.10),
+        round(100 + ceiling * 0.45),
+        round(100 + ceiling * 0.72),
+    )
+
+
 def load_index() -> list[str]:
     if not INDEX.exists():
         return []
@@ -140,9 +154,11 @@ def cmd_register(args: argparse.Namespace) -> int:
         map_size=size,
         target=tuple(args.target),
         time_limit=args.time,
-        stars=tuple(args.stars),
+        stars=tuple(args.stars) if args.stars else star_thresholds(args.time),
     )
-    print(f"registered {args.id}: {map_rel} {size[0]}x{size[1]}")
+    stars = tuple(args.stars) if args.stars else star_thresholds(args.time)
+    print(f"registered {args.id}: {map_rel} {size[0]}x{size[1]}, "
+          f"{args.time}s, stars at {stars[0]}/{stars[1]}/{stars[2]}")
     problems = _check(args.id)
     for problem in problems:
         print(f"  warning: {problem}")
@@ -180,8 +196,9 @@ def main() -> int:
                      metavar=("X", "Y", "W", "H"),
                      help="Findo's box in map pixels")
     reg.add_argument("--time", type=int, default=120, help="time limit in seconds")
-    reg.add_argument("--stars", nargs=3, type=int, default=[400, 900, 1400],
-                     metavar=("ONE", "TWO", "THREE"))
+    reg.add_argument("--stars", nargs=3, type=int, default=None,
+                     metavar=("ONE", "TWO", "THREE"),
+                     help="score for 1, 2 and 3 stars; derived from --time if omitted")
     reg.set_defaults(func=cmd_register)
 
     ver = sub.add_parser("verify", help="check every registered level")

@@ -33,7 +33,8 @@ class FindoGame extends FlameGame with ScaleDetector {
     required this.onTimeUp,
   });
 
-  /// Where Findo's sprite lives, relative to Flame's image prefix.
+  /// The character sheet, relative to Flame's image prefix. Used for the
+  /// shape of her hit area, and by the HUD for her portrait.
   static const targetSprite = 'targets/findo.png';
 
   /// How far past the fit-to-screen zoom the player may pinch in. The maps are
@@ -92,10 +93,12 @@ class FindoGame extends FlameGame with ScaleDetector {
       MapBackgroundComponent(sprite: Sprite(mapImage), mapSize: mapSize),
     );
 
+    // Findo is already painted into the map. The character sheet is loaded
+    // only so her silhouette can shape the hit area over her.
     final findoImage = await images.load(targetSprite);
     final target = ItemTargetComponent(
       target: level.target,
-      sprite: Sprite(findoImage),
+      silhouette: findoImage,
       alpha: await findoImage.toByteData(format: ui.ImageByteFormat.rawRgba),
     );
     _target = target;

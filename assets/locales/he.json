@@ -58,5 +58,12 @@
   "level.fair": "הלונה פארק",
   "target.findo": "פינדו",
   "hud.objective": "היא נמצאת איפשהו במפה הזו",
-  "win.time": "נמצאה תוך {seconds} שניות"
+  "win.time": "נמצאה תוך {seconds} שניות",
+  "level.beach": "חוף המעגן",
+  "level.station": "תחנה מרכזית",
+  "level.market": "שוק הלילה",
+  "level.snow": "כפר השלג",
+  "level.museum": "המוזיאון",
+  "level.stadium": "גמר הגביע",
+  "level.airport": "טרמינל 2"
 }
