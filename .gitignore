@@ -96,3 +96,6 @@ __pycache__/
 
 # Scratch previews from the asset tools
 store/_*.png
+
+# Generated previews from the level build tool
+store/previews/
