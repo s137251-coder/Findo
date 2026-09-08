@@ -299,13 +299,13 @@ find the spot where Findo should stand. Use the region assigned to that level in
 `docs/ART_BRIEF.md` — she should be among people, at least 140 px from any edge,
 and not next to the scene's centrepiece.
 
-You want the coordinate **where her shoes touch the ground**.
+You do not pick where she stands. The tool does that.
 
 ```powershell
 python tool/build_level.py level `
     --scene C:\Users\Vashdi\Downloads\fountain_square.png `
     --id level_01 --index 1 --name-key level.town `
-    --feet 620 1760 --height 130 --time 150
+    --height 130 --time 150 --tint 0.45
 ```
 
 One command per level. The values for each are:
@@ -323,22 +323,23 @@ One command per level. The values for each are:
 | 9 | `level_09` | `level.stadium` | 90 | 110 |
 | 10 | `level_10` | `level.airport` | 85 | 100 |
 
-The tool fits the scene to exactly 2048x2048, composites her at the size the
-level calls for, writes the map, derives the star cuts from the time limit, and
-registers the level. It warns if the source was too small, if the file is over
-the 1.5 MB budget, or if she lands inside the edge margin.
+The tool fits the scene to exactly 2048x2048, writes the map **without her on
+it**, finds several places she could hide in it, derives the star cuts from the
+time limit, and registers the level. It warns if the source was too small, if
+the file is over the 1.5 MB budget, or if the height asked for leaves her too
+narrow to tap.
 
 It also writes two previews per level:
 
-- `store/previews/level_0N_where.png` — a close crop around her. **Look at this
-  one.** It is how you check she is hidden among people rather than stranded in
-  an empty patch, and that the crowd around her does not happen to include a
-  near-twin.
+- `store/previews/level_0N_spot0.png`, `_spot1.png` and so on — one close crop
+  per hiding place it found. **Look at these.** They are how you check she is
+  among people rather than stranded in an empty patch, and that the crowd
+  around her does not happen to include a near-twin.
 - `store/previews/level_0N_map.png` — the whole map small, to confirm the scene
   reads at the zoomed-out size the player first sees.
 
-If she landed badly, run the same command again with different `--feet`. It
-overwrites cleanly.
+If a spot looks wrong, run the same command again with a different `--spots`
+count. It overwrites cleanly.
 
 ---
 

@@ -133,8 +133,17 @@ Then:
 python tool/build_level.py level `
     --scene C:\temp\findo\docks.png `
     --id level_20 --index 20 --name-key level.docks `
-    --feet X Y --height 68 --time 70
+    --height 68 --time 70 --tint 0.45
 ```
+
+Then add `"level_20"` to `assets/images/maps/meta/index.json`.
+
+Nothing here says where she stands. The tool finds the hiding places itself --
+in crowds, and away from open sky, where a figure would be silhouetted -- and
+writes all of them into the level, because the game picks one per attempt so
+that replaying a level is a fresh search. Afterwards look at
+`store/previews/level_20_spot*.png`, one crop per hiding place, and re-run with
+a different `--spots` count if any of them sit somewhere a person would not.
 
 `level.docks` is already translated in both languages. 68 px is the floor, so
 the finale takes its extra difficulty from the crowd and from having only 70
@@ -328,7 +337,7 @@ editing:
 python tool/build_level.py level `
     --scene C:\temp\findo2\level_11.png `
     --id level_11 --index 11 --name-key level.zoo `
-    --feet X Y --height 82 --time 95
+    --height 82 --time 95 --tint 0.45
 ```
 
 | Level | id | name key | height | time |
@@ -344,10 +353,11 @@ python tool/build_level.py level `
 | 19 | `level_19` | `level.marathon` | 63 | 75 |
 | 20 | `level_20` | `level.festival` | 60 | 75 |
 
-`--feet` is where her shoes touch the ground, in map pixels. Put her among
-people, at least 140 px from any edge, and away from the scene's centrepiece.
-The tool writes a close crop at `store/previews/level_NN_where.png` so you can
-check she is hidden rather than stranded.
+You do not place her. The tool finds the hiding places itself -- in crowds, and
+away from open sky where a figure would be silhouetted -- keeps them at least
+140 px from any edge and well apart from each other, and writes all of them
+into the level. The game picks one per attempt, so replaying a level is a fresh
+search. Check the crops at `store/previews/level_NN_spot*.png`, one per place.
 
 Then:
 

@@ -9,15 +9,17 @@ identical on every map and her coordinates are exact by construction.
     # once: clean up the character sheet the model produced
     python tool/build_level.py character --image ~/Downloads/findo_raw.png
 
-    # per level: fit the scene, drop her in, register it
+    # per level: fit the scene, find her hiding places, register it
     python tool/build_level.py level --scene ~/Downloads/beach.png \\
         --id level_04 --index 4 --name-key level.beach \\
-        --feet 1180 1490 --height 115 --time 140
+        --height 115 --time 140 --tint 0.45
 
-`--feet` is where her shoes touch the ground, in map pixels after the scene has
-been fitted to 2048x2048. `--height` is her full height, from the table in
-docs/ART_BRIEF.md. Both commands write a preview so you can see what landed
-where before trusting it.
+The map ships without her on it. This finds several places she could hide --
+in crowds, and away from open sky where she would be silhouetted -- and records
+them all, because the game picks one per attempt so that replaying a level is a
+fresh search rather than a memory test. `--height` is her full height, from the
+table in docs/ART_BRIEF.md. Both commands write previews so you can see what
+landed where before trusting it.
 """
 
 from __future__ import annotations
