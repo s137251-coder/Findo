@@ -68,11 +68,25 @@ def load_catalogue() -> dict:
 
 
 def build_prompt(catalogue: dict, index: int) -> str:
-    """The shared rules, this level's band, and this level's scene."""
+    """The shared rules, this level's band, and this level's scene.
+
+    The rules in the document are written for a person pasting them into a
+    chat and then answering with level numbers. An API call has no
+    conversation: it is one prompt for one image. So the two paragraphs that
+    set up that exchange -- "I need 81 scenes" and "HOW WE WILL WORK" -- are
+    dropped here. Left in, they describe a session that is not happening and
+    invite the model to hold back the other eighty.
+    """
+    rules = catalogue['rules']
+    opening = rules.split('I need 81 scenes')[0].strip()
+    craft = 'STYLE - identical in every image' + \
+        rules.split('STYLE - identical in every image', 1)[1]
+
     entry = catalogue['scenes'][str(index)]
     band = catalogue['bands'][str(entry['band'])]
     return (
-        f"{catalogue['rules']}\n\n"
+        f"{opening}\n\n"
+        f"{craft.strip()}\n\n"
         f"THIS IMAGE\n{band}\n\n"
         f"{entry['scene']}\n\n"
         "Return exactly one image and no text."
