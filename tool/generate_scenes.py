@@ -215,11 +215,27 @@ def main() -> int:
                         help='regenerate levels that already have artwork')
     parser.add_argument('--dry-run', action='store_true',
                         help='print the first prompt and stop, calling nothing')
+    parser.add_argument('--write-prompts', metavar='DIR',
+                        help='write one ready-to-paste prompt per level into '
+                             'DIR and stop. For generating the images by hand '
+                             'in the Gemini app, with no API key')
     args = parser.parse_args()
 
     catalogue = load_catalogue()
     wanted = parse_range(args.only) if args.only else range(20, 101)
     todo = [i for i in sorted(int(k) for k in catalogue['scenes']) if i in wanted]
+
+    if args.write_prompts:
+        folder = Path(args.write_prompts).expanduser()
+        folder.mkdir(parents=True, exist_ok=True)
+        for index in todo:
+            (folder / f'level_{index}.txt').write_text(
+                build_prompt(catalogue, index) + '\n', encoding='utf-8')
+        print(f'wrote {len(todo)} prompts to {folder}')
+        print('Paste one, save the image it returns as level_NN.png, and when '
+              'you have a run of them:')
+        print('  python tool/build_all_levels.py --scenes <that folder>')
+        return 0
 
     if args.dry_run:
         print(build_prompt(catalogue, todo[0]))
