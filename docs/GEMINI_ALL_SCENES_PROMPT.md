@@ -516,6 +516,25 @@ to every edge.
 
 ---
 
+## Or let a script do the asking
+
+`tool/generate_scenes.py` walks this same catalogue through the Gemini **API**
+and saves each image ready to build. It reads `tool/scenes.json`, which is this
+document's text in machine-readable form, so the two cannot drift apart.
+
+```powershell
+set GEMINI_API_KEY=...
+python tool/generate_scenes.py --out C:\temp\findo\scenes
+```
+
+It needs an API key from Google AI Studio, and Google bills you per image —
+including the ones it rejects and retries. The web Gemini app has no API, so
+pasting by hand stays the free route.
+
+See `--dry-run` to print a prompt without calling anything, and `--only 20-30`
+to work one band at a time. It skips levels already on disk, so stopping and
+restarting costs nothing.
+
 ## After the images arrive
 
 Save each one as `level_NN.png` in a single folder, then:
