@@ -251,11 +251,36 @@ class FindoGame extends FlameGame with ScaleDetector {
     audioManager.play(GameSound.hint);
     camera.viewfinder.add(
       MoveToEffect(
-        Vector2(target.centerX, target.centerY),
+        _insideBounds(Vector2(target.centerX, target.centerY)),
         EffectController(duration: 0.45, curve: Curves.easeOutCubic),
       ),
     );
     hidden.highlight(seconds: hintDurationSeconds);
+  }
+
+  /// The nearest camera centre to [point] that still keeps the map covering
+  /// the whole viewport.
+  ///
+  /// `setBounds` already clamps dragging, but it does that through a behaviour
+  /// on the viewfinder, and a MoveToEffect on the same viewfinder writes the
+  /// position straight afterwards -- so a hint aimed near an edge dragged the
+  /// camera off the map and left black bands down the side and along the
+  /// bottom. Clamping the destination before asking for it does not depend on
+  /// which of the two runs last.
+  Vector2 _insideBounds(Vector2 point) {
+    final visible = camera.viewport.size / camera.viewfinder.zoom;
+    double axis(double value, double half, double extent) {
+      // When the map is narrower than the view there is only one legal centre.
+      if (half * 2 >= extent) {
+        return extent / 2;
+      }
+      return value.clamp(half, extent - half);
+    }
+
+    return Vector2(
+      axis(point.x, visible.x / 2, mapSize.x),
+      axis(point.y, visible.y / 2, mapSize.y),
+    );
   }
 
   /// Freezes gameplay while an overlay is up.

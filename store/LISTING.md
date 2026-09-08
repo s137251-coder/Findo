@@ -21,12 +21,12 @@ Findo
 Find one girl hidden in a crowded scene. Before the clock runs out.
 ```
 
-### Full description (1265 / 4000)
+### Full description (1407 / 4000)
 
 ```
 Findo is hidden somewhere in this crowd. You have two minutes to find her.
 
-Every level is one big hand-drawn scene packed with hundreds of people going about their day: a town square around a fountain, a working farm, a funfair. Somewhere in there, one girl with brown braids, a yellow top and a purple skirt is standing perfectly still, waiting to be spotted.
+Nineteen levels, each one big hand-drawn scene packed with hundreds of people going about their day: a town square around a fountain, a working farm, a funfair, a night market. Somewhere in there, one girl with brown braids, a yellow top and a purple skirt is standing perfectly still, waiting to be spotted.
 
 HOW IT PLAYS
 • Drag to move around the scene, pinch to zoom right in
@@ -35,6 +35,7 @@ HOW IT PLAYS
 • Tap the wrong person and it costs you points and precious seconds
 • The faster you find her, the bigger the time bonus
 • Every level is rated one to three stars, so there is always a better run to chase
+• Play a level again and she is hiding somewhere else, so chasing a better time is a real search and not a memory test
 
 CAN'T SEE HER?
 A hint sweeps the map towards Findo and makes her glow. Start with three, earn more by watching a video, or buy a pack.
@@ -70,12 +71,12 @@ Findo
 מצאו ילדה אחת שמסתתרת בתוך קהל. לפני שהזמן נגמר.
 ```
 
-### Full description (1017 / 4000)
+### Full description (1141 / 4000)
 
 ```
 פינדו מסתתרת אי שם בתוך הקהל הזה. יש לכם שתי דקות למצוא אותה.
 
-כל שלב הוא סצנה מצוירת אחת גדולה, עמוסה במאות אנשים באמצע היום שלהם: כיכר עיר סביב מזרקה, חווה פעילה, לונה פארק. אי שם שם, ילדה אחת עם צמות חומות, חולצה צהובה וחצאית סגולה עומדת בלי לזוז ומחכה שתשימו לב אליה.
+תשעה עשר שלבים, כל אחד סצנה מצוירת אחת גדולה, עמוסה במאות אנשים באמצע היום שלהם: כיכר עיר סביב מזרקה, חווה פעילה, לונה פארק, שוק לילה. אי שם שם, ילדה אחת עם צמות חומות, חולצה צהובה וחצאית סגולה עומדת בלי לזוז ומחכה שתשימו לב אליה.
 
 איך משחקים
 • גררו כדי לנוע בסצנה, צבטו כדי להתקרב
@@ -84,6 +85,7 @@ Findo
 • לחיצה על האדם הלא נכון עולה לכם בנקודות ובשניות יקרות
 • ככל שתמצאו אותה מהר יותר, בונוס הזמן גדול יותר
 • כל שלב מדורג בין כוכב אחד לשלושה, אז תמיד יש ריצה טובה יותר לרדוף אחריה
+• שחקו שוב באותו שלב והיא תתחבא במקום אחר, כך שמרדף אחרי זמן טוב יותר הוא חיפוש אמיתי ולא מבחן זיכרון
 
 לא מוצאים אותה?
 רמז מזיז את המפה לכיוון פינדו וגורם לה לזהור. מתחילים עם שלושה, מרוויחים עוד בצפייה בסרטון, או קונים חבילה.
@@ -115,8 +117,13 @@ Findo חינמי לשחק. הוא כולל פרסומות ורכישות אופ�
 | 7" tablet screenshots | Only if you declare tablet support | not generated |
 | 10" tablet screenshots | Only if you declare tablet support | not generated |
 
-The phone screenshots are 1080×2400 captures from a real run of the release
-build. Play accepts them as-is; adding captions on top is optional polish.
+The six phone screenshots are 1080×2400 captures from a real run of the signed
+1.0.0+2 release build: the title, the rules screen, the level list with
+progress, a hunt on Hollow Farm, a three-star completion, and the Hebrew level
+list. Play accepts them as-is; adding captions on top is optional polish.
+
+Upload the Hebrew one under the he-IL listing rather than the default, so an
+English-speaking browser is not shown a screen they cannot read.
 
 To list tablet support, capture the same screens from a tablet emulator
 (for example a Pixel Tablet AVD) and upload those too. Skipping tablet

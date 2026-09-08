@@ -190,10 +190,12 @@ class _LevelCard extends StatelessWidget {
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: Icon(
-                  Directionality.of(context) == TextDirection.rtl
-                      ? Icons.chevron_left_rounded
-                      : Icons.chevron_right_rounded,
+                // Not swapped by hand for Hebrew: Flutter already mirrors the
+                // chevron icons in an RTL context, so choosing the left one
+                // there flipped it a second time and the arrow pointed back
+                // out of the level it opens.
+                child: const Icon(
+                  Icons.chevron_right_rounded,
                   color: FindoColors.textMuted,
                 ),
               ),
