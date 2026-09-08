@@ -79,8 +79,23 @@ def build_prompt(catalogue: dict, index: int) -> str:
     )
 
 
+class Systematic(Exception):
+    """An error that will happen again on every level, so stop the run.
+
+    A wrong model name, a rejected key or an exhausted quota is not a bad
+    image -- retrying it eighty-one times in a row just burns an unattended
+    run into the ground and, where the call is billable, does it expensively.
+    Anything in this class aborts; everything else is treated as one bad
+    image and retried.
+    """
+
+
 def request_image(prompt: str, model: str, api_key: str, timeout: int):
-    """Returns (image, error). Exactly one of them is None."""
+    """Returns (image, error). Exactly one of them is None.
+
+    Raises Systematic when the failure is with the setup rather than the
+    image.
+    """
     try:
         response = requests.post(
             ENDPOINT.format(model=model),
@@ -95,7 +110,16 @@ def request_image(prompt: str, model: str, api_key: str, timeout: int):
         return None, f'request failed: {error}'
 
     if response.status_code != 200:
-        return None, f'HTTP {response.status_code}: {response.text[:400]}'
+        detail = f'HTTP {response.status_code}: {response.text[:400]}'
+        if response.status_code in (400, 401, 403, 404):
+            # Bad model name, bad key, API not enabled, no access to the model.
+            raise Systematic(detail)
+        if response.status_code == 429:
+            raise Systematic(f'{detail}\n\nRate limited or out of quota. Wait, '
+                             f'or raise --delay, then re-run: the levels '
+                             f'already saved are skipped.')
+        # 5xx is Google having a moment. Worth another go.
+        return None, detail
 
     try:
         parts = response.json()['candidates'][0]['content']['parts']
@@ -201,6 +225,7 @@ def main() -> int:
 
     saved, skipped, failed = [], [], []
     log = []
+    aborted = None
 
     for index in todo:
         target = out / f'level_{index:02d}.png' if index < 100 \
@@ -213,7 +238,12 @@ def main() -> int:
         print(f'\n=== level {index} ===', flush=True)
 
         for attempt in range(1, args.retries + 1):
-            image, error = request_image(prompt, args.model, api_key, args.timeout)
+            try:
+                image, error = request_image(
+                    prompt, args.model, api_key, args.timeout)
+            except Systematic as stop:
+                aborted = str(stop)
+                break
             if error:
                 print(f'  attempt {attempt}: {error}', flush=True)
                 time.sleep(args.delay)
@@ -242,10 +272,22 @@ def main() -> int:
             log.append({'level': index, 'status': 'failed',
                         'attempts': args.retries})
 
+        if aborted:
+            break
         time.sleep(args.delay)
 
     (out / 'generation_log.json').write_text(
         json.dumps(log, indent=2) + '\n', encoding='utf-8')
+
+    if aborted:
+        sys.stdout.flush()
+        print('\n' + '-' * 62, file=sys.stderr)
+        print('STOPPED. This is a setup problem, not a bad image, so it would '
+              'have happened on every remaining level:\n', file=sys.stderr)
+        print(f'  {aborted}\n', file=sys.stderr)
+        print('Fix it and re-run -- everything already saved is skipped.',
+              file=sys.stderr)
+        return 1
 
     print('\n' + '-' * 62)
     print(f'saved {len(saved)}, already had artwork {len(skipped)}, '
