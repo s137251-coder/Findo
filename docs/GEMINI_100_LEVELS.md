@@ -219,11 +219,17 @@ the map, which would make the hardest level the easiest.
 
 ## The hundred scenes
 
-Levels 1 to 20 exist already. Eighty to generate.
+Levels 1 to 19 are built. Eighty-one to generate, starting with the Fishing
+Docks that level 20 has been waiting on.
 
-Each row is the `[SCENE]` block. Write it as two or three sentences of specific
-things a person could be doing, the way the Fishing Docks example in
-`GEMINI_LEVELS_11_20.md` does — that specificity is what makes the poses vary.
+Each row becomes the `[SCENE]` block. Write it as two or three sentences of
+specific things a person could be doing there, the way the Fishing Docks
+example in `GEMINI_LEVELS_11_20.md` does — that specificity is what makes the
+poses vary, and a scene described in one flat noun phrase comes back as a field
+of identical figures.
+
+The per-level numbers are in `tool/levels.csv`; these tables are the names and
+the ids, so you know what you are asking for and what to call the file.
 
 ### Band 3 — levels 21 to 30 · 440–520 people · 1/20 · 90→82 px · 4 decoys · 115→105 s
 
@@ -349,21 +355,42 @@ things a person could be doing, the way the Fishing Docks example in
 
 ## Registering them
 
-The tool does the placement. You never say where she stands: it finds several
-hiding places per map — in crowds, away from open sky — and writes them all in,
-and the game picks one per attempt so a replay is a fresh search.
+The whole ladder lives in **`tool/levels.csv`** — one row per level, all one
+hundred, with the height, time limit and tint each one wants alongside the
+crowd size and decoy counts the prompt needs. It was generated rather than
+typed, because a hundred rows of interpolated numbers is exactly the table
+where one transposed digit hides for weeks.
+
+Save each scene into one folder, named after its level id — `level_21.png`,
+`level_22.jpg` — and then it is one command:
 
 ```powershell
-python tool/build_level.py level `
-    --scene C:\temp\findo\level_21.png `
-    --id level_21 --index 21 --name-key level.rooftop `
-    --height 90 --time 115 --tint 0.45
+python tool/build_all_levels.py --scenes C:\temp\findo\scenes
 ```
 
-Then add the id to `assets/images/maps/meta/index.json`.
+It builds every level whose artwork has arrived, skips the ones already
+registered, and lists the ones still waiting. Re-run it as images trickle in.
 
-Eighty of those by hand is not sensible. Ask for the batch runner and the
-hundred-row table to be generated as a file, and it becomes one command.
+```powershell
+# just one band
+python tool/build_all_levels.py --scenes C:\temp\findo\scenes --only 21-30
+
+# see what it would do, build nothing
+python tool/build_all_levels.py --scenes C:\temp\findo\scenes --dry-run
+
+# rebuild levels that are already registered
+python tool/build_all_levels.py --scenes C:\temp\findo\scenes --rebuild
+```
+
+**Build the levels in order.** The unlock chain runs on consecutive indexes, so
+a level with a hole before it cannot be reached. If you build 21 before 20
+exists, the map and its metadata are written and kept, but the level is held
+out of `index.json` and the runner says so; it joins the game the moment the
+gap is filled. Nothing is lost either way — it just will not appear yet.
+
+The eighty new level names are already in `assets/locales/`, in English and
+Hebrew. The localisation test fails the build if a registered level has no
+name, which is the behaviour you want.
 
 Afterwards, look at `store/previews/level_NN_spot*.png` — one crop per hiding
 place. That is how you catch a scene where the tool found somewhere a person
@@ -377,9 +404,8 @@ that reads as a genuine second Findo.
 Generating the art is the visible half. These are the rest, and none of them
 are large on their own:
 
-- **200 level names.** Each of the eighty new levels needs a name in English and
-  in Hebrew, in `assets/i18n/`. The localisation test fails the build if either
-  is missing, which is the behaviour you want.
+- ~~**160 level names.**~~ Done — the eighty new names are in
+  `assets/locales/en.json` and `he.json`.
 - **The level list becomes a scroll of a hundred rows.** It wants grouping by
   band, with a header per band and a completion count, or it becomes unusable
   around level thirty.
