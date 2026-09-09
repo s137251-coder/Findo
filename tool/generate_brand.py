@@ -18,16 +18,25 @@ game, readable down to 48px.
 
 from __future__ import annotations
 
+import argparse
 import json
 import math
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFilter, ImageFont, ImageStat
 
 ROOT = Path(__file__).resolve().parent.parent
 RES = ROOT / "android" / "app" / "src" / "main" / "res"
 IOS_ICONS = ROOT / "ios" / "Runner" / "Assets.xcassets" / "AppIcon.appiconset"
 STORE = ROOT / "store"
+MAPS = ROOT / "assets" / "images" / "maps"
+TARGET_SPRITE = ROOT / "assets" / "images" / "targets" / "findo.png"
+CUSTOM_ART = ROOT / "store" / "feature-art.png"
+
+# The funfair crop that becomes the feature graphic, and where Findo stands in it.
+SCENE_BOX = (300, 300, 2048, 1154)
+FEATURE_W, FEATURE_H = 1024, 500
+FINDO_X, FINDO_FEET_Y, FINDO_H = 164, 245, 46
 
 NAVY = (20, 24, 36)
 NAVY_LIGHT = (30, 37, 56)
@@ -171,49 +180,170 @@ def load_font(size: int) -> ImageFont.FreeTypeFont:
     return ImageFont.load_default(size)
 
 
-def feature_graphic() -> Image.Image:
+def scene_band() -> Image.Image:
+    """The banner's backdrop: a crop of real level art, not an abstract pattern.
+
+    Level 3, the funfair, is the scene that reads at a glance -- a ferris wheel
+    and a carousel say "game", and the crowd around them says what kind.
+
+    Drop a purpose-drawn crowd at `store/feature-art.png` and that is used
+    instead, centre-cropped to the banner. See docs/GEMINI_FEATURE_GRAPHIC.md --
+    the art is a crowd and nothing else; Findo, the lens and the wordmark are
+    composited here so she stays on-model and the type stays crisp.
+    """
+    if CUSTOM_ART.exists():
+        src = Image.open(CUSTOM_ART).convert("RGB")
+        scale = max(FEATURE_W / src.width, FEATURE_H / src.height)
+        src = src.resize(
+            (max(FEATURE_W, round(src.width * scale)),
+             max(FEATURE_H, round(src.height * scale))), Image.LANCZOS,
+        )
+        left = (src.width - FEATURE_W) // 2
+        top = (src.height - FEATURE_H) // 2
+        return src.crop((left, top, left + FEATURE_W, top + FEATURE_H))
+
+    src = Image.open(MAPS / "level_03.webp").convert("RGB")
+    return src.crop(SCENE_BOX).resize((FEATURE_W, FEATURE_H), Image.LANCZOS)
+
+
+def best_findo_spot(band: Image.Image, radius: int) -> tuple[int, int]:
+    """Finds where to stand her: a clear gap with people pressed up against it.
+
+    Only used for custom art, where the hand-picked coordinates below do not
+    apply. Scores a clear footprint, dense immediate neighbours, and a lens that
+    fits inside the frame -- a gap in open ground scores badly on purpose,
+    because a magnifier over empty sand says nothing about the game.
+    """
+    edges = band.convert("L").filter(ImageFilter.FIND_EDGES)
+
+    def density(x0, y0, x1, y1):
+        box = (max(0, x0), max(0, y0), min(FEATURE_W, x1), min(FEATURE_H, y1))
+        if box[2] <= box[0] or box[3] <= box[1]:
+            return 0.0
+        return ImageStat.Stat(edges.crop(box)).mean[0]
+
+    best = (-1e9, FINDO_X, FINDO_FEET_Y)
+    for x in range(60, FEATURE_W - 60, 4):
+        for feet in range(FINDO_H + 40, FEATURE_H - 40, 4):
+            cy = feet - FINDO_H // 2
+            if cy - radius < 22 or cy + radius > FEATURE_H - 22 or x - radius < 22:
+                continue
+            if x + radius > int(FEATURE_W * 0.40):  # keep clear of the wordmark
+                continue
+            her = density(x - 13, feet - FINDO_H - 6, x + 13, feet + 4)
+            if her > 1.5:
+                continue
+            near = density(x - 58, cy - 58, x + 58, cy + 58)
+            lens = density(x - radius, cy - radius, x + radius, cy + radius)
+            score = near * 2 + lens - her * 10
+            if score > best[0]:
+                best = (score, x, feet)
+    return best[1], best[2]
+
+
+def place_findo(base: Image.Image, cx: int, feet_y: int, height: int) -> None:
+    """Drops Findo into the crowd at crowd scale, standing on the ground."""
+    sprite = Image.open(TARGET_SPRITE).convert("RGBA")
+    w = max(1, round(sprite.width * height / sprite.height))
+    sprite = sprite.resize((w, height), Image.LANCZOS)
+    base.paste(sprite, (round(cx - w / 2), feet_y - height), sprite)
+
+
+def draw_lens(base: Image.Image, cx: int, cy: int, r: int, zoom: float) -> None:
+    """A magnifier over the art, showing the crowd magnified inside the glass.
+
+    This is the whole game in one image: she is in the scene at crowd scale,
+    and the glass is what makes her findable.
+    """
+    side = max(2, round(2 * r / zoom))
+    half = side // 2
+    box = (cx - half, cy - half, cx - half + side, cy - half + side)
+    patch = base.crop(box).resize((2 * r, 2 * r), Image.LANCZOS)
+
+    mask = Image.new("L", (2 * r, 2 * r), 0)
+    ImageDraw.Draw(mask).ellipse([0, 0, 2 * r - 1, 2 * r - 1], fill=255)
+
+    ring = max(6, round(r * 0.10))
+    d = ImageDraw.Draw(base)
+
+    # Handle first, so the ring caps it cleanly.
+    hx, hy = cx + r * 0.70, cy + r * 0.70
+    tx, ty = cx + r * 1.62, cy + r * 1.62
+    d.line([(hx, hy), (tx, ty)], fill=AMBER_DEEP, width=round(ring * 1.5))
+    cap = ring * 0.75
+    d.ellipse([tx - cap, ty - cap, tx + cap, ty + cap], fill=AMBER_DEEP)
+
+    # A dark rim under the glass lifts it off busy art.
+    d.ellipse(
+        [cx - r - ring * 0.55, cy - r - ring * 0.55, cx + r + ring * 0.55, cy + r + ring * 0.55],
+        outline=(24, 28, 40), width=max(2, round(ring * 0.32)),
+    )
+    base.paste(patch, (cx - r, cy - r), mask)
+    d.ellipse([cx - r, cy - r, cx + r, cy + r], outline=AMBER, width=ring)
+    d.arc(
+        [cx - r * 0.66, cy - r * 0.66, cx + r * 0.66, cy + r * 0.66],
+        200, 288, fill=(255, 255, 255), width=max(2, round(ring * 0.45)),
+    )
+
+
+def side_scrim(width: int, height: int, start: float) -> Image.Image:
+    """A gradient panel so the wordmark reads over illustration."""
+    scrim = Image.new("RGBA", (width, height), (0, 0, 0, 0))
+    px = scrim.load()
+    for x in range(width):
+        t = (x / width - start) / (1 - start)
+        a = 0 if t <= 0 else round(234 * min(1.0, t) ** 0.70)
+        if a:
+            for y in range(height):
+                px[x, y] = (*NAVY, a)
+    return scrim
+
+
+def feature_graphic(spot: tuple[int, int] | None = None) -> Image.Image:
     """1024x500, no transparency, and safe to have text cropped at the edges."""
-    w, h = 1024, 500
-    img = Image.new("RGB", (w, h), NAVY)
+    img = scene_band()
+    radius = 118
+
+    # She stands in the crowd on the left, at the same scale as everyone else.
+    if spot is not None:
+        x, feet = spot
+        cy = feet - FINDO_H // 2 - 3
+        if min(x, cy) - radius < 0 or cy + radius > FEATURE_H or x + radius > FEATURE_W:
+            print(f"warning: the lens around {x},{feet} runs off the banner; "
+                  f"keep x in {radius}..{FEATURE_W - radius} and feet_y in "
+                  f"{radius + FINDO_H // 2 + 3}..{FEATURE_H - radius + FINDO_H // 2 + 3}")
+    elif CUSTOM_ART.exists():
+        x, feet = best_findo_spot(img, radius)
+    else:
+        x, feet = FINDO_X, FINDO_FEET_Y
+    place_findo(img, x, feet, FINDO_H)
+    draw_lens(img, x, feet - FINDO_H // 2 - 3, radius, 1.95)
+
+    img = img.convert("RGBA")
+    img.alpha_composite(side_scrim(FEATURE_W, FEATURE_H, 0.40))
+    img = img.convert("RGB")
+
     d = ImageDraw.Draw(img)
-
-    for y in range(h):
-        t = y / h
-        d.line([(0, y), (w, y)], fill=tuple(
-            int(NAVY[i] + (NAVY_LIGHT[i] - NAVY[i]) * t) for i in range(3)
-        ))
-
-    # Scattered shapes across the whole banner, denser away from the text.
-    rnd = __import__("random").Random(4)
-    for _ in range(120):
-        x = rnd.randint(0, w)
-        y = rnd.randint(0, h)
-        if 250 < x < 780 and 170 < y < 330:
-            continue
-        r = rnd.randint(4, 13)
-        c = CONFETTI[rnd.randrange(len(CONFETTI))]
-        faded = tuple(int(NAVY[i] + (c[i] - NAVY[i]) * rnd.uniform(0.25, 0.75)) for i in range(3))
-        kind = rnd.randint(0, 2)
-        if kind == 0:
-            d.ellipse([x - r, y - r, x + r, y + r], fill=faded)
-        elif kind == 1:
-            d.rounded_rectangle([x - r, y - r, x + r, y + r], radius=r // 3, fill=faded)
-        else:
-            d.polygon([(x, y - r), (x + r, y + r), (x - r, y + r)], fill=faded)
-
-    mark = Image.new("RGBA", (300, 300), (0, 0, 0, 0))
-    draw_mark(ImageDraw.Draw(mark), 300, scale=0.95, cx=150, cy=140)
-    mark = mark.resize((300, 300), Image.LANCZOS)
-    img.paste(mark, (150, 100), mark)
-
-    title_font = load_font(112)
-    tag_font = load_font(38)
-    d.text((500, 190), "Findo", font=title_font, fill=(245, 247, 250))
-    d.text((506, 312), "Find every hidden thing", font=tag_font, fill=(165, 174, 194))
+    title_font = load_font(108)
+    tag_font = load_font(31)
+    right = FEATURE_W - 68
+    d.text((right, 262), "Findo", font=title_font, fill=(247, 249, 252), anchor="rs")
+    d.text((right, 312), "One girl. Hundreds of faces.", font=tag_font,
+           fill=AMBER, anchor="rs")
     return img
 
 
-def main() -> None:
+def parse_spot(value: str | None) -> tuple[int, int] | None:
+    if not value:
+        return None
+    try:
+        x, feet = (int(part) for part in value.split(","))
+    except ValueError:
+        raise SystemExit("--findo takes two integers, as X,FEET_Y") from None
+    return x, feet
+
+
+def main(spot: tuple[int, int] | None = None) -> None:
     STORE.mkdir(exist_ok=True)
 
     for density, (legacy_px, fg_px) in DENSITIES.items():
@@ -260,9 +390,16 @@ def main() -> None:
         print(f"ios app icons: {written}")
 
     store_icon().save(STORE / "icon-512.png")
-    feature_graphic().save(STORE / "feature-graphic-1024x500.png")
+    feature_graphic(spot).save(STORE / "feature-graphic-1024x500.png")
     print("store graphics: icon-512.png, feature-graphic-1024x500.png")
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--findo", metavar="X,FEET_Y",
+        help="where Findo stands in the feature graphic, in 1024x500 banner "
+             "pixels, FEET_Y being the ground under her shoes. Overrides the "
+             "automatic search used for store/feature-art.png.",
+    )
+    main(parse_spot(parser.parse_args().findo))
