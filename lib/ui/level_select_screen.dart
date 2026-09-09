@@ -143,13 +143,21 @@ class _LevelCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 2),
-                      Text(
-                        l10n.t(level.nameKey),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
+                      // Shrunk to fit rather than ellipsised. The row is wide
+                      // enough for about eighteen characters, and the level
+                      // names run past that often enough -- "Botanical
+                      // Glasshouse", "Twilight Beach Concert" -- that clipping
+                      // them is the normal case, not the edge case.
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: AlignmentDirectional.centerStart,
+                        child: Text(
+                          l10n.t(level.nameKey),
+                          maxLines: 1,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 8),

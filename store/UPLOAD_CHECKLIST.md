@@ -18,7 +18,7 @@ Status of every gate Play checks, and who has to close it.
 | 8 | **Privacy policy document** | `docs/privacy-policy.html`, English and Hebrew. Published to the `gh-pages` branch, which holds only the policy and a one-page index — Pages is deliberately *not* served from `/docs`, because that folder also carries the art brief and the image generation prompts. Turning Pages on is four clicks; see below. |
 | 9 | **Data safety answers** | `store/LISTING.md`, matched to what the code actually does. |
 | 10 | **Content rating answers** | `store/LISTING.md`. |
-| 11 | **`applicationId` and version** | `com.findo.game`, `1.0.0+2`. |
+| 11 | **`applicationId` and version** | `com.findo.game`, `1.0.0+3`. |
 | 12 | **R8 / ProGuard rules** | `android/app/proguard-rules.pro` keeps AdMob, UMP, Play Billing, and — the one that actually bit — Room, WorkManager and `androidx.startup`. See the note below. |
 | 13 | **Release build verified on a device** | The signed `1.0.0+2` release APK was installed on an Android 15 emulator and played end to end: first-run rules screen, level list, a full hunt on Fountain Square, a hint, finding Findo, a three-star completion panel with correct scoring (100 + 118s x 10 = 1280), progress saved, level 2 unlocked, and the whole level list re-read in Hebrew with RTL mirroring. Zero fatal exceptions in logcat. |
 | 14 | **Findo hides somewhere new on each play** | Every level carries several hiding spots and the game picks one per attempt, avoiding the previous one. Verified by playing Fountain Square three times in a row and getting three different places. This is what makes replaying a level for a better star rating a search rather than a memory test. |
@@ -92,8 +92,8 @@ it.
 
 | # | Item | Why it cannot be done from here | Effort |
 | --- | --- | --- | --- |
-| 1 | **Switch GitHub Pages on** | The content is already pushed. Settings -> Pages -> Deploy from a branch -> `gh-pages` -> `/ (root)` -> Save. The listing URL is then `https://s137251-coder.github.io/Findo/privacy-policy.html`. | 2 min |
-| 2 | **Play Console developer account** | 25 USD one-off, needs your identity and payment details. | 15 min + verification |
+| ~~1~~ | ~~**Switch GitHub Pages on**~~ | **Done.** Live and checked at `https://s137251-coder.github.io/Findo/privacy-policy.html` — both languages, contact address, dated. This is the URL for the listing and for App content. | — |
+| ~~2~~ | ~~**Play Console developer account**~~ | **Done.** Account created and verified. | — |
 | 3 | **Real AdMob app id and ad unit ids** | Requires your AdMob account. The build currently carries Google's public test ids (`ca-app-pub-3940256099942544`), so ads display but earn nothing. **Six** values to replace: four ad units in `lib/managers/monetization_manager.dart`, plus the app id in `AndroidManifest.xml` and in `ios/Runner/Info.plist`. | 20 min |
 | 4 | **Create the two in-app products** | Done in Play Console, and only after a first upload exists. Ids must be `findo_remove_ads` and `findo_hint_pack_10`. | 10 min |
 | 5 | **Submit the questionnaires** | Data safety, content rating, ads declaration, target audience. Answers are written out in `store/LISTING.md`; they still have to be typed into the console. | 20 min |
@@ -102,11 +102,17 @@ it.
 
 ## The honest summary
 
-**The build is upload-ready. The account is not set up yet.**
+**The build is upload-ready, and the account is now verified.**
 
-You can upload `app-release.aab` to an internal testing track right now and it
-will be accepted — it is correctly signed, correctly versioned, and every
+`app-release.aab` at `1.0.0+3` carries **twenty-five levels** and is ready for
+the internal testing track: correctly signed, correctly versioned, and every
 graphic and text asset Play demands exists in this repo.
+
+Levels 26 to 30 are drawn and built but not in this bundle. Level 26 came back
+from the model with its own near-misses labelled in the artwork, and until it
+is regenerated the four levels after it stay out of the manifest, because the
+unlock chain runs on consecutive indexes. That is a content gap, not a blocker:
+twenty-five levels is a complete game to ship.
 
 What stands between you and a **production** release is account work, not
 engineering: a Play Console account, a hosted privacy policy URL, and an AdMob
@@ -127,9 +133,9 @@ as Google revises this policy.
 
 ## Order to do it in
 
-1. Create the Play Console account and start identity verification — this is
-   the only step whose clock you do not control, so start it first.
-2. Enable GitHub Pages, confirm the privacy policy URL loads.
+1. ~~Create the Play Console account and start identity verification.~~ Done.
+2. ~~Enable GitHub Pages, confirm the privacy policy URL loads.~~ Done —
+   `https://s137251-coder.github.io/Findo/privacy-policy.html`.
 3. Upload `app-release.aab` to **internal testing**.
 4. Fill in the store listing from `store/LISTING.md`, upload the graphics.
 5. Answer Data safety, content rating, ads and target audience.

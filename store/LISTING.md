@@ -21,12 +21,12 @@ Findo
 Find one girl hidden in a crowded scene. Before the clock runs out.
 ```
 
-### Full description (1407 / 4000)
+### Full description (1442 / 4000)
 
 ```
 Findo is hidden somewhere in this crowd. You have two minutes to find her.
 
-Nineteen levels, each one big hand-drawn scene packed with hundreds of people going about their day: a town square around a fountain, a working farm, a funfair, a night market. Somewhere in there, one girl with brown braids, a yellow top and a purple skirt is standing perfectly still, waiting to be spotted.
+Twenty-five levels, each one big hand-drawn scene packed with hundreds of people going about their day: a town square around a fountain, a working farm, a funfair, a night market, a fishing harbour, an aquarium. Somewhere in there, one girl with brown braids, a yellow top and a purple skirt is standing perfectly still, waiting to be spotted.
 
 HOW IT PLAYS
 • Drag to move around the scene, pinch to zoom right in
@@ -71,12 +71,12 @@ Findo
 מצאו ילדה אחת שמסתתרת בתוך קהל. לפני שהזמן נגמר.
 ```
 
-### Full description (1141 / 4000)
+### Full description (1167 / 4000)
 
 ```
 פינדו מסתתרת אי שם בתוך הקהל הזה. יש לכם שתי דקות למצוא אותה.
 
-תשעה עשר שלבים, כל אחד סצנה מצוירת אחת גדולה, עמוסה במאות אנשים באמצע היום שלהם: כיכר עיר סביב מזרקה, חווה פעילה, לונה פארק, שוק לילה. אי שם שם, ילדה אחת עם צמות חומות, חולצה צהובה וחצאית סגולה עומדת בלי לזוז ומחכה שתשימו לב אליה.
+עשרים וחמישה שלבים, כל אחד סצנה מצוירת אחת גדולה, עמוסה במאות אנשים באמצע היום שלהם: כיכר עיר סביב מזרקה, חווה פעילה, לונה פארק, שוק לילה, נמל דייגים, אקווריום. אי שם שם, ילדה אחת עם צמות חומות, חולצה צהובה וחצאית סגולה עומדת בלי לזוז ומחכה שתשימו לב אליה.
 
 איך משחקים
 • גררו כדי לנוע בסצנה, צבטו כדי להתקרב
@@ -172,6 +172,14 @@ is not declared.
 | Contains ads | **Yes** |
 
 Expected outcome: **Everyone / PEGI 3** in most territories.
+
+**Re-read the gambling question when level 52 ships.** The hundred-level plan
+in `docs/GEMINI_100_LEVELS.md` includes a casino floor. A scene that *depicts*
+roulette tables is not simulated gambling — the player never places a bet, they
+look for a girl — so the answer should stay No. But it is the one answer here
+that could change as content is added, and getting it wrong is a rating problem
+rather than a rejection, which is worse: it surfaces later, and through someone
+else.
 
 ---
 
