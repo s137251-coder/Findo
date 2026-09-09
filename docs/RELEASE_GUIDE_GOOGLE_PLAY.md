@@ -54,6 +54,34 @@ match the products you create in step 6 exactly, character for character.
 > The `~` in an app id and the `/` in an ad unit id are not interchangeable.
 > Mixing them up produces ads that silently never load.
 
+### Test devices, once the ids are real
+
+The moment `AdUnitIds` carries real units, every ad request is a real
+impression. A dozen testers replaying the same build is the pattern AdMob reads
+as invalid traffic, and it suspends the ad account rather than the app -- after
+you have already spent the fourteen days.
+
+Register the devices instead. Ids are passed at build time, so none is ever
+committed:
+
+```powershell
+flutter build appbundle --dart-define=FINDO_AD_TEST_DEVICES=ID1,ID2
+```
+
+The real unit ids, load callbacks and reward callbacks all still run; the
+impressions simply are not counted.
+
+**Finding a device's id:** run a debug build on it and trigger an ad -- ask for
+a hint. The SDK logs a line naming the id to add. It is per-device and stable
+across installs.
+
+**For the closed test, this is usually the wrong tool.** Collecting an id from
+twelve people you cannot reach through a terminal does not work. Leave Google's
+test units in the build the testers get: the ad code path is identical and no
+ad account is at risk. Use `FINDO_AD_TEST_DEVICES` for your own devices, on the
+builds that carry real ids -- which is exactly the window between production
+access and going live.
+
 ---
 
 ## 2. Application id and version

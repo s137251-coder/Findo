@@ -28,6 +28,40 @@ class AdUnitIds {
   static String get rewarded => Platform.isIOS ? _iosRewarded : _androidRewarded;
 }
 
+/// Devices that AdMob should treat as test devices.
+///
+/// Once [AdUnitIds] carries real units, every ad request from a device not on
+/// this list is a real impression. A handful of testers replaying the same
+/// build is exactly the pattern AdMob flags as invalid traffic, and the
+/// penalty lands on the ad account rather than the app. Listing a device here
+/// keeps the real ad code path -- real unit ids, real load and reward
+/// callbacks -- while the impressions stay uncounted.
+///
+/// Supplied at build time so no real device id is ever committed:
+///
+/// ```
+/// flutter build appbundle --dart-define=FINDO_AD_TEST_DEVICES=ID1,ID2
+/// ```
+///
+/// A device prints its own id the first time it requests an ad. Run a debug
+/// build, ask for a hint, and the SDK logs a line naming the id to add here.
+class AdTestDevices {
+  const AdTestDevices._();
+
+  static const _raw = String.fromEnvironment('FINDO_AD_TEST_DEVICES');
+
+  /// Trimmed and de-duplicated, so a trailing comma or a stray space in the
+  /// build command cannot produce an empty id the SDK rejects.
+  static List<String> parse(String raw) => raw
+      .split(',')
+      .map((id) => id.trim())
+      .where((id) => id.isNotEmpty)
+      .toSet()
+      .toList();
+
+  static List<String> get ids => parse(_raw);
+}
+
 /// Store product identifiers. They must match the entries created in Google
 /// Play Console and App Store Connect.
 class StoreProducts {
@@ -178,6 +212,14 @@ class MonetizationManager extends ChangeNotifier {
       return;
     }
     try {
+      // Before initialize, so the very first request is already covered.
+      final testDevices = AdTestDevices.ids;
+      if (testDevices.isNotEmpty) {
+        await MobileAds.instance.updateRequestConfiguration(
+          RequestConfiguration(testDeviceIds: testDevices),
+        );
+        _log('ads: ${testDevices.length} test device(s) registered');
+      }
       await MobileAds.instance.initialize();
       _adsInitialized = true;
       unawaited(_loadInterstitial());
