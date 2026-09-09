@@ -1,0 +1,53 @@
+{
+  "id": "level_22",
+  "index": 22,
+  "nameKey": "level.glasshouse",
+  "map": "maps/level_22.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 114,
+  "starThresholds": {
+    "one": 214,
+    "two": 613,
+    "three": 921
+  },
+  "targets": [
+    {
+      "x": 159,
+      "y": 894,
+      "width": 31,
+      "height": 89
+    },
+    {
+      "x": 1119,
+      "y": 660,
+      "width": 31,
+      "height": 89
+    },
+    {
+      "x": 1645,
+      "y": 250,
+      "width": 31,
+      "height": 89
+    },
+    {
+      "x": 1767,
+      "y": 1024,
+      "width": 31,
+      "height": 89
+    },
+    {
+      "x": 521,
+      "y": 200,
+      "width": 31,
+      "height": 89
+    }
+  ],
+  "tint": {
+    "r": 0.919,
+    "g": 0.958,
+    "b": 0.853
+  }
+}

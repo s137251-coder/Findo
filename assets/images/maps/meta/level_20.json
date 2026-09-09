@@ -1,0 +1,53 @@
+{
+  "id": "level_20",
+  "index": 20,
+  "nameKey": "level.docks",
+  "map": "maps/level_20.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 70,
+  "starThresholds": {
+    "one": 170,
+    "two": 415,
+    "three": 604
+  },
+  "targets": [
+    {
+      "x": 313,
+      "y": 360,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 546,
+      "y": 1183,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 1066,
+      "y": 944,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 1725,
+      "y": 1381,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 1192,
+      "y": 1464,
+      "width": 24,
+      "height": 68
+    }
+  ],
+  "tint": {
+    "r": 0.976,
+    "g": 0.949,
+    "b": 0.988
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "id": "level_30",
+  "index": 30,
+  "nameKey": "level.waterpark",
+  "map": "maps/level_30.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 105,
+  "starThresholds": {
+    "one": 205,
+    "two": 572,
+    "three": 856
+  },
+  "targets": [
+    {
+      "x": 1117,
+      "y": 1409,
+      "width": 29,
+      "height": 82
+    },
+    {
+      "x": 596,
+      "y": 1376,
+      "width": 29,
+      "height": 82
+    },
+    {
+      "x": 1826,
+      "y": 396,
+      "width": 29,
+      "height": 82
+    },
+    {
+      "x": 1130,
+      "y": 847,
+      "width": 29,
+      "height": 82
+    },
+    {
+      "x": 609,
+      "y": 545,
+      "width": 29,
+      "height": 82
+    }
+  ],
+  "tint": {
+    "r": 1.015,
+    "g": 1.102,
+    "b": 1.144
+  }
+}

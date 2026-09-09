@@ -1,0 +1,53 @@
+{
+  "id": "level_24",
+  "index": 24,
+  "nameKey": "level.library",
+  "map": "maps/level_24.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 112,
+  "starThresholds": {
+    "one": 212,
+    "two": 604,
+    "three": 906
+  },
+  "targets": [
+    {
+      "x": 140,
+      "y": 204,
+      "width": 30,
+      "height": 87
+    },
+    {
+      "x": 1720,
+      "y": 179,
+      "width": 30,
+      "height": 87
+    },
+    {
+      "x": 1878,
+      "y": 705,
+      "width": 30,
+      "height": 87
+    },
+    {
+      "x": 1878,
+      "y": 1268,
+      "width": 30,
+      "height": 87
+    },
+    {
+      "x": 262,
+      "y": 1693,
+      "width": 30,
+      "height": 87
+    }
+  ],
+  "tint": {
+    "r": 1.096,
+    "g": 0.967,
+    "b": 0.955
+  }
+}

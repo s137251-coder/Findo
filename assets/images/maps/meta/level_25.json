@@ -1,0 +1,53 @@
+{
+  "id": "level_25",
+  "index": 25,
+  "nameKey": "level.farmers",
+  "map": "maps/level_25.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 111,
+  "starThresholds": {
+    "one": 211,
+    "two": 600,
+    "three": 899
+  },
+  "targets": [
+    {
+      "x": 1230,
+      "y": 1792,
+      "width": 30,
+      "height": 86
+    },
+    {
+      "x": 566,
+      "y": 455,
+      "width": 30,
+      "height": 86
+    },
+    {
+      "x": 1114,
+      "y": 1039,
+      "width": 30,
+      "height": 86
+    },
+    {
+      "x": 1634,
+      "y": 396,
+      "width": 30,
+      "height": 86
+    },
+    {
+      "x": 237,
+      "y": 1449,
+      "width": 30,
+      "height": 86
+    }
+  ],
+  "tint": {
+    "r": 1.057,
+    "g": 0.97,
+    "b": 0.88
+  }
+}

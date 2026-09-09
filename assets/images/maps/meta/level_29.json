@@ -1,0 +1,53 @@
+{
+  "id": "level_29",
+  "index": 29,
+  "nameKey": "level.busdepot",
+  "map": "maps/level_29.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 106,
+  "starThresholds": {
+    "one": 206,
+    "two": 577,
+    "three": 863
+  },
+  "targets": [
+    {
+      "x": 1209,
+      "y": 1008,
+      "width": 29,
+      "height": 83
+    },
+    {
+      "x": 1337,
+      "y": 1683,
+      "width": 29,
+      "height": 83
+    },
+    {
+      "x": 346,
+      "y": 1458,
+      "width": 29,
+      "height": 83
+    },
+    {
+      "x": 544,
+      "y": 815,
+      "width": 29,
+      "height": 83
+    },
+    {
+      "x": 1124,
+      "y": 162,
+      "width": 29,
+      "height": 83
+    }
+  ],
+  "tint": {
+    "r": 1.009,
+    "g": 0.988,
+    "b": 0.967
+  }
+}

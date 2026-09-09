@@ -1,0 +1,53 @@
+{
+  "id": "level_27",
+  "index": 27,
+  "nameKey": "level.aquarium",
+  "map": "maps/level_27.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 108,
+  "starThresholds": {
+    "one": 208,
+    "two": 586,
+    "three": 878
+  },
+  "targets": [
+    {
+      "x": 1387,
+      "y": 1296,
+      "width": 30,
+      "height": 85
+    },
+    {
+      "x": 616,
+      "y": 1045,
+      "width": 30,
+      "height": 85
+    },
+    {
+      "x": 519,
+      "y": 497,
+      "width": 30,
+      "height": 85
+    },
+    {
+      "x": 1378,
+      "y": 774,
+      "width": 30,
+      "height": 85
+    },
+    {
+      "x": 1476,
+      "y": 1816,
+      "width": 30,
+      "height": 85
+    }
+  ],
+  "tint": {
+    "r": 0.664,
+    "g": 0.736,
+    "b": 0.826
+  }
+}
