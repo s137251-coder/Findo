@@ -299,17 +299,46 @@ class MonetizationManager extends ChangeNotifier {
     }
     _levelsSinceInterstitial = 0;
     _interstitial = null;
+
+    // `show()` resolves once the ad is on screen, not once it is gone. Without
+    // waiting for the dismissal the caller starts the next level behind the
+    // ad, and its clock runs while the player is still looking at a monster on
+    // a unicycle -- measured at 58 seconds off a 150 second level.
+    final dismissed = Completer<void>();
+    void release() {
+      if (!dismissed.isCompleted) {
+        dismissed.complete();
+      }
+    }
+
     ad.fullScreenContentCallback = FullScreenContentCallback(
       onAdDismissedFullScreenContent: (ad) {
         ad.dispose();
         unawaited(_loadInterstitial());
+        release();
       },
       onAdFailedToShowFullScreenContent: (ad, error) {
+        _log('interstitial failed to show: ${error.message}');
         ad.dispose();
         unawaited(_loadInterstitial());
+        release();
       },
     );
-    await ad.show();
+
+    try {
+      await ad.show();
+    } catch (error) {
+      _log('interstitial show threw: $error');
+      release();
+    }
+
+    // A deadlock here would be worse than the bug above: the player would sit
+    // on the result screen forever. If the SDK never calls back -- the app was
+    // backgrounded mid-ad, say -- give up waiting and let them move on.
+    await dismissed.future.timeout(
+      const Duration(minutes: 2),
+      onTimeout: () => _log('interstitial dismissal never reported'),
+    );
   }
 
   /// Shows a rewarded ad and reports whether the reward was earned.
