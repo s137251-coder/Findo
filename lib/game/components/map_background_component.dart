@@ -24,6 +24,16 @@ class MapBackgroundComponent extends SpriteComponent
 
   @override
   void onTapDown(TapDownEvent event) {
+    // Nothing is charged on the way down: a miss costs 15 points and 3
+    // seconds, and the finger that just landed may be about to drag the map.
+    game.beginGesture();
+  }
+
+  @override
+  void onTapUp(TapUpEvent event) {
+    if (game.gestureWasDrag) {
+      return;
+    }
     game.registerMisclick(event.localPosition);
   }
 }

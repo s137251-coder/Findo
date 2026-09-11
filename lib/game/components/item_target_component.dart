@@ -105,7 +105,12 @@ class ItemTargetComponent extends SpriteComponent
 
   @override
   void onTapDown(TapDownEvent event) {
-    if (_found) {
+    game.beginGesture();
+  }
+
+  @override
+  void onTapUp(TapUpEvent event) {
+    if (_found || game.gestureWasDrag) {
       return;
     }
     if (game.registerFind()) {

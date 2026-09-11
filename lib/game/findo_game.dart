@@ -59,12 +59,31 @@ class FindoGame extends FlameGame with ScaleDetector {
 
   ItemTargetComponent? _target;
 
+  /// How far a finger may travel and still count as a tap rather than a drag,
+  /// in screen pixels. Below this a tap on nothing is a miss; above it the
+  /// player was moving the map and owes nothing.
+  static const tapSlop = 14.0;
+
   double _minZoom = 1.0;
   double _zoomAtScaleStart = 1.0;
   double _hudBottomInset = 0;
   bool _viewportDirty = true;
   bool _accepting = true;
   bool _finished = false;
+
+  /// Distance the current gesture has covered, reset when it starts.
+  double _gestureTravel = 0;
+
+  /// True once the gesture has clearly become a drag or a pinch.
+  bool get gestureWasDrag => _gestureTravel > tapSlop;
+
+  /// Starts measuring a fresh gesture. Called from the touch handlers as well
+  /// as [onScaleStart], because a tap that never moves may not open a scale
+  /// gesture at all -- and then the previous drag's distance would still be
+  /// sitting here and would swallow the tap.
+  void beginGesture() {
+    _gestureTravel = 0;
+  }
 
   Vector2 get mapSize => Vector2(level.mapWidth, level.mapHeight);
 
@@ -115,6 +134,9 @@ class FindoGame extends FlameGame with ScaleDetector {
     _viewportDirty = false;
     camera.viewfinder.zoom = _minZoom;
     camera.viewfinder.position = mapSize / 2;
+    // Bounds last: they are derived from the zoom, and the two lines above are
+    // what set it.
+    _applyCameraBounds();
   }
 
   @override
@@ -149,21 +171,63 @@ class FindoGame extends FlameGame with ScaleDetector {
         ..anchor = Anchor.topLeft;
     }
     _applyZoomLimits();
-    camera.setBounds(
-      Rectangle.fromLTRB(0, 0, mapSize.x, mapSize.y),
-      considerViewport: true,
-    );
+    // Clamp the zoom before the bounds, which are computed from it.
     camera.viewfinder.zoom = camera.viewfinder.zoom.clamp(_minZoom, _maxZoom);
+    _applyCameraBounds();
+  }
+
+  /// Restricts the camera so the map always fills the view.
+  ///
+  /// The bounds are worked out here rather than by handing Flame the map
+  /// rectangle with `considerViewport: true`. That option shrinks the
+  /// rectangle by half the visible world, but it measured that world at a zoom
+  /// of 1 while the game runs nearer 0.45 -- an area two and a half times too
+  /// small, so the camera was allowed roughly 500 world units below the map
+  /// and the player dragged straight off the bottom of the artwork into the
+  /// background. Doing the arithmetic here ties the bounds to the zoom
+  /// actually in force, and it has to run again whenever that zoom changes.
+  void _applyCameraBounds() {
+    final zoom = camera.viewfinder.zoom;
+    if (zoom <= 0) {
+      return;
+    }
+    // Half the world the viewport covers: the closest the camera's centre may
+    // sit to an edge before empty space appears beyond it.
+    final half = camera.viewport.size / (2 * zoom);
+    final centre = mapSize / 2;
+    // math.min/max keep the rectangle valid when the view is larger than the
+    // map on an axis; the range then collapses to the centre, which is the
+    // right answer -- there is nowhere to pan to.
+    camera.setBounds(
+      Rectangle.fromLTRB(
+        math.min(half.x, centre.x),
+        math.min(half.y, centre.y),
+        math.max(mapSize.x - half.x, centre.x),
+        math.max(mapSize.y - half.y, centre.y),
+      ),
+      considerViewport: false,
+    );
   }
 
   /// The map must always cover the viewport, otherwise the clamped bounds
   /// would fight the camera and the artwork would jitter at the edges.
+  ///
+  /// The ratio alone makes the map cover the viewport *exactly*, and that
+  /// equality is the bug: the visible world then measures a hair over 2048 on
+  /// the tight axis, the allowed range for the camera centre inverts, and the
+  /// clamp stops holding -- the player drags past the bottom edge of the
+  /// artwork and sees the empty background behind it. [_coverMargin] keeps the
+  /// map strictly larger than the view so the range always has room in it.
+  static const _coverMargin = 1.003;
+
   void _applyZoomLimits() {
     final viewportSize = camera.viewport.size;
     if (viewportSize.x <= 0 || viewportSize.y <= 0) {
       return;
     }
-    _minZoom = math.max(viewportSize.x / mapSize.x, viewportSize.y / mapSize.y);
+    _minZoom =
+        math.max(viewportSize.x / mapSize.x, viewportSize.y / mapSize.y) *
+            _coverMargin;
   }
 
   double get _maxZoom => _minZoom * maxZoomFactor;
@@ -190,18 +254,25 @@ class FindoGame extends FlameGame with ScaleDetector {
   @override
   void onScaleStart(ScaleStartInfo info) {
     _zoomAtScaleStart = camera.viewfinder.zoom;
+    beginGesture();
   }
 
   @override
   void onScaleUpdate(ScaleUpdateInfo info) {
+    final delta = info.raw.focalPointDelta;
+    _gestureTravel += delta.distance;
+
     final pointers = info.raw.pointerCount;
     if (pointers >= 2) {
+      // A second finger is never a tap, whatever the fingers then do.
+      _gestureTravel = double.infinity;
       camera.viewfinder.zoom =
           (_zoomAtScaleStart * info.raw.scale).clamp(_minZoom, _maxZoom);
+      // The allowed area is derived from the zoom, so it moves with it.
+      _applyCameraBounds();
       return;
     }
     // One finger drags the map: screen delta divided by zoom is world delta.
-    final delta = info.raw.focalPointDelta;
     final zoom = camera.viewfinder.zoom;
     camera.viewfinder.position += Vector2(-delta.dx / zoom, -delta.dy / zoom);
   }
