@@ -31,6 +31,55 @@ class AudioManager with WidgetsBindingObserver {
 
   static const _bgmFile = 'bgm_main.wav';
 
+  /// Music themes, one per scene family. Twenty-five levels sharing a single
+  /// loop is what wore the old soundtrack out; a farm and a night festival
+  /// should not sound the same.
+  static const _themes = <String>[
+    'bright', 'rustic', 'breezy', 'busy', 'frost', 'dusk',
+  ];
+
+  /// Which theme each level uses, by `nameKey`. Anything missing falls back to
+  /// [_bgmFile], so a new level never ships silent.
+  static const _levelThemes = <String, String>{
+    'level.town': 'bright',
+    'level.farm': 'rustic',
+    'level.fair': 'bright',
+    'level.beach': 'breezy',
+    'level.station': 'busy',
+    'level.market': 'bright',
+    'level.snow': 'frost',
+    'level.museum': 'dusk',
+    'level.stadium': 'busy',
+    'level.airport': 'busy',
+    'level.zoo': 'bright',
+    'level.water': 'breezy',
+    'level.mall': 'busy',
+    'level.castle': 'rustic',
+    'level.hospital': 'dusk',
+    'level.site': 'busy',
+    'level.marathon': 'busy',
+    'level.festival': 'dusk',
+    'level.nightfest': 'dusk',
+    'level.docks': 'breezy',
+    'level.rooftop': 'dusk',
+    'level.glasshouse': 'breezy',
+    'level.skibase': 'frost',
+    'level.library': 'dusk',
+    'level.farmers': 'rustic',
+    'level.aquarium': 'breezy',
+    'level.cathedral': 'dusk',
+    'level.busdepot': 'busy',
+    'level.waterpark': 'bright',
+  };
+
+  /// The track a level should play, as a file name.
+  static String trackForLevel(String? nameKey) {
+    final theme = _levelThemes[nameKey];
+    return theme == null ? _bgmFile : 'bgm_$theme.wav';
+  }
+
+  String? _currentTrack;
+
   final SaveManager _saveManager;
 
   bool _initialized = false;
@@ -49,6 +98,7 @@ class AudioManager with WidgetsBindingObserver {
     try {
       await FlameAudio.audioCache.loadAll([
         _bgmFile,
+        ..._themes.map((theme) => 'bgm_$theme.wav'),
         ...GameSound.values.map((sound) => sound.fileName),
       ]);
     } catch (error, stack) {
@@ -59,7 +109,7 @@ class AudioManager with WidgetsBindingObserver {
   Future<void> setMusicEnabled(bool value) async {
     await _saveManager.setMusicEnabled(value);
     if (value) {
-      await startMusic();
+      await startMusic(track: _currentTrack);
     } else {
       await stopMusic();
     }
@@ -67,15 +117,25 @@ class AudioManager with WidgetsBindingObserver {
 
   Future<void> setSfxEnabled(bool value) => _saveManager.setSfxEnabled(value);
 
-  Future<void> startMusic() async {
+  /// Starts the music, or switches to [track] if a different one is playing.
+  ///
+  /// Passing no track keeps whatever is already on, which is what the home
+  /// screen wants; a level passes its own so the soundtrack follows the scene.
+  Future<void> startMusic({String? track}) async {
     if (!musicEnabled) {
       return;
     }
+    final wanted = track ?? _currentTrack ?? _bgmFile;
     try {
       if (FlameAudio.bgm.isPlaying) {
-        return;
+        if (wanted == _currentTrack) {
+          return;
+        }
+        // Switching tracks means stopping first: the player holds one source.
+        await FlameAudio.bgm.stop();
       }
-      await FlameAudio.bgm.play(_bgmFile, volume: 0.45);
+      await FlameAudio.bgm.play(wanted, volume: 0.45);
+      _currentTrack = wanted;
       _musicWasPlaying = true;
     } catch (error, stack) {
       _report('bgm start failed', error, stack);

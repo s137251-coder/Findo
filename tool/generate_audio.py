@@ -105,19 +105,86 @@ NOTE = {"C4": 261.63, "D4": 293.66, "E4": 329.63, "F4": 349.23, "G4": 392.00,
         "G3": 196.00, "C3": 130.81}
 
 
+
+def glide(f0: float, f1: float, seconds: float, *, gain=1.0, attack=0.02,
+          release=0.4, harmonics=(1.0, 0.3, 0.12), wobble=0.0) -> list[float]:
+    """A tone that slides from one pitch to another -- the slide-whistle shape
+    every cartoon uses for a pratfall or a reveal."""
+    n = int(seconds * SAMPLE_RATE)
+    out = [0.0] * n
+    phase = 0.0
+    for i in range(n):
+        t = i / n
+        freq = f0 * (f1 / f0) ** t
+        if wobble:
+            freq *= 1.0 + wobble * math.sin(2 * math.pi * 5.5 * i / SAMPLE_RATE)
+        phase += 2 * math.pi * freq / SAMPLE_RATE
+        value = sum(h * math.sin(phase * (k + 1)) for k, h in enumerate(harmonics))
+        out[i] = value * envelope(i, n, attack, release) * gain
+    return out
+
+
+def voice(freq: float, seconds: float, vowels, *, gain=1.0, attack=0.03,
+          release=0.35) -> list[float]:
+    """A cartoon voice: a buzzy vocal-cord source shaped by two moving formant
+    peaks. Not speech -- nothing synthesised from scratch is -- but it lands in
+    the same family as the wah-wah trombone that stands in for a voice in
+    cartoons, and it reads as a character rather than a beep.
+
+    `vowels` is a list of (formant1, formant2) pairs the sound morphs through.
+    """
+    n = int(seconds * SAMPLE_RATE)
+    out = [0.0] * n
+    phase = 0.0
+    # Two resonators, updated with a simple one-pole-per-sample sweep.
+    b1 = b2 = 0.0
+    for i in range(n):
+        t = i / max(1, n - 1)
+        span = t * (len(vowels) - 1)
+        k = min(int(span), len(vowels) - 2)
+        frac = span - k
+        f1 = vowels[k][0] + (vowels[k + 1][0] - vowels[k][0]) * frac
+        f2 = vowels[k][1] + (vowels[k + 1][1] - vowels[k][1]) * frac
+
+        phase += 2 * math.pi * freq / SAMPLE_RATE
+        if phase > 2 * math.pi:
+            phase -= 2 * math.pi
+        # Sawtooth source: rich enough for formants to have something to bite.
+        source = 1.0 - phase / math.pi
+        # Each formant is a resonant peak; a leaky integrator approximates one.
+        a1 = math.exp(-2 * math.pi * 90 / SAMPLE_RATE)
+        a2 = math.exp(-2 * math.pi * 120 / SAMPLE_RATE)
+        b1 = a1 * b1 + (1 - a1) * source * math.cos(2 * math.pi * f1 * i / SAMPLE_RATE)
+        b2 = a2 * b2 + (1 - a2) * source * math.cos(2 * math.pi * f2 * i / SAMPLE_RATE)
+        out[i] = (b1 * 1.6 + b2 * 1.1) * envelope(i, n, attack, release) * gain
+    return out
+
+
 def sfx_click() -> list[float]:
     return overlay(tone(880, 0.07, attack=0.01, release=0.8, harmonics=(1.0, 0.2)),
                    noise_hit(0.05, 4000, gain=0.25))
 
 
 def sfx_found() -> list[float]:
-    return sequence([(0.0, tone(NOTE["E5"], 0.16, harmonics=(1.0, 0.25, 0.1))),
-                     (0.09, tone(NOTE["A5"], 0.26, gain=0.9))])
+    """A pleased little "ta-daa": two rising notes with a voice on top."""
+    return sequence([
+        (0.00, tone(NOTE["E5"], 0.16, harmonics=(1.0, 0.25, 0.1))),
+        (0.09, tone(NOTE["A5"], 0.26, gain=0.9)),
+        (0.06, voice(330, 0.34, [(720, 1240), (390, 1980)], gain=0.5)),
+        (0.10, glide(700, 1500, 0.28, gain=0.16, harmonics=(1.0, 0.12))),
+    ])
 
 
 def sfx_misclick() -> list[float]:
-    return overlay(tone(150, 0.26, harmonics=(1.0, 0.5, 0.35), detune=-0.28, release=0.5),
-                   noise_hit(0.18, 900, gain=0.35))
+    """The wrong person. A deflating "wah-waaah" rather than a buzzer: the
+    penalty is already 15 points and 3 seconds, so the sound should tease
+    rather than scold."""
+    return sequence([
+        (0.00, voice(196, 0.20, [(660, 1100), (520, 940)], gain=0.62)),
+        (0.18, voice(155, 0.42, [(600, 1020), (430, 820)], gain=0.58, release=0.6)),
+        (0.00, glide(260, 150, 0.55, gain=0.20, harmonics=(1.0, 0.45, 0.2))),
+        (0.02, noise_hit(0.09, 700, gain=0.14)),
+    ])
 
 
 def sfx_combo() -> list[float]:
@@ -142,26 +209,77 @@ def sfx_win() -> list[float]:
     return sequence(parts)
 
 
-def bgm_loop() -> list[float]:
-    """A calm 16 second loop: four bars of pad plus a wandering lead."""
-    bar = 4.0
-    chords = [("C3", ("C4", "E4", "G4")), ("A3", ("A4", "C5", "E5")),
-              ("F3", ("F4", "A4", "C5")), ("G3", ("G4", "B4", "D5"))]
-    lead = [("E5", 0.0, 0.9), ("G5", 1.0, 0.7), ("C5", 2.0, 1.2), ("D5", 3.2, 0.6),
-            ("A4", 4.2, 1.0), ("C5", 5.4, 0.8), ("E5", 6.4, 1.3),
-            ("F4", 8.2, 1.0), ("A4", 9.4, 0.8), ("C5", 10.4, 1.2),
-            ("D5", 12.2, 0.9), ("B4", 13.4, 0.7), ("G4", 14.4, 1.4)]
+THEMES = {
+    # name:   (bar seconds, chord roots, triads, lead notes, timbre, pulse)
+    "bright": (3.2,
+               ["C3", "A3", "F3", "G3"],
+               [("C4", "E4", "G4"), ("A4", "C5", "E5"),
+                ("F4", "A4", "C5"), ("G4", "B4", "D5")],
+               ["E5", "G5", "A5", "G5", "E5", "D5", "E5", "G5"],
+               (1.0, 0.30, 0.12), True),
+    "rustic": (3.6,
+               ["G3", "C3", "G3", "F3"],
+               [("G4", "B4", "D5"), ("C4", "E4", "G4"),
+                ("G4", "B4", "D5"), ("F4", "A4", "C5")],
+               ["D5", "E5", "G5", "E5", "D5", "C5", "D5", "B4"],
+               (1.0, 0.22, 0.30), True),
+    "breezy": (4.4,
+               ["F3", "C3", "A3", "F3"],
+               [("F4", "A4", "C5"), ("C4", "E4", "G4"),
+                ("A4", "C5", "E5"), ("F4", "A4", "C5")],
+               ["C5", "A4", "F4", "G4", "A4", "C5", "A4", "G4"],
+               (1.0, 0.14), False),
+    "busy":   (2.6,
+               ["A3", "F3", "C3", "G3"],
+               [("A4", "C5", "E5"), ("F4", "A4", "C5"),
+                ("C4", "E4", "G4"), ("G4", "B4", "D5")],
+               ["A4", "C5", "E5", "C5", "A4", "B4", "D5", "B4"],
+               (1.0, 0.34, 0.18, 0.08), True),
+    "frost":  (4.8,
+               ["C3", "G3", "A3", "F3"],
+               [("C4", "E4", "G4"), ("G4", "B4", "D5"),
+                ("A4", "C5", "E5"), ("F4", "A4", "C5")],
+               ["C6", "G5", "E5", "G5", "A5", "E5", "C6", "G5"],
+               (1.0, 0.08, 0.04), False),
+    "dusk":   (4.0,
+               ["A3", "F3", "C3", "G3"],
+               [("A4", "C5", "E5"), ("F4", "A4", "C5"),
+                ("C4", "E4", "G4"), ("G4", "B4", "D5")],
+               ["E5", "D5", "C5", "A4", "C5", "E5", "D5", "B4"],
+               (1.0, 0.26, 0.10), False),
+}
+
+
+def bgm_loop(theme: str = "bright") -> list[float]:
+    """One looping track. Twenty-five levels sharing a single piece of music is
+    what made the old one wear out; each scene family gets its own instead.
+
+    The shape is the same in every theme -- four bars of bass, triad pad and a
+    lead line -- so they sit together as one soundtrack rather than six
+    unrelated pieces. What changes is key, tempo, timbre and whether a soft
+    pulse keeps time underneath.
+    """
+    bar, roots, triads, lead, timbre, pulse = THEMES[theme]
     parts = []
-    for b, (bass, triad) in enumerate(chords):
+    for b, (bass, triad) in enumerate(zip(roots, triads)):
         t0 = b * bar
-        parts.append((t0, tone(NOTE[bass], bar * 0.98, gain=0.30, attack=0.12,
+        parts.append((t0, tone(NOTE[bass], bar * 0.98, gain=0.28, attack=0.12,
                                release=0.35, harmonics=(1.0, 0.18))))
         for note in triad:
-            parts.append((t0 + 0.04, tone(NOTE[note], bar * 0.9, gain=0.13, attack=0.25,
-                                          release=0.45, harmonics=(1.0, 0.1))))
-    for note, at, dur in lead:
-        parts.append((at, tone(NOTE[note], dur, gain=0.24, attack=0.08, release=0.5,
-                               harmonics=(1.0, 0.22, 0.06))))
+            parts.append((t0 + 0.04, tone(NOTE[note], bar * 0.9, gain=0.12,
+                                          attack=0.25, release=0.45,
+                                          harmonics=(1.0, 0.1))))
+        if pulse:
+            for beat in range(4):
+                parts.append((t0 + beat * bar / 4,
+                              noise_hit(0.05, 2600, gain=0.05)))
+
+    # The lead walks across the whole loop, two notes to a bar.
+    step = bar / 2
+    for i, note in enumerate(lead):
+        parts.append((i * step, tone(NOTE[note], step * 0.85, gain=0.22,
+                                     attack=0.08, release=0.5,
+                                     harmonics=timbre)))
     return sequence(parts)
 
 
@@ -219,7 +337,10 @@ AUDIO_BUILDERS = {
     "star": sfx_star,
     "peek": sfx_peek,
     "swoosh": sfx_swoosh,
-    "bgm_main": bgm_loop,
+    # bgm_main stays as the fallback AudioManager uses when a level names a
+    # theme that is not shipped, so the game is never silent by accident.
+    "bgm_main": lambda: bgm_loop("bright"),
+    **{f"bgm_{name}": (lambda n=name: bgm_loop(n)) for name in THEMES},
 }
 
 def main() -> None:

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 
@@ -49,6 +51,12 @@ class _GameScreenState extends State<GameScreen> {
   void _startLevel(LevelDefinition level) {
     _services.levels.startLevel(level);
     _scoreManager.startLevel(level);
+    // The soundtrack follows the scene: a farm and a night festival should not
+    // sound the same, and one loop across twenty-five levels is what wore the
+    // old music out.
+    unawaited(_services.audio.startMusic(
+      track: AudioManager.trackForLevel(level.nameKey),
+    ));
     _result = null;
     _game = FindoGame(
       level: level,
