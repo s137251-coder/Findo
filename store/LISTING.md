@@ -49,10 +49,10 @@ PLAYS YOUR WAY
 Findo is free to play. It contains ads and optional in-app purchases, including a one-time purchase that removes ads permanently.
 ```
 
-### What's new — release 1.0.0 (91 / 500)
+### What's new — release 1.0.0 (97 / 500)
 
 ```
-First release. Three crowded scenes to search, English and Hebrew, hints, and star ratings.
+First release. Twenty-five crowded scenes to search, English and Hebrew, hints, and star ratings.
 ```
 
 ---
@@ -99,10 +99,10 @@ Findo
 Findo חינמי לשחק. הוא כולל פרסומות ורכישות אופציונליות, ובהן רכישה חד-פעמית שמסירה את הפרסומות לצמיתות.
 ```
 
-### What's new — release 1.0.0 (75 / 500)
+### What's new — release 1.0.0 (83 / 500)
 
 ```
-גרסה ראשונה. שלוש סצנות עמוסות לחיפוש, עברית ואנגלית, רמזים, ודירוג כוכבים.
+גרסה ראשונה. עשרים וחמישה שלבים עמוסים לחיפוש, עברית ואנגלית, רמזים, ודירוג כוכבים.
 ```
 
 ---
