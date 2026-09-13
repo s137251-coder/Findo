@@ -18,7 +18,7 @@ Status of every gate Play checks, and who has to close it.
 | 8 | **Privacy policy document** | `docs/privacy-policy.html`, English and Hebrew. Published to the `gh-pages` branch, which holds only the policy and a one-page index — Pages is deliberately *not* served from `/docs`, because that folder also carries the art brief and the image generation prompts. Turning Pages on is four clicks; see below. |
 | 9 | **Data safety answers** | `store/LISTING.md`, matched to what the code actually does. |
 | 10 | **Content rating answers** | `store/LISTING.md`. |
-| 11 | **`applicationId` and version** | `com.findo.game`, `1.0.0+3`. |
+| 11 | **`applicationId` and version** | `com.findo.game`, `1.0.0+4`. |
 | 12 | **R8 / ProGuard rules** | `android/app/proguard-rules.pro` keeps AdMob, UMP, Play Billing, and — the one that actually bit — Room, WorkManager and `androidx.startup`. See the note below. |
 | 13 | **Release build verified on a device** | The signed `1.0.0+2` release APK was installed on an Android 15 emulator and played end to end: first-run rules screen, level list, a full hunt on Fountain Square, a hint, finding Findo, a three-star completion panel with correct scoring (100 + 118s x 10 = 1280), progress saved, level 2 unlocked, and the whole level list re-read in Hebrew with RTL mirroring. Zero fatal exceptions in logcat. |
 | 14 | **Findo hides somewhere new on each play** | Every level carries several hiding spots and the game picks one per attempt, avoiding the previous one. Verified by playing Fountain Square three times in a row and getting three different places. This is what makes replaying a level for a better star rating a search rather than a memory test. |
@@ -104,7 +104,7 @@ it.
 
 **The build is upload-ready, and the account is now verified.**
 
-`app-release.aab` at `1.0.0+3` carries **twenty-five levels** and is ready for
+`app-release.aab` at `1.0.0+4` carries **twenty-five levels** and is ready for
 the internal testing track: correctly signed, correctly versioned, and every
 graphic and text asset Play demands exists in this repo.
 
@@ -143,7 +143,9 @@ as Google revises this policy.
 7. Install from the internal-testing link on your own phone; play a level,
    watch a rewarded ad, run a test purchase.
 8. Create the AdMob account, replace the six test ids, bump the version code
-   in `pubspec.yaml` to `1.0.0+3`, rebuild, and upload again.
+   in `pubspec.yaml` past whatever Play has already seen, rebuild, and
+   upload again. A version code is consumed the moment Play accepts an
+   upload -- even one you then discard -- and it can never be reused.
 9. Recruit 12 testers and run the closed test for its full 14 days.
 10. Promote to production.
 
