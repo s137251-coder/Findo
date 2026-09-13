@@ -94,7 +94,7 @@ Google Play ו-App Store.
 ```
 HEAD        68ae610  Cut 1.0.0+3 with twenty-five levels, ready for internal testing
 עץ עבודה    נקי
-גרסה        1.0.0+4
+גרסה        1.0.0+10
 ```
 
 | פריט | מצב |
