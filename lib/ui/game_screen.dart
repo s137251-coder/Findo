@@ -11,7 +11,9 @@ import '../managers/score_manager.dart';
 import '../models/level_definition.dart';
 import 'character_sheet_modal.dart';
 import 'hint_dialog.dart';
+import '../models/rank.dart';
 import 'hud_overlay.dart';
+import 'rank_screen.dart';
 import 'pause_modal.dart';
 import 'win_modal.dart';
 
@@ -34,6 +36,10 @@ class _GameScreenState extends State<GameScreen> {
   late FindoGame _game;
 
   LevelResult? _result;
+
+  /// Set when clearing this level earned a new rank, so the ceremony can run
+  /// after the score summary rather than on top of it.
+  Rank? _pendingRank;
   bool _servicesReady = false;
 
   @override
@@ -93,7 +99,17 @@ class _GameScreenState extends State<GameScreen> {
     if (!mounted) {
       return;
     }
-    setState(() => _result = result);
+    // A rank is earned by the level the clear unlocks, and shown once. The
+    // summary comes first: the player wants the score they just made before
+    // a ceremony about it.
+    final earned = Rank.earnedBy(_services.save.unlockedLevelIndex);
+    final pending = (earned != null && earned.number > _services.save.rankSeen)
+        ? earned
+        : null;
+    setState(() {
+      _result = result;
+      _pendingRank = pending;
+    });
     _game.setAccepting(false);
     _game.overlays.add(WinModal.overlayId);
   }
@@ -123,6 +139,30 @@ class _GameScreenState extends State<GameScreen> {
       return;
     }
     next();
+  }
+
+  /// Runs the promotion first when one is due, then whatever the button meant.
+  void _afterRank(VoidCallback next) {
+    final rank = _pendingRank;
+    if (rank == null) {
+      next();
+      return;
+    }
+    _rankThen = next;
+    unawaited(_services.save.setRankSeen(rank.number));
+    unawaited(_services.audio.playPromotion());
+    _game.overlays.remove(WinModal.overlayId);
+    _game.overlays.add(RankScreen.overlayId);
+  }
+
+  VoidCallback? _rankThen;
+
+  void _closeRank() {
+    final next = _rankThen;
+    _rankThen = null;
+    setState(() => _pendingRank = null);
+    _game.overlays.remove(RankScreen.overlayId);
+    next?.call();
   }
 
   void _restart(LevelDefinition level) {
@@ -251,10 +291,18 @@ class _GameScreenState extends State<GameScreen> {
               return WinModal(
                 result: result,
                 hasNextLevel: next != null,
-                onNext: () => _leaveLevel(() => _restart(next!)),
-                onReplay: () => _leaveLevel(() => _restart(game.level)),
-                onLevelList: () => _leaveLevel(_backToLevelList),
+                onNext: () => _afterRank(() => _leaveLevel(() => _restart(next!))),
+                onReplay: () =>
+                    _afterRank(() => _leaveLevel(() => _restart(game.level))),
+                onLevelList: () => _afterRank(() => _leaveLevel(_backToLevelList)),
               );
+            },
+            RankScreen.overlayId: (context, game) {
+              final rank = _pendingRank;
+              if (rank == null) {
+                return const SizedBox.shrink();
+              }
+              return RankScreen(rank: rank, onDone: _closeRank);
             },
             TimeUpModal.overlayId: (context, game) => TimeUpModal(
                   onRetry: () => _leaveLevel(() => _restart(game.level)),

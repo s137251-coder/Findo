@@ -36,6 +36,7 @@ class SaveManager {
   static const _keyAdsRemoved = 'findo.iap.adsRemoved';
   static const _keyHints = 'findo.iap.hints';
   static const _keyIntroSeen = 'findo.intro.seen';
+  static const _keyRankSeen = 'findo.rank.seen';
 
   /// Hints the player starts with, so the hint button is usable on day one.
   static const startingHints = 3;
@@ -83,6 +84,18 @@ class SaveManager {
   Future<void> unlockLevel(int index) async {
     if (index > unlockedLevelIndex) {
       await _prefs.setInt(_keyUnlocked, index);
+    }
+  }
+
+  /// The highest rank the player has already been shown the ceremony for.
+  ///
+  /// Kept separately from the unlocked level so the screen fires once. Without
+  /// it, replaying a cleared level would promote the player again every time.
+  int get rankSeen => _prefs.getInt(_keyRankSeen) ?? 0;
+
+  Future<void> setRankSeen(int number) async {
+    if (number > rankSeen) {
+      await _prefs.setInt(_keyRankSeen, number);
     }
   }
 

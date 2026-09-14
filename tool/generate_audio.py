@@ -250,6 +250,25 @@ THEMES = {
 }
 
 
+def sfx_promote() -> list[float]:
+    """The promotion. Longer and more deliberate than the level win: a rising
+    figure, then a held chord with a shimmer over it, so the moment has a floor
+    to land on rather than just a flourish."""
+    parts = []
+    for i, note in enumerate(("C5", "E5", "G5", "C6", "E5", "G5", "C6")):
+        parts.append((i * 0.11, tone(NOTE[note], 0.30, gain=0.55,
+                                     harmonics=(1.0, 0.3, 0.12))))
+    # the chord the climb arrives at
+    for note, gain in (("C5", 0.40), ("E5", 0.34), ("G5", 0.30), ("C6", 0.26)):
+        parts.append((0.78, tone(NOTE[note], 1.5, gain=gain, attack=0.04,
+                                 release=0.7, harmonics=(1.0, 0.22, 0.08))))
+    # a shimmer riding on top, the same gesture the magnifier makes on screen
+    parts.append((0.80, glide(1400, 2600, 0.9, gain=0.10,
+                              harmonics=(1.0, 0.1), wobble=0.004)))
+    parts.append((0.78, noise_hit(0.35, 7000, gain=0.10)))
+    return sequence(parts)
+
+
 def bgm_loop(theme: str = "bright") -> list[float]:
     """One looping track. Twenty-five levels sharing a single piece of music is
     what made the old one wear out; each scene family gets its own instead.
@@ -337,6 +356,7 @@ AUDIO_BUILDERS = {
     "star": sfx_star,
     "peek": sfx_peek,
     "swoosh": sfx_swoosh,
+    "promote": sfx_promote,
     # Real recordings live in assets/audio/music, ok and notok, and the game
     # prefers them. bgm_main is the fallback for a build where those folders
     # are empty, so the game is never silent by accident -- the other themes

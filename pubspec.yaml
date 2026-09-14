@@ -45,6 +45,7 @@ flutter:
     - assets/audio/ok/
     - assets/audio/notok/
     - assets/audio/music/
+    - assets/audio/promote/
     - assets/locales/
 
   fonts:

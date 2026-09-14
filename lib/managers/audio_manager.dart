@@ -33,6 +33,7 @@ class AudioManager with WidgetsBindingObserver {
   AudioManager(this._saveManager);
 
   static const _bgmFile = 'bgm_main.wav';
+  static const _promoteFile = 'promote.wav';
 
   /// Folders under `assets/audio/` holding the real recordings. Whatever is
   /// in them is used; dropping another file in needs no code change, because
@@ -41,6 +42,7 @@ class AudioManager with WidgetsBindingObserver {
   static const _okFolder = 'ok/';
   static const _notOkFolder = 'notok/';
   static const _musicFolder = 'music/';
+  static const _promoteFolder = 'promote/';
 
   /// Everything found in those folders, as paths relative to the audio cache
   /// prefix. Empty until [initialize] has run, and empty for good on a build
@@ -49,6 +51,7 @@ class AudioManager with WidgetsBindingObserver {
   final List<String> _okPool = [];
   final List<String> _notOkPool = [];
   final List<String> _musicPool = [];
+  final List<String> _promotePool = [];
 
   final Random _random = Random();
 
@@ -77,11 +80,13 @@ class AudioManager with WidgetsBindingObserver {
     try {
       await FlameAudio.audioCache.loadAll([
         _bgmFile,
+        _promoteFile,
         ...GameSound.values.map((sound) => sound.fileName),
         // Music is deliberately not preloaded: the tracks are long, and the
         // one a level needs is fetched when that level starts.
         ..._okPool,
         ..._notOkPool,
+        ..._promotePool,
       ]);
     } catch (error, stack) {
       _report('preload failed', error, stack);
@@ -104,6 +109,8 @@ class AudioManager with WidgetsBindingObserver {
           _notOkPool.add(relative);
         } else if (relative.startsWith(_musicFolder)) {
           _musicPool.add(relative);
+        } else if (relative.startsWith(_promoteFolder)) {
+          _promotePool.add(relative);
         }
       }
       // Sorted so a given build always enumerates them the same way; the
@@ -111,6 +118,7 @@ class AudioManager with WidgetsBindingObserver {
       _okPool.sort();
       _notOkPool.sort();
       _musicPool.sort();
+      _promotePool.sort();
     } catch (error, stack) {
       _report('asset manifest unreadable', error, stack);
     }
@@ -148,6 +156,16 @@ class AudioManager with WidgetsBindingObserver {
     } catch (error, stack) {
       _report('sfx $clip failed', error, stack);
     }
+  }
+
+  /// Plays the promotion fanfare: a recording from `assets/audio/promote` if
+  /// one shipped, else the synthesised one.
+  Future<void> playPromotion() async {
+    final clip = _pick(_promotePool);
+    if (clip == null) {
+      return _playClip(_promoteFile);
+    }
+    await _playClip(clip);
   }
 
   /// Starts a random track from `assets/audio/music` and loops it.
