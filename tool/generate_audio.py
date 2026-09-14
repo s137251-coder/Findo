@@ -337,10 +337,12 @@ AUDIO_BUILDERS = {
     "star": sfx_star,
     "peek": sfx_peek,
     "swoosh": sfx_swoosh,
-    # bgm_main stays as the fallback AudioManager uses when a level names a
-    # theme that is not shipped, so the game is never silent by accident.
+    # Real recordings live in assets/audio/music, ok and notok, and the game
+    # prefers them. bgm_main is the fallback for a build where those folders
+    # are empty, so the game is never silent by accident -- the other themes
+    # were dropped once real music arrived rather than ship four megabytes
+    # nothing plays.
     "bgm_main": lambda: bgm_loop("bright"),
-    **{f"bgm_{name}": (lambda n=name: bgm_loop(n)) for name in THEMES},
 }
 
 def main() -> None:

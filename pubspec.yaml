@@ -42,6 +42,10 @@ flutter:
     - assets/images/maps/meta/
     - assets/images/targets/
     - assets/audio/
+    # Flutter does not pick up subfolders from the parent entry.
+    - assets/audio/ok/
+    - assets/audio/notok/
+    - assets/audio/music/
     - assets/locales/
 
   fonts:

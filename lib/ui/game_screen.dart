@@ -51,12 +51,9 @@ class _GameScreenState extends State<GameScreen> {
   void _startLevel(LevelDefinition level) {
     _services.levels.startLevel(level);
     _scoreManager.startLevel(level);
-    // The soundtrack follows the scene: a farm and a night festival should not
-    // sound the same, and one loop across twenty-five levels is what wore the
-    // old music out.
-    unawaited(_services.audio.startMusic(
-      track: AudioManager.trackForLevel(level.nameKey),
-    ));
+    // A track picked at random from assets/audio/music, looped until the
+    // level ends. One loop across every level is what wore the old music out.
+    unawaited(_services.audio.startRandomMusic());
     _result = null;
     _game = FindoGame(
       level: level,

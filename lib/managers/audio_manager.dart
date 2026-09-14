@@ -1,4 +1,7 @@
+import 'dart:math';
+
 import 'package:flame_audio/flame_audio.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
@@ -31,52 +34,27 @@ class AudioManager with WidgetsBindingObserver {
 
   static const _bgmFile = 'bgm_main.wav';
 
-  /// Music themes, one per scene family. Twenty-five levels sharing a single
-  /// loop is what wore the old soundtrack out; a farm and a night festival
-  /// should not sound the same.
-  static const _themes = <String>[
-    'bright', 'rustic', 'breezy', 'busy', 'frost', 'dusk',
-  ];
+  /// Folders under `assets/audio/` holding the real recordings. Whatever is
+  /// in them is used; dropping another file in needs no code change, because
+  /// the pools are read from the asset manifest at startup rather than listed
+  /// here.
+  static const _okFolder = 'ok/';
+  static const _notOkFolder = 'notok/';
+  static const _musicFolder = 'music/';
 
-  /// Which theme each level uses, by `nameKey`. Anything missing falls back to
-  /// [_bgmFile], so a new level never ships silent.
-  static const _levelThemes = <String, String>{
-    'level.town': 'bright',
-    'level.farm': 'rustic',
-    'level.fair': 'bright',
-    'level.beach': 'breezy',
-    'level.station': 'busy',
-    'level.market': 'bright',
-    'level.snow': 'frost',
-    'level.museum': 'dusk',
-    'level.stadium': 'busy',
-    'level.airport': 'busy',
-    'level.zoo': 'bright',
-    'level.water': 'breezy',
-    'level.mall': 'busy',
-    'level.castle': 'rustic',
-    'level.hospital': 'dusk',
-    'level.site': 'busy',
-    'level.marathon': 'busy',
-    'level.festival': 'dusk',
-    'level.nightfest': 'dusk',
-    'level.docks': 'breezy',
-    'level.rooftop': 'dusk',
-    'level.glasshouse': 'breezy',
-    'level.skibase': 'frost',
-    'level.library': 'dusk',
-    'level.farmers': 'rustic',
-    'level.aquarium': 'breezy',
-    'level.cathedral': 'dusk',
-    'level.busdepot': 'busy',
-    'level.waterpark': 'bright',
-  };
+  /// Everything found in those folders, as paths relative to the audio cache
+  /// prefix. Empty until [initialize] has run, and empty for good on a build
+  /// where a folder ships no files -- every caller falls back to the
+  /// synthesised sound in that case, so the game is never silent.
+  final List<String> _okPool = [];
+  final List<String> _notOkPool = [];
+  final List<String> _musicPool = [];
 
-  /// The track a level should play, as a file name.
-  static String trackForLevel(String? nameKey) {
-    final theme = _levelThemes[nameKey];
-    return theme == null ? _bgmFile : 'bgm_$theme.wav';
-  }
+  final Random _random = Random();
+
+  /// The last track handed out, so a two-track pool still alternates instead
+  /// of repeating the same one by chance.
+  String? _lastMusic;
 
   String? _currentTrack;
 
@@ -95,15 +73,102 @@ class AudioManager with WidgetsBindingObserver {
     }
     _initialized = true;
     WidgetsBinding.instance.addObserver(this);
+    await _discoverPools();
     try {
       await FlameAudio.audioCache.loadAll([
         _bgmFile,
-        ..._themes.map((theme) => 'bgm_$theme.wav'),
         ...GameSound.values.map((sound) => sound.fileName),
+        // Music is deliberately not preloaded: the tracks are long, and the
+        // one a level needs is fetched when that level starts.
+        ..._okPool,
+        ..._notOkPool,
       ]);
     } catch (error, stack) {
       _report('preload failed', error, stack);
     }
+  }
+
+  /// Reads the asset manifest and sorts the audio folders into pools.
+  Future<void> _discoverPools() async {
+    try {
+      final manifest = await AssetManifest.loadFromAssetBundle(rootBundle);
+      const prefix = 'assets/audio/';
+      for (final asset in manifest.listAssets()) {
+        if (!asset.startsWith(prefix)) {
+          continue;
+        }
+        final relative = asset.substring(prefix.length);
+        if (relative.startsWith(_okFolder)) {
+          _okPool.add(relative);
+        } else if (relative.startsWith(_notOkFolder)) {
+          _notOkPool.add(relative);
+        } else if (relative.startsWith(_musicFolder)) {
+          _musicPool.add(relative);
+        }
+      }
+      // Sorted so a given build always enumerates them the same way; the
+      // choice itself is random, the listing order is not.
+      _okPool.sort();
+      _notOkPool.sort();
+      _musicPool.sort();
+    } catch (error, stack) {
+      _report('asset manifest unreadable', error, stack);
+    }
+  }
+
+  /// A random entry, or null when the pool shipped empty.
+  String? _pick(List<String> pool) =>
+      pool.isEmpty ? null : pool[_random.nextInt(pool.length)];
+
+  /// Plays the sound for finding her: one of the success recordings, or the
+  /// synthesised sting when none shipped.
+  Future<void> playFound() async {
+    final clip = _pick(_okPool);
+    if (clip == null) {
+      return play(GameSound.found);
+    }
+    await _playClip(clip);
+  }
+
+  /// Plays the sound for tapping the wrong person.
+  Future<void> playMisclick({double volume = 0.8}) async {
+    final clip = _pick(_notOkPool);
+    if (clip == null) {
+      return play(GameSound.misclick, volume: volume);
+    }
+    await _playClip(clip, volume: volume);
+  }
+
+  Future<void> _playClip(String clip, {double volume = 1.0}) async {
+    if (!sfxEnabled) {
+      return;
+    }
+    try {
+      await FlameAudio.play(clip, volume: volume);
+    } catch (error, stack) {
+      _report('sfx $clip failed', error, stack);
+    }
+  }
+
+  /// Starts a random track from `assets/audio/music` and loops it.
+  ///
+  /// Used for the menu as well as for levels: the synthesised loop is the
+  /// fallback for a build with no music shipped, not something to play at
+  /// people who do have real music. Flame's background player runs in
+  /// [ReleaseMode.loop], so a fifteen second piece covers a three minute hunt
+  /// without any timer here.
+  Future<void> startRandomMusic() async {
+    if (_musicPool.isEmpty) {
+      return startMusic(track: _bgmFile);
+    }
+    var chosen = _pick(_musicPool)!;
+    if (_musicPool.length > 1 && chosen == _lastMusic) {
+      // One retry is enough to stop an obvious immediate repeat without
+      // making the sequence predictable.
+      chosen = _pick(_musicPool)!;
+    }
+    _lastMusic = chosen;
+    await startMusic(track: chosen);
   }
 
   Future<void> setMusicEnabled(bool value) async {

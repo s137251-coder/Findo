@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
@@ -244,7 +245,7 @@ class FindoGame extends FlameGame with ScaleDetector {
     }
     if (scoreManager.update(dt)) {
       _finished = true;
-      audioManager.play(GameSound.misclick, volume: 0.7);
+      unawaited(audioManager.playMisclick(volume: 0.7));
       onTimeUp();
     }
   }
@@ -289,7 +290,7 @@ class FindoGame extends FlameGame with ScaleDetector {
       return false;
     }
     final awarded = scoreManager.registerFind();
-    audioManager.play(GameSound.found);
+    unawaited(audioManager.playFound());
     _showFloatingScore(Vector2(target.centerX, target.y), awarded);
 
     _finished = true;
@@ -304,7 +305,7 @@ class FindoGame extends FlameGame with ScaleDetector {
       return;
     }
     scoreManager.registerMisclick();
-    audioManager.play(GameSound.misclick, volume: 0.8);
+    unawaited(audioManager.playMisclick());
     _showFloatingScore(mapPosition, -ScoreManager.misclickPenalty);
     if (scoreManager.isTimeUp) {
       _finished = true;

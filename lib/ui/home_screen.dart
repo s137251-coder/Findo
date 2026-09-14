@@ -90,7 +90,7 @@ class _HomeScreenState extends State<HomeScreen> {
               FilledButton.icon(
                 onPressed: () {
                   services.audio.play(GameSound.tap);
-                  services.audio.startMusic();
+                  services.audio.startRandomMusic();
                   Navigator.of(context).push(
                     findoRoute<void>(const LevelSelectScreen()),
                   );
