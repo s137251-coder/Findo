@@ -78,6 +78,7 @@ class LevelDefinition {
     required this.starThresholds,
     required this.targets,
     this.tint,
+    this.motion = 0,
   });
 
   final String id;
@@ -102,6 +103,16 @@ class LevelDefinition {
   /// Null on maps shot in ordinary daylight.
   final Color? tint;
 
+  /// How busy the drifting overlay on this level is, 0 to 1.
+  ///
+  /// Findo stops shrinking at level 20 -- below about 68 pixels she is hard to
+  /// *tap*, not just hard to spot, which is unfair rather than difficult. From
+  /// there the clock keeps tightening and this carries the rest: things moving
+  /// over the scene pull the eye away from the still figure the player is
+  /// hunting, which is the one thing that makes a static picture harder to
+  /// search without touching the artwork.
+  final double motion;
+
   factory LevelDefinition.fromJson(Map<String, dynamic> json) {
     final size = json['mapSize'] as Map<String, dynamic>;
     return LevelDefinition(
@@ -118,6 +129,7 @@ class LevelDefinition {
           .map((spot) => LevelTarget.fromJson(spot as Map<String, dynamic>))
           .toList(growable: false),
       tint: _tintFromJson(json['tint'] as Map<String, dynamic>?),
+      motion: ((json['motion'] as num?) ?? 0).toDouble().clamp(0.0, 1.0),
     );
   }
 

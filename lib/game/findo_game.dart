@@ -15,6 +15,7 @@ import '../managers/audio_manager.dart';
 import '../managers/level_manager.dart';
 import '../managers/score_manager.dart';
 import '../models/level_definition.dart';
+import 'components/drift_layer_component.dart';
 import 'components/item_target_component.dart';
 import 'components/map_background_component.dart';
 
@@ -130,6 +131,13 @@ class FindoGame extends FlameGame with ScaleDetector {
     );
     _target = placed;
     world.add(placed);
+
+    // Behind her, deliberately: the drift is there to pull the eye, not to
+    // cover the one thing the player is allowed to tap.
+    final drift = driftLayerFor(level, mapSize);
+    if (drift != null) {
+      world.add(drift);
+    }
 
     _applyViewport();
     _viewportDirty = false;

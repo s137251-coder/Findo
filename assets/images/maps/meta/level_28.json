@@ -7,47 +7,48 @@
     "width": 2048,
     "height": 2048
   },
-  "timeLimitSeconds": 107,
+  "timeLimitSeconds": 67,
   "starThresholds": {
-    "one": 207,
-    "two": 582,
-    "three": 870
+    "one": 167,
+    "two": 402,
+    "three": 582
   },
   "targets": [
     {
       "x": 525,
       "y": 465,
-      "width": 29,
-      "height": 84
+      "width": 24,
+      "height": 68
     },
     {
       "x": 1432,
       "y": 1042,
-      "width": 29,
-      "height": 84
+      "width": 24,
+      "height": 68
     },
     {
       "x": 1847,
       "y": 1760,
-      "width": 29,
-      "height": 84
+      "width": 24,
+      "height": 68
     },
     {
       "x": 555,
       "y": 1015,
-      "width": 29,
-      "height": 84
+      "width": 24,
+      "height": 68
     },
     {
       "x": 168,
       "y": 1670,
-      "width": 29,
-      "height": 84
+      "width": 24,
+      "height": 68
     }
   ],
   "tint": {
     "r": 1.129,
     "g": 1.066,
     "b": 1.021
-  }
+  },
+  "motion": 0.23
 }

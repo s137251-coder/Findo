@@ -17,37 +17,38 @@
     {
       "x": 1512,
       "y": 1067,
-      "width": 26,
-      "height": 74
+      "width": 25,
+      "height": 70
     },
     {
       "x": 931,
       "y": 724,
-      "width": 26,
-      "height": 74
+      "width": 25,
+      "height": 70
     },
     {
       "x": 409,
       "y": 432,
-      "width": 26,
-      "height": 74
+      "width": 25,
+      "height": 70
     },
     {
       "x": 224,
       "y": 1457,
-      "width": 26,
-      "height": 74
+      "width": 25,
+      "height": 70
     },
     {
       "x": 1577,
       "y": 246,
-      "width": 26,
-      "height": 74
+      "width": 25,
+      "height": 70
     }
   ],
   "tint": {
     "r": 0.961,
     "g": 0.952,
     "b": 0.943
-  }
+  },
+  "motion": 0.0
 }
