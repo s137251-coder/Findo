@@ -33,6 +33,13 @@ from PIL import Image
 
 from level_data import MAPS, MIN_MAP_SIDE, ROOT, star_thresholds, write_level
 
+# Quality 92 was a guess; 84 was measured. On the densest map it cuts the file
+# by 28% for a PSNR of 40 dB, and side by side at full zoom -- the only view
+# where it could matter, since that is how the player studies a crowd -- the
+# two are indistinguishable. Flat colour behind hard black outlines is what
+# WebP is best at. Going below about 80 starts to ring around the linework.
+MAP_QUALITY = 84
+
 TARGETS = ROOT / "assets" / "images" / "targets"
 FINDO = TARGETS / "findo.png"
 PREVIEWS = ROOT / "store" / "previews"
@@ -404,7 +411,7 @@ def cmd_level(args: argparse.Namespace) -> int:
     # Android and iOS. Hand-drawn masters stay lossless PNG; this is only the
     # shipping copy.
     map_name = f"{args.id}.webp"
-    scene.save(MAPS / map_name, "WEBP", quality=92, method=6)
+    scene.save(MAPS / map_name, "WEBP", quality=MAP_QUALITY, method=6)
     size_mb = (MAPS / map_name).stat().st_size / 1_048_576
     print(f"wrote {(MAPS / map_name).relative_to(ROOT)} at {MAP_SIDE}x{MAP_SIDE}, {size_mb:.2f} MB")
     if size_mb > 1.5:
