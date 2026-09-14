@@ -149,6 +149,7 @@ def main() -> int:
              '--scene', str(scene),
              '--id', row['id'],
              '--index', str(row['index']),
+             '--motion', str(row.get('motion') or 0),
              '--name-key', row['name_key'],
              '--height', str(row['height']),
              '--time', str(row['time']),

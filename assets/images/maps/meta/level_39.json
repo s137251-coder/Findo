@@ -1,0 +1,54 @@
+{
+  "id": "level_39",
+  "index": 39,
+  "nameKey": "level.baggage",
+  "map": "maps/level_39.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 64,
+  "starThresholds": {
+    "one": 164,
+    "two": 388,
+    "three": 561
+  },
+  "targets": [
+    {
+      "x": 855,
+      "y": 934,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 1883,
+      "y": 685,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 180,
+      "y": 792,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 788,
+      "y": 219,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 853,
+      "y": 1583,
+      "width": 24,
+      "height": 68
+    }
+  ],
+  "tint": {
+    "r": 1.099,
+    "g": 1.039,
+    "b": 1.027
+  },
+  "motion": 0.34
+}

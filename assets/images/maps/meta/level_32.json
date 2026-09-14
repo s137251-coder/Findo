@@ -1,0 +1,42 @@
+{
+  "id": "level_32",
+  "index": 32,
+  "nameKey": "level.port",
+  "map": "maps/level_32.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 66,
+  "starThresholds": {
+    "one": 166,
+    "two": 397,
+    "three": 575
+  },
+  "targets": [
+    {
+      "x": 1276,
+      "y": 1227,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 716,
+      "y": 1819,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 1828,
+      "y": 583,
+      "width": 24,
+      "height": 68
+    }
+  ],
+  "tint": {
+    "r": 0.874,
+    "g": 0.901,
+    "b": 0.889
+  },
+  "motion": 0.27
+}

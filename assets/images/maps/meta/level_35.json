@@ -1,0 +1,54 @@
+{
+  "id": "level_35",
+  "index": 35,
+  "nameKey": "level.firestation",
+  "map": "maps/level_35.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 65,
+  "starThresholds": {
+    "one": 165,
+    "two": 392,
+    "three": 568
+  },
+  "targets": [
+    {
+      "x": 1816,
+      "y": 434,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 141,
+      "y": 447,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 478,
+      "y": 1012,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 157,
+      "y": 1820,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 1059,
+      "y": 856,
+      "width": 24,
+      "height": 68
+    }
+  ],
+  "tint": {
+    "r": 1.153,
+    "g": 1.033,
+    "b": 1.024
+  },
+  "motion": 0.3
+}

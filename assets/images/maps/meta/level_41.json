@@ -1,0 +1,42 @@
+{
+  "id": "level_41",
+  "index": 41,
+  "nameKey": "level.opencinema",
+  "map": "maps/level_41.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 63,
+  "starThresholds": {
+    "one": 163,
+    "two": 384,
+    "three": 554
+  },
+  "targets": [
+    {
+      "x": 1214,
+      "y": 636,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 376,
+      "y": 938,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 868,
+      "y": 1366,
+      "width": 24,
+      "height": 68
+    }
+  ],
+  "tint": {
+    "r": 0.937,
+    "g": 1.045,
+    "b": 0.865
+  },
+  "motion": 0.37
+}

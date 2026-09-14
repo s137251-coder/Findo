@@ -71,6 +71,7 @@ def write_level(
     time_limit: int,
     stars: tuple[int, int, int],
     tint: tuple[float, float, float] | None = None,
+    motion: float = 0.0,
 ) -> Path:
     """Writes one level's metadata and makes sure it is listed in the index.
 
@@ -86,6 +87,10 @@ def write_level(
         "mapSize": {"width": map_size[0], "height": map_size[1]},
         "timeLimitSeconds": time_limit,
         "starThresholds": {"one": stars[0], "two": stars[1], "three": stars[2]},
+        # How busy the drifting overlay is on this level, 0 to 1. Carried here
+        # rather than applied afterwards, so a freshly built level arrives with
+        # the difficulty the ladder asked for instead of a silent zero.
+        "motion": motion,
         "targets": [
             {"x": x, "y": y, "width": w, "height": h} for x, y, w, h in targets
         ],

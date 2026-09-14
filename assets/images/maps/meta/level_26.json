@@ -1,0 +1,54 @@
+{
+  "id": "level_26",
+  "index": 26,
+  "nameKey": "level.arcade",
+  "map": "maps/level_26.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 67,
+  "starThresholds": {
+    "one": 167,
+    "two": 402,
+    "three": 582
+  },
+  "targets": [
+    {
+      "x": 252,
+      "y": 1088,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 887,
+      "y": 329,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 1763,
+      "y": 458,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 1460,
+      "y": 1573,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 784,
+      "y": 893,
+      "width": 24,
+      "height": 68
+    }
+  ],
+  "tint": {
+    "r": 0.946,
+    "g": 0.928,
+    "b": 0.931
+  },
+  "motion": 0.2
+}

@@ -421,6 +421,7 @@ def cmd_level(args: argparse.Namespace) -> int:
         time_limit=args.time,
         stars=stars,
         tint=tint,
+        motion=args.motion,
     )
     where = ", ".join(f"({x},{y})" for x, y, _, _ in spots)
     print(f"registered {args.id}: {len(spots)} hiding spots at {where}, "
@@ -464,6 +465,8 @@ def main() -> int:
     lv.add_argument("--height", type=int, required=True,
                     help="her full height in map pixels, from the brief's table")
     lv.add_argument("--time", type=int, required=True, help="time limit in seconds")
+    lv.add_argument("--motion", type=float, default=0.0,
+                    help="drift intensity for this level, 0 to 1")
     lv.add_argument("--tint", type=float, default=0.0,
                     help="0 to 0.55: blend her towards the scene's own light. Use "
                          "on dusk or night maps, where a daylit figure is the "

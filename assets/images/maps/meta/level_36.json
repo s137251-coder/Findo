@@ -1,0 +1,54 @@
+{
+  "id": "level_36",
+  "index": 36,
+  "nameKey": "level.auction",
+  "map": "maps/level_36.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 64,
+  "starThresholds": {
+    "one": 164,
+    "two": 388,
+    "three": 561
+  },
+  "targets": [
+    {
+      "x": 561,
+      "y": 559,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 1325,
+      "y": 688,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 992,
+      "y": 1675,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 1845,
+      "y": 1096,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 287,
+      "y": 1119,
+      "width": 24,
+      "height": 68
+    }
+  ],
+  "tint": {
+    "r": 1.048,
+    "g": 0.955,
+    "b": 0.865
+  },
+  "motion": 0.31
+}

@@ -1,0 +1,54 @@
+{
+  "id": "level_37",
+  "index": 37,
+  "nameKey": "level.floralhall",
+  "map": "maps/level_37.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 64,
+  "starThresholds": {
+    "one": 164,
+    "two": 388,
+    "three": 561
+  },
+  "targets": [
+    {
+      "x": 458,
+      "y": 1707,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 1865,
+      "y": 1557,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 1249,
+      "y": 563,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 1304,
+      "y": 1567,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 1820,
+      "y": 816,
+      "width": 24,
+      "height": 68
+    }
+  ],
+  "tint": {
+    "r": 0.763,
+    "g": 0.784,
+    "b": 0.838
+  },
+  "motion": 0.32
+}

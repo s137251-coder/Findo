@@ -1,0 +1,54 @@
+{
+  "id": "level_34",
+  "index": 34,
+  "nameKey": "level.bowling",
+  "map": "maps/level_34.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 65,
+  "starThresholds": {
+    "one": 165,
+    "two": 392,
+    "three": 568
+  },
+  "targets": [
+    {
+      "x": 837,
+      "y": 978,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 1288,
+      "y": 1506,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 1745,
+      "y": 269,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 203,
+      "y": 1548,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 430,
+      "y": 282,
+      "width": 24,
+      "height": 68
+    }
+  ],
+  "tint": {
+    "r": 1.057,
+    "g": 0.988,
+    "b": 0.976
+  },
+  "motion": 0.29
+}

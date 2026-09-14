@@ -1,0 +1,54 @@
+{
+  "id": "level_38",
+  "index": 38,
+  "nameKey": "level.recycling",
+  "map": "maps/level_38.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 64,
+  "starThresholds": {
+    "one": 164,
+    "two": 388,
+    "three": 561
+  },
+  "targets": [
+    {
+      "x": 1488,
+      "y": 1539,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 298,
+      "y": 639,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 388,
+      "y": 1160,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 1613,
+      "y": 376,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 865,
+      "y": 1680,
+      "width": 24,
+      "height": 68
+    }
+  ],
+  "tint": {
+    "r": 1.069,
+    "g": 1.051,
+    "b": 1.033
+  },
+  "motion": 0.33
+}

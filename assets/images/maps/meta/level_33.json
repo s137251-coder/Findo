@@ -1,0 +1,54 @@
+{
+  "id": "level_33",
+  "index": 33,
+  "nameKey": "level.bazaar",
+  "map": "maps/level_33.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 65,
+  "starThresholds": {
+    "one": 165,
+    "two": 392,
+    "three": 568
+  },
+  "targets": [
+    {
+      "x": 1841,
+      "y": 1753,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 140,
+      "y": 1432,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 1107,
+      "y": 401,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 322,
+      "y": 508,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 1778,
+      "y": 656,
+      "width": 24,
+      "height": 68
+    }
+  ],
+  "tint": {
+    "r": 1.009,
+    "g": 0.88,
+    "b": 0.925
+  },
+  "motion": 0.28
+}

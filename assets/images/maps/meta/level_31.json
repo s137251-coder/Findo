@@ -1,0 +1,54 @@
+{
+  "id": "level_31",
+  "index": 31,
+  "nameKey": "level.nursery",
+  "map": "maps/level_31.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 66,
+  "starThresholds": {
+    "one": 166,
+    "two": 397,
+    "three": 575
+  },
+  "targets": [
+    {
+      "x": 186,
+      "y": 1381,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 890,
+      "y": 1286,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 829,
+      "y": 453,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 236,
+      "y": 823,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 1465,
+      "y": 876,
+      "width": 24,
+      "height": 68
+    }
+  ],
+  "tint": {
+    "r": 1.033,
+    "g": 1.057,
+    "b": 0.988
+  },
+  "motion": 0.26
+}
