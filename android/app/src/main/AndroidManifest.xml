@@ -10,12 +10,11 @@
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 
-        <!-- AdMob application id. This is Google's public sample id; replace it
-             with the app id from your own AdMob account before release. It is
-             not the same value as an ad unit id. -->
+        <!-- Findo's AdMob application id. It is not an ad unit id: the units
+             are in lib/managers/monetization_manager.dart. -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-3940256099942544~3347511713"/>
+            android:value="ca-app-pub-6774231477266357~9514573062"/>
 
         <!-- Delays ad SDK start-up until the app asks for it, which keeps the
              consent flow ahead of the first ad request. -->

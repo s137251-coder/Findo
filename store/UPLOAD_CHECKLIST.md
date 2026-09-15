@@ -96,7 +96,7 @@ it.
 | --- | --- | --- | --- |
 | ~~1~~ | ~~**Switch GitHub Pages on**~~ | **Done.** Live and checked at `https://s137251-coder.github.io/Findo/privacy-policy.html` — both languages, contact address, dated. This is the URL for the listing and for App content. | — |
 | ~~2~~ | ~~**Play Console developer account**~~ | **Done.** Account created and verified. | — |
-| 3 | **Real AdMob app id and ad unit ids** | Requires your AdMob account. The build currently carries Google's public test ids (`ca-app-pub-3940256099942544`), so ads display but earn nothing. **Six** values to replace: four ad units in `lib/managers/monetization_manager.dart`, plus the app id in `AndroidManifest.xml` and in `ios/Runner/Info.plist`. | 20 min |
+| ~~3~~ | ~~**Real AdMob app id and ad unit ids**~~ | **Done for Android in `1.0.0+16`.** App id in `AndroidManifest.xml`, interstitial and rewarded units in `lib/managers/monetization_manager.dart`. Release builds only: debug builds keep Google's test units so development never counts as traffic. iOS keeps test ids until an iOS app is registered in AdMob. The AdMob app was added as "not listed in a store" because the app is still in closed testing; link it to `com.findo.game` in AdMob's app settings once it is public. | — |
 | 4 | **Create the two in-app products** | Done in Play Console, and only after a first upload exists. Ids must be `findo_remove_ads` and `findo_hint_pack_10`. | 10 min |
 | 5 | **Submit the questionnaires** | Data safety, content rating, ads declaration, target audience. Answers are written out in `store/LISTING.md`; they still have to be typed into the console. | 20 min |
 

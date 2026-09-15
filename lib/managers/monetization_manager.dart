@@ -10,22 +10,39 @@ import 'save_manager.dart';
 
 /// AdMob unit ids.
 ///
-/// These are Google's official test units, which is what a build must use
-/// until the real app is registered in AdMob. Swap the four constants below
-/// (and the app ids in AndroidManifest.xml and Info.plist) before release;
-/// nothing else in the codebase refers to an ad unit.
+/// Android release builds use Findo's own units. Everything else -- debug and
+/// profile builds, and iOS, which has no app registered in AdMob yet -- uses
+/// Google's public test units. A developer build requests ads constantly, and
+/// real impressions from it are the pattern AdMob bans accounts for, so a
+/// build has to be a release build to touch the real units at all.
+///
+/// The app id that pairs with these lives in AndroidManifest.xml (and
+/// Info.plist for iOS); nothing else in the codebase refers to an ad unit.
 class AdUnitIds {
   const AdUnitIds._();
 
-  static const _androidInterstitial = 'ca-app-pub-3940256099942544/1033173712';
-  static const _iosInterstitial = 'ca-app-pub-3940256099942544/4411468910';
-  static const _androidRewarded = 'ca-app-pub-3940256099942544/5224354917';
-  static const _iosRewarded = 'ca-app-pub-3940256099942544/1712485313';
+  static const _androidInterstitial = 'ca-app-pub-6774231477266357/8178274812';
+  static const _androidRewarded = 'ca-app-pub-6774231477266357/8708310748';
 
-  static String get interstitial =>
-      Platform.isIOS ? _iosInterstitial : _androidInterstitial;
+  static const _testAndroidInterstitial =
+      'ca-app-pub-3940256099942544/1033173712';
+  static const _testAndroidRewarded = 'ca-app-pub-3940256099942544/5224354917';
+  static const _testIosInterstitial = 'ca-app-pub-3940256099942544/4411468910';
+  static const _testIosRewarded = 'ca-app-pub-3940256099942544/1712485313';
 
-  static String get rewarded => Platform.isIOS ? _iosRewarded : _androidRewarded;
+  static String get interstitial {
+    if (Platform.isIOS) {
+      return _testIosInterstitial;
+    }
+    return kReleaseMode ? _androidInterstitial : _testAndroidInterstitial;
+  }
+
+  static String get rewarded {
+    if (Platform.isIOS) {
+      return _testIosRewarded;
+    }
+    return kReleaseMode ? _androidRewarded : _testAndroidRewarded;
+  }
 }
 
 /// Devices that AdMob should treat as test devices.
