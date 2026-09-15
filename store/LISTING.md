@@ -190,3 +190,9 @@ else.
 - **Target audience:** declare **13 and over**. Declaring an audience that
   includes under-13s triggers Google Play Families Policy, and the AdMob
   configuration in this app is not set up for child-directed treatment.
+- **"Suitable for all ages" is not the same answer.** The privacy policy says
+  the content suits every age (no violence, no mature content, no chat) and
+  that the game is made for a general audience, not directed at under-13s.
+  That matches an IARC rating of Everyone / 3+ together with a 13+ target
+  audience. If the target audience is ever widened to include children, the
+  policy, the ad configuration and this answer all have to change together.
