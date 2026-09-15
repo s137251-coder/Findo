@@ -37,6 +37,7 @@ class SaveManager {
   static const _keyHints = 'findo.iap.hints';
   static const _keyIntroSeen = 'findo.intro.seen';
   static const _keyRankSeen = 'findo.rank.seen';
+  static const _keyStarHints = 'findo.stars.hintsGranted';
 
   /// Hints the player starts with, so the hint button is usable on day one.
   static const startingHints = 3;
@@ -133,6 +134,42 @@ class SaveManager {
       jsonEncode(progress.map((key, value) => MapEntry(key, value.toJson()))),
     );
     return isNewBest;
+  }
+
+  // -- stars ---------------------------------------------------------------
+
+  /// Stars it takes to earn one free hint.
+  static const starsPerHint = 10;
+
+  /// Stars still needed, from [total], before the next free hint is paid.
+  static int starsToNextHint(int total) =>
+      starsPerHint - total % starsPerHint;
+
+  /// Every level's best star rating, added up. Built from the best result per
+  /// level, so replaying for a better rating raises it and a worse attempt
+  /// never lowers it.
+  int get totalStars =>
+      allProgress.values.fold(0, (sum, progress) => sum + progress.stars);
+
+  /// Free hints already paid out for stars.
+  int get starHintsGranted => _prefs.getInt(_keyStarHints) ?? 0;
+
+  /// Pays the hints the star total has earned and not yet been given, and
+  /// returns how many that was.
+  ///
+  /// The number paid is stored rather than worked out from the total each
+  /// time, so a star is only ever paid for once. Players who banked stars
+  /// before this existed are paid for them on their next clear, all at once.
+  Future<int> claimStarHints() async {
+    final due = totalStars ~/ starsPerHint - starHintsGranted;
+    if (due <= 0) {
+      return 0;
+    }
+    // Recorded before the hints are added: if the app dies in between, the
+    // player misses a hint rather than being able to collect it twice.
+    await _prefs.setInt(_keyStarHints, starHintsGranted + due);
+    await addHints(due);
+    return due;
   }
 
   // -- entitlements --------------------------------------------------------

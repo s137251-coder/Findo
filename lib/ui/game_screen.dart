@@ -37,6 +37,11 @@ class _GameScreenState extends State<GameScreen> {
 
   LevelResult? _result;
 
+  /// Stars banked across every level after this clear, and the free hints the
+  /// clear paid for. Shown in the summary.
+  int _totalStars = 0;
+  int _starHints = 0;
+
   /// Set when clearing this level earned a new rank, so the ceremony can run
   /// after the score summary rather than on top of it.
   Rank? _pendingRank;
@@ -91,6 +96,7 @@ class _GameScreenState extends State<GameScreen> {
       stars: stars,
       cleared: true,
     );
+    final starHints = await _services.monetization.claimStarHints();
     final result = _scoreManager.finish(
       level: level,
       found: true,
@@ -109,6 +115,8 @@ class _GameScreenState extends State<GameScreen> {
     setState(() {
       _result = result;
       _pendingRank = pending;
+      _totalStars = _services.save.totalStars;
+      _starHints = starHints;
     });
     _game.setAccepting(false);
     _game.overlays.add(WinModal.overlayId);
@@ -290,6 +298,8 @@ class _GameScreenState extends State<GameScreen> {
               final next = _services.levels.levelAfter(game.level);
               return WinModal(
                 result: result,
+                totalStars: _totalStars,
+                starHints: _starHints,
                 hasNextLevel: next != null,
                 onNext: () => _afterRank(() => _leaveLevel(() => _restart(next!))),
                 onReplay: () =>

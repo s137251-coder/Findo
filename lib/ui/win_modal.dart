@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../app_services.dart';
 import '../managers/audio_manager.dart';
 import '../managers/localization_manager.dart';
+import '../managers/save_manager.dart';
 import '../models/level_definition.dart';
 import '../theme.dart';
 import 'motion.dart';
@@ -18,6 +19,8 @@ class WinModal extends StatelessWidget {
   const WinModal({
     super.key,
     required this.result,
+    required this.totalStars,
+    required this.starHints,
     required this.hasNextLevel,
     required this.onNext,
     required this.onReplay,
@@ -27,6 +30,13 @@ class WinModal extends StatelessWidget {
   static const overlayId = 'win';
 
   final LevelResult result;
+
+  /// Stars banked across the whole game, this clear included.
+  final int totalStars;
+
+  /// Free hints this clear earned by crossing a multiple of ten stars.
+  final int starHints;
+
   final bool hasNextLevel;
   final VoidCallback onNext;
   final VoidCallback onReplay;
@@ -59,6 +69,8 @@ class WinModal extends StatelessWidget {
             l10n.t('win.time', params: {'seconds': result.secondsTaken}),
             style: const TextStyle(fontSize: 14, color: FindoColors.textMuted),
           ),
+          SizedBox(height: short ? 8 : 12),
+          _StarBank(total: totalStars, hintsEarned: starHints),
         ];
 
         final summary = <Widget>[
@@ -235,6 +247,74 @@ class _LandingStarsState extends State<_LandingStars> {
           ),
         );
       }),
+    );
+  }
+}
+
+/// The stars banked across the whole game, and what they are worth.
+///
+/// A level's stars used to be a verdict on that level and nothing more. Every
+/// ten now pay for a hint, so the summary says how far off the next one is --
+/// or, on the clear that crosses the line, that it has just been paid.
+class _StarBank extends StatelessWidget {
+  const _StarBank({required this.total, required this.hintsEarned});
+
+  final int total;
+  final int hintsEarned;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final toNext = SaveManager.starsToNextHint(total);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      decoration: BoxDecoration(
+        color: FindoColors.surfaceRaised,
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.star_rounded, size: 18, color: FindoColors.primary),
+              const SizedBox(width: 6),
+              Text(
+                l10n.t('win.starsTotal', params: {'count': total}),
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+              ),
+            ],
+          ),
+          const SizedBox(height: 3),
+          if (hintsEarned > 0)
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.lightbulb_rounded,
+                    size: 16, color: FindoColors.success),
+                const SizedBox(width: 5),
+                Text(
+                  hintsEarned == 1
+                      ? l10n.t('win.freeHint')
+                      : l10n.t('win.freeHints', params: {'count': hintsEarned}),
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: FindoColors.success,
+                  ),
+                ),
+              ],
+            )
+          else
+            Text(
+              toNext == 1
+                  ? l10n.t('win.starToHint')
+                  : l10n.t('win.starsToHint', params: {'count': toNext}),
+              style: const TextStyle(fontSize: 13, color: FindoColors.textMuted),
+            ),
+        ],
+      ),
     );
   }
 }

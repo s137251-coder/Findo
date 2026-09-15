@@ -497,6 +497,16 @@ class MonetizationManager extends ChangeNotifier {
     return consumed;
   }
 
+  /// Pays out the free hints the player's stars have earned, and tells the
+  /// hint button about them. Returns how many were added.
+  Future<int> claimStarHints() async {
+    final granted = await _saveManager.claimStarHints();
+    if (granted > 0) {
+      notifyListeners();
+    }
+    return granted;
+  }
+
   @override
   void dispose() {
     _purchaseSubscription?.cancel();
