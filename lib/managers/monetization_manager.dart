@@ -208,7 +208,12 @@ class MonetizationManager extends ChangeNotifier {
   // -- ads -----------------------------------------------------------------
 
   Future<void> _initializeAds() async {
-    if (!_canRequestAds || adsRemoved) {
+    // Buying "remove ads" removes the ads that interrupt, not the one the
+    // player asks for. Bailing out here for a buyer used to take the rewarded
+    // video down with the interstitial, so the person who had paid was the
+    // only one left with no free way to earn a hint. The interstitial paths
+    // check adsRemoved themselves.
+    if (!_canRequestAds) {
       return;
     }
     try {
@@ -430,7 +435,8 @@ class MonetizationManager extends ChangeNotifier {
     switch (purchase.productID) {
       case StoreProducts.removeAds:
         await _saveManager.setAdsRemoved(true);
-        await _disposeAds();
+        _interstitial?.dispose();
+        _interstitial = null;
       case StoreProducts.hintPack:
         // Restores of a consumable must not stack hints a second time.
         if (purchase.status == PurchaseStatus.purchased) {
@@ -489,13 +495,6 @@ class MonetizationManager extends ChangeNotifier {
       notifyListeners();
     }
     return consumed;
-  }
-
-  Future<void> _disposeAds() async {
-    _interstitial?.dispose();
-    _interstitial = null;
-    _rewarded?.dispose();
-    _rewarded = null;
   }
 
   @override
