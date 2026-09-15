@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../app_services.dart';
 import '../managers/localization_manager.dart';
@@ -6,6 +7,10 @@ import '../managers/monetization_manager.dart';
 import '../theme.dart';
 import 'rules_screen.dart';
 import 'widgets/common.dart';
+
+/// The published privacy policy, in both languages.
+const privacyPolicyUrl =
+    'https://s137251-coder.github.io/Findo/privacy-policy.html';
 
 /// Opens the settings sheet. Returns once it is dismissed.
 Future<void> showSettingsDialog(BuildContext context) {
@@ -171,7 +176,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
                     OutlinedButton.icon(
                       onPressed: _busy
                           ? null
-                          : () => _run(services.monetization.showPrivacyOptions),
+                          : () => _openPrivacy(services.monetization),
                       icon: const Icon(Icons.privacy_tip_outlined, size: 20),
                       label: Text(l10n.t('settings.privacy')),
                     ),
@@ -205,6 +210,28 @@ class _SettingsDialogState extends State<SettingsDialog> {
     return product == null ? fallback : '$fallback  ${product.price}';
   }
 
+  /// The consent form where one exists; otherwise a panel that says why there
+  /// is nothing to change and links to the policy.
+  Future<void> _openPrivacy(MonetizationManager monetization) async {
+    var shown = false;
+    setState(() => _busy = true);
+    try {
+      shown = await monetization.showPrivacyOptions();
+    } finally {
+      if (mounted) {
+        setState(() => _busy = false);
+      }
+    }
+    if (shown || !mounted) {
+      return;
+    }
+    await showDialog<void>(
+      context: context,
+      barrierColor: const Color(0xB3050710),
+      builder: (context) => const _PrivacyInfoDialog(),
+    );
+  }
+
   Future<void> _run(Future<Object?> Function() action) async {
     setState(() => _busy = true);
     try {
@@ -214,6 +241,65 @@ class _SettingsDialogState extends State<SettingsDialog> {
         setState(() => _busy = false);
       }
     }
+  }
+}
+
+class _PrivacyInfoDialog extends StatelessWidget {
+  const _PrivacyInfoDialog();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return Dialog(
+      insetPadding: const EdgeInsets.all(20),
+      backgroundColor: Colors.transparent,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 420),
+        child: FindoPanel(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Icon(Icons.privacy_tip_outlined,
+                  size: 36, color: FindoColors.primary),
+              const SizedBox(height: 10),
+              Text(
+                l10n.t('settings.privacy'),
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 21, fontWeight: FontWeight.w700),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                l10n.t('privacy.body'),
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 15,
+                  height: 1.5,
+                  color: FindoColors.textMuted,
+                ),
+              ),
+              const SizedBox(height: 20),
+              FilledButton.icon(
+                onPressed: () => launchUrl(
+                  Uri.parse(privacyPolicyUrl),
+                  mode: LaunchMode.externalApplication,
+                ),
+                icon: const Icon(Icons.open_in_new_rounded, size: 20),
+                label: Text(l10n.t('privacy.policy')),
+              ),
+              const SizedBox(height: 10),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(
+                  l10n.t('settings.close'),
+                  style: const TextStyle(color: FindoColors.textMuted),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 

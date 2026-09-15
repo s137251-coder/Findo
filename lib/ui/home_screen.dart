@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../app_services.dart';
 import '../managers/audio_manager.dart';
@@ -12,7 +13,7 @@ import 'safe_area_wrapper.dart';
 import 'rules_screen.dart';
 import 'settings_dialog.dart';
 
-/// The title screen: play, or open settings.
+/// The title screen: play, open settings, or (on Android) leave the game.
 ///
 /// It also owns the first-run moment. A new player is shown the rules before
 /// anything else, once, and can reach them again from Settings.
@@ -118,6 +119,24 @@ class _HomeScreenState extends State<HomeScreen> {
                 icon: const Icon(Icons.settings_rounded, size: 22),
                 label: Text(l10n.t('menu.settings')),
               ),
+              // Android only. An iOS app is not meant to close itself, and App
+              // Review rejects ones that do; there, the home gesture is the exit.
+              if (Theme.of(context).platform == TargetPlatform.android) ...[
+                const SizedBox(height: 12),
+                TextButton.icon(
+                  onPressed: () async {
+                    // Stopped first, so the track cannot outlive the screen by
+                    // the moment the activity takes to finish.
+                    await services.audio.stopMusic();
+                    await SystemNavigator.pop();
+                  },
+                  style: TextButton.styleFrom(
+                    foregroundColor: FindoColors.textMuted,
+                  ),
+                  icon: const Icon(Icons.logout_rounded, size: 22),
+                  label: Text(l10n.t('menu.exit')),
+                ),
+              ],
             ],
           ),
         ),

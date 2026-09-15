@@ -171,7 +171,10 @@ Future<void> showRankCeremony(BuildContext context, Rank rank) {
   return showGeneralDialog<void>(
     context: context,
     barrierDismissible: false,
-    barrierColor: Colors.transparent,
+    // The ceremony's own scrim is tuned for a busy map behind it. Over the home
+    // screen the yellow Play button showed through the blurb, and a darker
+    // translucent barrier only faded it, so outside a level nothing shows.
+    barrierColor: FindoColors.background,
     transitionDuration: const Duration(milliseconds: 180),
     pageBuilder: (dialogContext, animation, secondaryAnimation) => RankScreen(
       rank: rank,

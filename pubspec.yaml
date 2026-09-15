@@ -2,7 +2,7 @@ name: findo
 description: "Findo - a 2D hidden object search game built with Flutter and Flame."
 publish_to: 'none'
 
-version: 1.0.0+16
+version: 1.0.0+17
 environment:
   sdk: ^3.13.2
 
@@ -27,6 +27,7 @@ dependencies:
   # Formatting
   intl: ^0.20.3
   cupertino_icons: ^1.0.8
+  url_launcher: ^6.3.2
 
 dev_dependencies:
   flutter_test:

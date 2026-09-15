@@ -206,7 +206,11 @@ class MonetizationManager extends ChangeNotifier {
 
   /// Reopens the consent form so the player can change their mind, as the
   /// privacy options requirement demands.
-  Future<void> showPrivacyOptions() async {
+  ///
+  /// Returns false when there is no form to show. The SDK only has one where
+  /// the law asks for it -- the EEA and the UK -- and everywhere else this used
+  /// to return quietly, which on screen was a button that did nothing.
+  Future<bool> showPrivacyOptions() async {
     try {
       final status =
           await ConsentInformation.instance.getPrivacyOptionsRequirementStatus();
@@ -216,10 +220,12 @@ class MonetizationManager extends ChangeNotifier {
             _log('privacy options failed: ${error.message}');
           }
         });
+        return true;
       }
     } catch (error) {
       _log('privacy options unavailable: $error');
     }
+    return false;
   }
 
   // -- ads -----------------------------------------------------------------
