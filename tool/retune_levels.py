@@ -76,8 +76,17 @@ def main() -> None:
 
         level["timeLimitSeconds"] = time
         for target in level["targets"]:
+            # A spot is where her feet are: the builder chose it so she stands
+            # among people. Resizing the box from its top-left corner would
+            # walk her feet down and sideways by the size difference -- 32
+            # units when she grows from 68 to 100 -- so the box is re-anchored
+            # on the feet instead.
+            feet_x = target["x"] + target["width"] / 2
+            feet_y = target["y"] + target["height"]
             target["width"] = width
             target["height"] = height
+            target["x"] = max(0, round(feet_x - width / 2))
+            target["y"] = max(0, round(feet_y - height))
         level["starThresholds"] = {"one": one, "two": two, "three": three}
         level["motion"] = motion
 

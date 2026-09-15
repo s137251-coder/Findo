@@ -48,7 +48,9 @@ void main() {
     test('she stays big enough to tap', () {
       for (final level in levels) {
         final height = (level['targets'] as List).first['height'] as int;
-        expect(height, greaterThanOrEqualTo(68),
+        // 100 units is the floor: below it she stops reading as a person
+        // in the crowd and starts reading as a speck.
+        expect(height, greaterThanOrEqualTo(100),
             reason: 'level ${level['index']} shrinks her past the fair limit');
       }
     });
