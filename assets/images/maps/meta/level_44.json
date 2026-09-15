@@ -1,0 +1,48 @@
+{
+  "id": "level_44",
+  "index": 44,
+  "nameKey": "level.dogshow",
+  "map": "maps/level_44.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 62,
+  "starThresholds": {
+    "one": 162,
+    "two": 379,
+    "three": 546
+  },
+  "motion": 0.4,
+  "targets": [
+    {
+      "x": 1521,
+      "y": 1606,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 502,
+      "y": 438,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 782,
+      "y": 1537,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 1585,
+      "y": 1085,
+      "width": 24,
+      "height": 68
+    }
+  ],
+  "tint": {
+    "r": 1.03,
+    "g": 1.039,
+    "b": 0.793
+  }
+}

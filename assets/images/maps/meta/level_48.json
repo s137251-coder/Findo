@@ -1,0 +1,54 @@
+{
+  "id": "level_48",
+  "index": 48,
+  "nameKey": "level.motorshow",
+  "map": "maps/level_48.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 61,
+  "starThresholds": {
+    "one": 161,
+    "two": 374,
+    "three": 539
+  },
+  "motion": 0.44,
+  "targets": [
+    {
+      "x": 314,
+      "y": 1327,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 1503,
+      "y": 618,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 272,
+      "y": 303,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 1179,
+      "y": 1772,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 1491,
+      "y": 1138,
+      "width": 24,
+      "height": 68
+    }
+  ],
+  "tint": {
+    "r": 0.91,
+    "g": 0.916,
+    "b": 0.925
+  }
+}

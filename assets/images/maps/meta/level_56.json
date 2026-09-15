@@ -1,0 +1,54 @@
+{
+  "id": "level_56",
+  "index": 56,
+  "nameKey": "level.theatre",
+  "map": "maps/level_56.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 58,
+  "starThresholds": {
+    "one": 158,
+    "two": 361,
+    "three": 518
+  },
+  "motion": 0.53,
+  "targets": [
+    {
+      "x": 263,
+      "y": 1493,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 1346,
+      "y": 1557,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 1866,
+      "y": 1760,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 390,
+      "y": 943,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 822,
+      "y": 1540,
+      "width": 24,
+      "height": 68
+    }
+  ],
+  "tint": {
+    "r": 0.928,
+    "g": 0.73,
+    "b": 0.718
+  }
+}

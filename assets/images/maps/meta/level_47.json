@@ -1,0 +1,48 @@
+{
+  "id": "level_47",
+  "index": 47,
+  "nameKey": "level.icerink",
+  "map": "maps/level_47.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 61,
+  "starThresholds": {
+    "one": 161,
+    "two": 374,
+    "three": 539
+  },
+  "motion": 0.43,
+  "targets": [
+    {
+      "x": 282,
+      "y": 1128,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 1806,
+      "y": 1738,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 1864,
+      "y": 457,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 1124,
+      "y": 153,
+      "width": 24,
+      "height": 68
+    }
+  ],
+  "tint": {
+    "r": 1.03,
+    "g": 0.979,
+    "b": 1.027
+  }
+}

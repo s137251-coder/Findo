@@ -1,0 +1,54 @@
+{
+  "id": "level_58",
+  "index": 58,
+  "nameKey": "level.lecture",
+  "map": "maps/level_58.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 58,
+  "starThresholds": {
+    "one": 158,
+    "two": 361,
+    "three": 518
+  },
+  "motion": 0.55,
+  "targets": [
+    {
+      "x": 424,
+      "y": 799,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 1821,
+      "y": 829,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 1585,
+      "y": 1386,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 1066,
+      "y": 822,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 959,
+      "y": 1342,
+      "width": 24,
+      "height": 68
+    }
+  ],
+  "tint": {
+    "r": 0.922,
+    "g": 0.91,
+    "b": 0.877
+  }
+}

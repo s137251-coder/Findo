@@ -1,0 +1,42 @@
+{
+  "id": "level_49",
+  "index": 49,
+  "nameKey": "level.streetfood",
+  "map": "maps/level_49.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 60,
+  "starThresholds": {
+    "one": 160,
+    "two": 370,
+    "three": 532
+  },
+  "motion": 0.45,
+  "targets": [
+    {
+      "x": 585,
+      "y": 1539,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 1390,
+      "y": 291,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 1717,
+      "y": 951,
+      "width": 24,
+      "height": 68
+    }
+  ],
+  "tint": {
+    "r": 0.952,
+    "g": 0.913,
+    "b": 0.805
+  }
+}

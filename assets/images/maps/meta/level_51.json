@@ -1,0 +1,54 @@
+{
+  "id": "level_51",
+  "index": 51,
+  "nameKey": "level.casino",
+  "map": "maps/level_51.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 60,
+  "starThresholds": {
+    "one": 160,
+    "two": 370,
+    "three": 532
+  },
+  "motion": 0.47,
+  "targets": [
+    {
+      "x": 320,
+      "y": 1319,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 351,
+      "y": 315,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 1853,
+      "y": 517,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 1115,
+      "y": 1825,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 1327,
+      "y": 793,
+      "width": 24,
+      "height": 68
+    }
+  ],
+  "tint": {
+    "r": 0.97,
+    "g": 0.751,
+    "b": 0.709
+  }
+}

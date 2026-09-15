@@ -34,6 +34,11 @@ INDEX = META / "index.json"
 # turns to mush at full magnification on a modern phone.
 MIN_MAP_SIDE = 2048
 
+# The fewest pixels a shipped map may have. The world is always measured in
+# MIN_MAP_SIDE units and the game stretches the image over it, so a map can be
+# smaller than its world -- but below this it goes soft at full zoom.
+MIN_SHIPPED_SIDE = 1024
+
 
 def star_thresholds(time_limit: int) -> tuple[int, int, int]:
     """Score is 100 for the find plus 10 per second left on the clock, so the
@@ -127,15 +132,25 @@ def _check(level_id: str) -> list[str]:
     with Image.open(image_path) as im:
         width, height = im.size
 
-    if (width, height) != (data["mapSize"]["width"], data["mapSize"]["height"]):
+    world_w, world_h = data["mapSize"]["width"], data["mapSize"]["height"]
+    # The image may have fewer pixels than the world has units, because the
+    # game stretches it over mapSize. What has to match is the shape: a
+    # different one would draw the map distorted and put every hiding spot
+    # off its crowd.
+    if width * world_h != height * world_w:
         problems.append(
-            f"{level_id}: metadata says {data['mapSize']['width']}x"
-            f"{data['mapSize']['height']}, image is {width}x{height}"
+            f"{level_id}: metadata says {world_w}x{world_h}, image is "
+            f"{width}x{height}, a different shape"
         )
-    if min(width, height) < MIN_MAP_SIDE:
+    if min(world_w, world_h) < MIN_MAP_SIDE:
         problems.append(
-            f"{level_id}: {width}x{height} is below the {MIN_MAP_SIDE}px minimum, "
-            "so it will blur at full zoom"
+            f"{level_id}: world is {world_w}x{world_h}, below the "
+            f"{MIN_MAP_SIDE} units every level is measured in"
+        )
+    if min(width, height) < MIN_SHIPPED_SIDE:
+        problems.append(
+            f"{level_id}: {width}x{height} is below the {MIN_SHIPPED_SIDE}px "
+            "minimum, so it will blur at full zoom"
         )
 
     spots = data.get("targets")
@@ -148,8 +163,9 @@ def _check(level_id: str) -> list[str]:
             f"test rather than a search"
         )
     for i, t in enumerate(spots):
+        # Spots are in world units, like mapSize, not in the image's pixels.
         if (t["x"] < 0 or t["y"] < 0
-                or t["x"] + t["width"] > width or t["y"] + t["height"] > height):
+                or t["x"] + t["width"] > world_w or t["y"] + t["height"] > world_h):
             problems.append(f"{level_id}: hiding spot {i} falls outside the map")
         if t["width"] < 24 or t["height"] < 24:
             problems.append(f"{level_id}: hiding spot {i} is too small to tap reliably")

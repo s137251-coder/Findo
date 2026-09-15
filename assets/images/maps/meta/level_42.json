@@ -1,8 +1,8 @@
 {
-  "id": "level_41",
-  "index": 41,
-  "nameKey": "level.opencinema",
-  "map": "maps/level_41.webp",
+  "id": "level_42",
+  "index": 42,
+  "nameKey": "level.criterium",
+  "map": "maps/level_42.webp",
   "mapSize": {
     "width": 2048,
     "height": 2048
@@ -13,36 +13,42 @@
     "two": 384,
     "three": 554
   },
-  "motion": 0.37,
+  "motion": 0.38,
   "targets": [
     {
-      "x": 1776,
-      "y": 1565,
+      "x": 940,
+      "y": 279,
       "width": 24,
       "height": 68
     },
     {
-      "x": 189,
-      "y": 145,
+      "x": 363,
+      "y": 255,
       "width": 24,
       "height": 68
     },
     {
-      "x": 1862,
-      "y": 852,
+      "x": 660,
+      "y": 1596,
       "width": 24,
       "height": 68
     },
     {
-      "x": 1155,
-      "y": 743,
+      "x": 666,
+      "y": 991,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 1381,
+      "y": 1833,
       "width": 24,
       "height": 68
     }
   ],
   "tint": {
-    "r": 0.904,
-    "g": 0.976,
-    "b": 0.775
+    "r": 0.952,
+    "g": 0.928,
+    "b": 0.877
   }
 }

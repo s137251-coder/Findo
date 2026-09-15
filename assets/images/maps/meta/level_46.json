@@ -1,0 +1,54 @@
+{
+  "id": "level_46",
+  "index": 46,
+  "nameKey": "level.regatta",
+  "map": "maps/level_46.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 61,
+  "starThresholds": {
+    "one": 161,
+    "two": 374,
+    "three": 539
+  },
+  "motion": 0.42,
+  "targets": [
+    {
+      "x": 201,
+      "y": 878,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 1252,
+      "y": 1412,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 1772,
+      "y": 1685,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 721,
+      "y": 1275,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 774,
+      "y": 292,
+      "width": 24,
+      "height": 68
+    }
+  ],
+  "tint": {
+    "r": 0.793,
+    "g": 0.994,
+    "b": 0.874
+  }
+}

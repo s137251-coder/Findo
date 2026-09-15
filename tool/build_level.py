@@ -31,7 +31,8 @@ from pathlib import Path
 
 from PIL import Image
 
-from level_data import MAPS, MIN_MAP_SIDE, ROOT, star_thresholds, write_level
+from level_data import (MAPS, MIN_SHIPPED_SIDE, ROOT, star_thresholds,
+                        write_level)
 
 # Quality 92 was a guess; 84 was measured. On the densest map it cuts the file
 # by 28% for a PSNR of 40 dB, and side by side at full zoom -- the only view
@@ -63,10 +64,11 @@ MAX_TINT = 0.55
 
 
 def fit_square(image: Image.Image, side: int = MAP_SIDE) -> tuple[Image.Image, str]:
-    """Centre-crops to square, then scales to exactly [side].
+    """Centre-crops to square, and scales down to [side] if it is larger.
 
-    Returns the image and a note about what had to be done, so the caller can
-    warn when the source was too small to survive full zoom.
+    It never scales up; see `cmd_level` for why a small source ships at its
+    own size. Returns the image and a note about what had to be done, so the
+    caller can warn when the source is too small to survive full zoom.
     """
     notes = []
     width, height = image.size
@@ -78,14 +80,16 @@ def fit_square(image: Image.Image, side: int = MAP_SIDE) -> tuple[Image.Image, s
         notes.append(f"centre-cropped {width}x{height} to {edge}x{edge}")
         width = height = edge
 
-    if width < MIN_MAP_SIDE:
-        notes.append(
-            f"source was only {width}px; upscaled to {side}px, so it will look "
-            f"soft at full zoom -- regenerate larger if you can"
-        )
-    if width != side:
+    if width > side:
         image = image.resize((side, side), Image.LANCZOS)
-        notes.append(f"scaled {width}px to {side}px")
+        notes.append(f"scaled {width}px down to {side}px")
+    elif width < MIN_SHIPPED_SIDE:
+        notes.append(
+            f"source is only {width}px, so it will look soft at full zoom -- "
+            f"regenerate larger if you can"
+        )
+    elif width < side:
+        notes.append(f"kept at its own {width}px, drawn over a {side}-unit world")
 
     return image.convert("RGB"), "; ".join(notes) or "already the right size"
 
@@ -364,13 +368,22 @@ def cmd_level(args: argparse.Namespace) -> int:
               file=sys.stderr)
         return 1
 
-    scene, note = fit_square(Image.open(scene_path))
+    # The world is always MAP_SIDE units across; the pixels shipped are the ones
+    # the source really has. A 1254px image stretched to 2048 before encoding
+    # holds no more detail than the 1254 it came from -- the game already
+    # stretches the map over its world with high-quality filtering -- and the
+    # stretched file came out about 70% bigger for nothing. Hiding spots, tint
+    # and previews are worked out on a MAP_SIDE copy, so the metadata stays in
+    # the same units as every other level.
+    shipped, note = fit_square(Image.open(scene_path))
     print(f"scene: {note}")
 
-    scene, recoloured = free_the_skirt_colour(scene)
+    shipped, recoloured = free_the_skirt_colour(shipped)
     if recoloured:
         print(f"  shifted {recoloured:,} pixels off Findo's skirt colour, so it "
               f"is hers alone on this map")
+    scene = (shipped if shipped.width == MAP_SIDE
+             else shipped.resize((MAP_SIDE, MAP_SIDE), Image.LANCZOS))
 
     findo = Image.open(FINDO).convert("RGBA")
     height = args.height
@@ -411,9 +424,10 @@ def cmd_level(args: argparse.Namespace) -> int:
     # Android and iOS. Hand-drawn masters stay lossless PNG; this is only the
     # shipping copy.
     map_name = f"{args.id}.webp"
-    scene.save(MAPS / map_name, "WEBP", quality=MAP_QUALITY, method=6)
+    shipped.save(MAPS / map_name, "WEBP", quality=MAP_QUALITY, method=6)
     size_mb = (MAPS / map_name).stat().st_size / 1_048_576
-    print(f"wrote {(MAPS / map_name).relative_to(ROOT)} at {MAP_SIDE}x{MAP_SIDE}, {size_mb:.2f} MB")
+    print(f"wrote {(MAPS / map_name).relative_to(ROOT)} at "
+          f"{shipped.width}x{shipped.height} for a {MAP_SIDE} world, {size_mb:.2f} MB")
     if size_mb > 1.5:
         print("  warning: over the 1.5 MB per-map budget in the brief")
 

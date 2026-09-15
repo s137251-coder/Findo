@@ -1,0 +1,42 @@
+{
+  "id": "level_50",
+  "index": 50,
+  "nameKey": "level.atrium",
+  "map": "maps/level_50.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 60,
+  "starThresholds": {
+    "one": 160,
+    "two": 370,
+    "three": 532
+  },
+  "motion": 0.46,
+  "targets": [
+    {
+      "x": 1878,
+      "y": 1451,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 1513,
+      "y": 471,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 981,
+      "y": 416,
+      "width": 24,
+      "height": 68
+    }
+  ],
+  "tint": {
+    "r": 1.078,
+    "g": 1.03,
+    "b": 0.958
+  }
+}

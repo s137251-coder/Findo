@@ -1,0 +1,48 @@
+{
+  "id": "level_43",
+  "index": 43,
+  "nameKey": "level.balloons",
+  "map": "maps/level_43.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 62,
+  "starThresholds": {
+    "one": 162,
+    "two": 379,
+    "three": 546
+  },
+  "motion": 0.39,
+  "targets": [
+    {
+      "x": 145,
+      "y": 1435,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 1884,
+      "y": 995,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 1053,
+      "y": 412,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 673,
+      "y": 1550,
+      "width": 24,
+      "height": 68
+    }
+  ],
+  "tint": {
+    "r": 1.012,
+    "g": 1.003,
+    "b": 0.781
+  }
+}

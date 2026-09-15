@@ -1,0 +1,48 @@
+{
+  "id": "level_55",
+  "index": 55,
+  "nameKey": "level.cruise",
+  "map": "maps/level_55.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 59,
+  "starThresholds": {
+    "one": 159,
+    "two": 366,
+    "three": 525
+  },
+  "motion": 0.52,
+  "targets": [
+    {
+      "x": 1559,
+      "y": 1017,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 204,
+      "y": 457,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 724,
+      "y": 316,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 1436,
+      "y": 473,
+      "width": 24,
+      "height": 68
+    }
+  ],
+  "tint": {
+    "r": 0.991,
+    "g": 0.988,
+    "b": 0.895
+  }
+}

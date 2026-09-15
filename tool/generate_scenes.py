@@ -58,7 +58,10 @@ DEFAULT_MODEL = 'gemini-2.5-flash-image'
 ENDPOINT = ('https://generativelanguage.googleapis.com/v1beta/'
             'models/{model}:generateContent')
 
-MIN_SIDE = 2048          # build_level.py refuses anything smaller
+# The smallest scene build_level.py will ship. It keeps a smaller source at its
+# own size and stretches it over the 2048-unit world, so 2048 is no longer the
+# floor -- but below this the crowd goes soft at full zoom.
+MIN_SIDE = 1024
 SQUARE_TOLERANCE = 0.02  # 2% off 1:1 is a crop, not a rounding difference
 
 

@@ -1,0 +1,42 @@
+{
+  "id": "level_45",
+  "index": 45,
+  "nameKey": "level.kites",
+  "map": "maps/level_45.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 62,
+  "starThresholds": {
+    "one": 162,
+    "two": 379,
+    "three": 546
+  },
+  "motion": 0.41,
+  "targets": [
+    {
+      "x": 484,
+      "y": 514,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 1862,
+      "y": 1774,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 843,
+      "y": 1833,
+      "width": 24,
+      "height": 68
+    }
+  ],
+  "tint": {
+    "r": 0.976,
+    "g": 1.012,
+    "b": 0.775
+  }
+}

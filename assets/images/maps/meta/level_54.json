@@ -1,0 +1,48 @@
+{
+  "id": "level_54",
+  "index": 54,
+  "nameKey": "level.roundhouse",
+  "map": "maps/level_54.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 59,
+  "starThresholds": {
+    "one": 159,
+    "two": 366,
+    "three": 525
+  },
+  "motion": 0.51,
+  "targets": [
+    {
+      "x": 704,
+      "y": 1766,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 172,
+      "y": 227,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 1260,
+      "y": 631,
+      "width": 24,
+      "height": 68
+    },
+    {
+      "x": 587,
+      "y": 1068,
+      "width": 24,
+      "height": 68
+    }
+  ],
+  "tint": {
+    "r": 0.91,
+    "g": 0.889,
+    "b": 0.835
+  }
+}
