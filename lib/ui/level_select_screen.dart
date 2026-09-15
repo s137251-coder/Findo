@@ -5,6 +5,7 @@ import '../managers/audio_manager.dart';
 import '../managers/localization_manager.dart';
 import '../managers/save_manager.dart';
 import '../models/level_definition.dart';
+import '../models/rank.dart';
 import '../theme.dart';
 import 'game_screen.dart';
 import 'motion.dart';
@@ -59,23 +60,55 @@ class LevelSelectScreen extends StatelessWidget {
                     builder: (context, constraints) {
                       // One card per row on a phone, two once there is room.
                       final columns = constraints.maxWidth >= 560 ? 2 : 1;
-                      return GridView.builder(
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: columns,
-                          mainAxisSpacing: 14,
-                          crossAxisSpacing: 14,
-                          childAspectRatio: 2.4,
-                        ),
-                        itemCount: levels.length,
-                        itemBuilder: (context, index) {
-                          final level = levels[index];
-                          return _LevelCard(
-                            level: level,
-                            unlocked: services.levels.isUnlocked(level),
-                            progress: services.levels.progressOf(level),
-                          );
-                        },
+                      final earned = Rank.earnedBy(
+                            services.save.unlockedLevelIndex,
+                          )?.number ??
+                          0;
+
+                      // One heading per rank. A flat run of a hundred cards is
+                      // a scroll with no landmarks; ten named chapters are a
+                      // journey the player can see their place in.
+                      final slivers = <Widget>[];
+                      for (var number = 1; number <= Rank.count; number++) {
+                        final band = levels
+                            .where((l) => Rank.forLevel(l.index).number == number)
+                            .toList();
+                        if (band.isEmpty) {
+                          continue;
+                        }
+                        slivers
+                          ..add(SliverToBoxAdapter(
+                            child: _ChapterHeader(
+                              rank: Rank(number),
+                              earned: number <= earned,
+                              first: slivers.isEmpty,
+                            ),
+                          ))
+                          ..add(SliverGrid(
+                            gridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: columns,
+                              mainAxisSpacing: 14,
+                              crossAxisSpacing: 14,
+                              childAspectRatio: 2.4,
+                            ),
+                            delegate: SliverChildBuilderDelegate(
+                              (context, index) {
+                                final level = band[index];
+                                return _LevelCard(
+                                  level: level,
+                                  unlocked: services.levels.isUnlocked(level),
+                                  progress: services.levels.progressOf(level),
+                                );
+                              },
+                              childCount: band.length,
+                            ),
+                          ));
+                      }
+                      slivers.add(
+                        const SliverToBoxAdapter(child: SizedBox(height: 16)),
                       );
+                      return CustomScrollView(slivers: slivers);
                     },
                   ),
                 ),
@@ -83,6 +116,71 @@ class LevelSelectScreen extends StatelessWidget {
             );
           },
         ),
+      ),
+    );
+  }
+}
+
+/// The heading over one rank's ten levels: its number, the rank it leads to,
+/// and the levels it covers. Filled in once the player has earned it.
+class _ChapterHeader extends StatelessWidget {
+  const _ChapterHeader({
+    required this.rank,
+    required this.earned,
+    required this.first,
+  });
+
+  final Rank rank;
+  final bool earned;
+  final bool first;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return Padding(
+      padding: EdgeInsets.only(top: first ? 4 : 26, bottom: 12),
+      child: Row(
+        children: [
+          Container(
+            width: 30,
+            height: 30,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: earned ? FindoColors.primary : Colors.transparent,
+              border: Border.all(
+                color: earned ? FindoColors.primary : FindoColors.locked,
+                width: 2,
+              ),
+            ),
+            child: Text(
+              '${rank.number}',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w800,
+                color: earned ? FindoColors.onPrimary : FindoColors.textMuted,
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              l10n.t(rank.nameKey),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+                color: earned ? FindoColors.textPrimary : FindoColors.textMuted,
+              ),
+            ),
+          ),
+          Text(
+            l10n.t('rank.levels', params: {
+              'from': rank.firstLevel,
+              'to': rank.lastLevel,
+            }),
+            style: const TextStyle(fontSize: 12, color: FindoColors.textMuted),
+          ),
+        ],
       ),
     );
   }

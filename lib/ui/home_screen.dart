@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import '../app_services.dart';
 import '../managers/audio_manager.dart';
 import '../managers/localization_manager.dart';
+import '../models/rank.dart';
 import '../theme.dart';
 import 'level_select_screen.dart';
 import 'motion.dart';
+import 'rank_screen.dart';
 import 'safe_area_wrapper.dart';
 import 'rules_screen.dart';
 import 'settings_dialog.dart';
@@ -86,7 +88,16 @@ class _HomeScreenState extends State<HomeScreen> {
                 textAlign: TextAlign.center,
                 style: const TextStyle(fontSize: 16, color: FindoColors.textMuted),
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 26),
+              // Rebuilt from the level manager, which notifies on every cleared
+              // level, so coming back from a promotion shows the new rank.
+              ListenableBuilder(
+                listenable: services.levels,
+                builder: (context, _) => _RankBadge(
+                  rank: Rank.earnedBy(services.save.unlockedLevelIndex),
+                ),
+              ),
+              const SizedBox(height: 26),
               FilledButton.icon(
                 onPressed: () {
                   services.audio.play(GameSound.tap);
@@ -106,6 +117,90 @@ class _HomeScreenState extends State<HomeScreen> {
                 },
                 icon: const Icon(Icons.settings_rounded, size: 22),
                 label: Text(l10n.t('menu.settings')),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The player's rank, or the promise of one before level 10 is cleared.
+class _RankBadge extends StatelessWidget {
+  const _RankBadge({required this.rank});
+
+  final Rank? rank;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final rank = this.rank;
+    if (rank == null) {
+      return Text(
+        l10n.t('rank.locked'),
+        textAlign: TextAlign.center,
+        style: const TextStyle(fontSize: 14, color: FindoColors.textMuted),
+      );
+    }
+
+    final radius = BorderRadius.circular(FindoMetrics.radiusPanel);
+    return Material(
+      color: FindoColors.surface,
+      borderRadius: radius,
+      child: InkWell(
+        borderRadius: radius,
+        onTap: () {
+          AppServices.of(context).audio.playPromotion();
+          showRankCeremony(context, rank);
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              Container(
+                width: 42,
+                height: 42,
+                alignment: Alignment.center,
+                decoration: const BoxDecoration(
+                  color: FindoColors.primary,
+                  shape: BoxShape.circle,
+                ),
+                child: Text(
+                  '${rank.number}',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                    color: FindoColors.onPrimary,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      l10n.t('rank.yours'),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: FindoColors.textMuted,
+                      ),
+                    ),
+                    Text(
+                      l10n.t(rank.nameKey),
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(
+                Icons.chevron_right_rounded,
+                color: FindoColors.textMuted,
               ),
             ],
           ),

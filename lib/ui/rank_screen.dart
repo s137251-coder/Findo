@@ -164,6 +164,22 @@ class _RankScreenState extends State<RankScreen>
   }
 }
 
+/// Shows the ceremony outside a level, for a rank earned earlier. The home
+/// screen replays it on a tap: after the moment has passed, that is the only
+/// place the rank's description can still be read.
+Future<void> showRankCeremony(BuildContext context, Rank rank) {
+  return showGeneralDialog<void>(
+    context: context,
+    barrierDismissible: false,
+    barrierColor: Colors.transparent,
+    transitionDuration: const Duration(milliseconds: 180),
+    pageBuilder: (dialogContext, animation, secondaryAnimation) => RankScreen(
+      rank: rank,
+      onDone: () => Navigator.of(dialogContext).pop(),
+    ),
+  );
+}
+
 /// The panel the ceremony happens in: a crowd, a glass that crosses it, and
 /// the title coming into focus underneath.
 class _Lens extends StatelessWidget {
