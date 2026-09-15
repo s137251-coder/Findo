@@ -12,11 +12,13 @@ import 'rank_screen.dart';
 import 'safe_area_wrapper.dart';
 import 'rules_screen.dart';
 import 'settings_dialog.dart';
+import 'update_prompt.dart';
 
 /// The title screen: play, open settings, or (on Android) leave the game.
 ///
-/// It also owns the first-run moment. A new player is shown the rules before
-/// anything else, once, and can reach them again from Settings.
+/// It also owns what happens at launch. A new player is shown the rules before
+/// anything else, once, and can reach them again from Settings; after that,
+/// every launch asks Google Play whether a newer version is out.
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -35,18 +37,21 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     _checkedFirstRun = true;
     final services = AppServices.of(context);
-    if (services.save.introSeen) {
-      return;
-    }
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) {
         return;
       }
-      // Marked before showing, so a player who kills the app mid-read is not
-      // shown it again on every launch.
-      await services.save.markIntroSeen();
+      if (!services.save.introSeen) {
+        // Marked before showing, so a player who kills the app mid-read is not
+        // shown it again on every launch.
+        await services.save.markIntroSeen();
+        if (mounted) {
+          await showRules(context, isFirstRun: true);
+        }
+      }
+      // Once per launch, and after the rules rather than on top of them.
       if (mounted) {
-        await showRules(context, isFirstRun: true);
+        await offerUpdateIfAvailable(context);
       }
     });
   }

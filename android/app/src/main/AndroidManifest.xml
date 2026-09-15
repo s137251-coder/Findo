@@ -70,5 +70,10 @@
             <action android:name="android.intent.action.VIEW"/>
             <data android:scheme="https"/>
         </intent>
+        <!-- Opening Findo's page in the Play Store app from the update prompt. -->
+        <intent>
+            <action android:name="android.intent.action.VIEW"/>
+            <data android:scheme="market"/>
+        </intent>
     </queries>
 </manifest>

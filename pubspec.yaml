@@ -28,6 +28,7 @@ dependencies:
   intl: ^0.20.3
   cupertino_icons: ^1.0.8
   url_launcher: ^6.3.2
+  in_app_update: ^5.0.0
 
 dev_dependencies:
   flutter_test:
