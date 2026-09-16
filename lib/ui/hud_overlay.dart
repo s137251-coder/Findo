@@ -56,6 +56,7 @@ class HudOverlay extends StatelessWidget {
               // logical pixel this panel takes is map the player cannot see.
               // The compact form drops the subtitle and shrinks the portrait.
               child: _ObjectiveBar(
+                level: game.level,
                 monetization: monetization,
                 onHint: onHint,
                 onOpenCharacter: onOpenCharacter,
@@ -81,8 +82,8 @@ final GlobalKey _panelKey = GlobalKey(debugLabel: 'findo.hud.objectivePanel');
 /// query's height has already had the system navigation bar taken out of it,
 /// which under-reports the inset by exactly the height of that bar.
 ///
-/// The check repeats every frame. It is two render-object lookups and a
-/// comparison, and it keeps the camera correct through rotation or a changed
+/// The check repeats ten times a second. It is two render-object lookups and
+/// a comparison, and it keeps the camera correct through rotation or a changed
 /// text scale.
 class _HudInsetReporter extends StatefulWidget {
   const _HudInsetReporter({
@@ -102,6 +103,12 @@ class _HudInsetReporter extends StatefulWidget {
 class _HudInsetReporterState extends State<_HudInsetReporter> {
   final GlobalKey _rootKey = GlobalKey(debugLabel: 'findo.hud.root');
 
+  /// Frames since the last measurement. The panel only moves on a rotation or
+  /// a text-scale change, so measuring every frame spent two render-object
+  /// lookups sixty times a second to learn the same number -- work the later
+  /// levels, which already carry a drifting layer, cannot spare.
+  int _frames = 0;
+
   @override
   void initState() {
     super.initState();
@@ -110,6 +117,10 @@ class _HudInsetReporterState extends State<_HudInsetReporter> {
 
   void _measure(Duration _) {
     if (!mounted) {
+      return;
+    }
+    if (_frames++ % 6 != 0) {
+      WidgetsBinding.instance.addPostFrameCallback(_measure);
       return;
     }
     final root = _rootKey.currentContext?.findRenderObject() as RenderBox?;
@@ -220,12 +231,14 @@ class _TopBar extends StatelessWidget {
 /// map the player cannot see, because the camera stops above it.
 class _ObjectiveBar extends StatelessWidget {
   const _ObjectiveBar({
+    required this.level,
     required this.monetization,
     required this.onHint,
     required this.onOpenCharacter,
     required this.compact,
   });
 
+  final LevelDefinition level;
   final MonetizationManager monetization;
   final VoidCallback onHint;
   final VoidCallback onOpenCharacter;
@@ -236,6 +249,10 @@ class _ObjectiveBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    // "Level 59 - Fish Hall". Players could see which level they were on
+    // everywhere but here, where they spend the whole minute.
+    final where = '${l10n.t('level.number', params: {'index': level.index})}'
+        '  ·  ${l10n.t(level.nameKey)}';
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 12, vertical: compact ? 7 : 10),
       decoration: BoxDecoration(
@@ -252,8 +269,13 @@ class _ObjectiveBar extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
+                // Turned sideways there is room for one line, and the
+                // level is the half a player cannot get anywhere else: the
+                // portrait beside it already says who they are looking for.
                 Text(
-                  l10n.t('hud.find'),
+                  compact ? where : l10n.t('hud.find'),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: compact ? 16 : 18,
                     fontWeight: FontWeight.w700,
@@ -262,7 +284,7 @@ class _ObjectiveBar extends StatelessWidget {
                 if (!compact) const SizedBox(height: 2),
                 if (!compact)
                   Text(
-                    l10n.t('hud.objective'),
+                    where,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(

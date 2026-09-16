@@ -15,10 +15,16 @@ class MapBackgroundComponent extends SpriteComponent
   MapBackgroundComponent({required Sprite sprite, required Vector2 mapSize})
       : super(sprite: sprite, size: mapSize, position: Vector2.zero()) {
     // The map is drawn shrunk to fit the screen and then magnified several
-    // times over as the player pinches in. High-quality filtering is what
-    // keeps the crowd legible at both ends.
+    // times over as the player pinches in, so it wants smoothing at both ends.
+    //
+    // Medium, not high: at the fit-to-screen zoom a 2048px map is resampled
+    // down to about a third of its size on every frame, and high does that
+    // with a cubic filter each time, which is what made the later levels
+    // crawl on mid-range phones. Medium uses mipmaps -- built once, sampled
+    // cheaply -- and on a crowd scene the difference is not visible at either
+    // end of the zoom.
     paint
-      ..filterQuality = FilterQuality.high
+      ..filterQuality = FilterQuality.medium
       ..isAntiAlias = true;
   }
 

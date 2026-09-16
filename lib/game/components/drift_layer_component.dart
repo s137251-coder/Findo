@@ -166,9 +166,22 @@ class DriftLayerComponent extends PositionComponent {
 
   @override
   void render(Canvas canvas) {
+    // Only what the camera can see. The field is spread over the whole 2048
+    // square, but a player pinched in is looking at a fraction of it, and
+    // every particle outside that fraction still costs two draw calls a frame.
+    // The clip Flame sets for the viewport says which fraction; a canvas
+    // without one reports a huge rectangle, which culls nothing -- the right
+    // answer when the whole map is on screen.
+    final visible = canvas.getLocalClipBounds().inflate(kind.radius * 8);
     for (final particle in _particles) {
       final drift = sin(particle.phase) * kind.sway;
       final x = particle.position.x + drift;
+      if (x < visible.left ||
+          x > visible.right ||
+          particle.position.y < visible.top ||
+          particle.position.y > visible.bottom) {
+        continue;
+      }
       final radius = kind.radius * particle.scale;
       // Fading with the sway keeps the layer from reading as a flat stencil.
       _paint.color = kind.colour.withValues(

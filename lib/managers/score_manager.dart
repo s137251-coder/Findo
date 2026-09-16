@@ -32,6 +32,18 @@ class ScoreManager extends ChangeNotifier {
   double _sinceLastFind = 0;
   bool _running = false;
 
+  /// Seconds since the clock last told the HUD to repaint.
+  ///
+  /// The HUD shows whole seconds and a six-pixel bar, so notifying on every
+  /// tick rebuilt the whole top bar sixty times a second to show the same
+  /// thing. Ten times a second is past what an eye can follow on either, and
+  /// it takes five of those six rebuilds away from a phone that is already
+  /// drawing a crowded map with a drifting layer over it.
+  double _sinceNotify = 0;
+
+  /// How often the running clock repaints the HUD.
+  static const _clockNotifySeconds = 0.1;
+
   double get timeRemaining => _timeRemaining;
 
   double get timeLimit => _timeLimit;
@@ -70,6 +82,7 @@ class ScoreManager extends ChangeNotifier {
     _penalty = 0;
     _streak = 0;
     _sinceLastFind = comboWindowSeconds;
+    _sinceNotify = 0;
     _running = true;
     notifyListeners();
   }
@@ -108,7 +121,11 @@ class ScoreManager extends ChangeNotifier {
       notifyListeners();
       return true;
     }
-    notifyListeners();
+    _sinceNotify += dt;
+    if (_sinceNotify >= _clockNotifySeconds) {
+      _sinceNotify = 0;
+      notifyListeners();
+    }
     return false;
   }
 
