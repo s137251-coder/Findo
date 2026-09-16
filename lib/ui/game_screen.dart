@@ -10,6 +10,7 @@ import '../managers/localization_manager.dart';
 import '../managers/score_manager.dart';
 import '../models/level_definition.dart';
 import 'character_sheet_modal.dart';
+import 'finale_screen.dart';
 import 'hint_dialog.dart';
 import '../models/rank.dart';
 import 'hud_overlay.dart';
@@ -49,6 +50,19 @@ class _GameScreenState extends State<GameScreen> {
   /// Set when clearing this level earned a new rank, so the ceremony can run
   /// after the score summary rather than on top of it.
   Rank? _pendingRank;
+
+  /// Set when this clear was the last level of the last rank: the ending is
+  /// owed, and runs after the summary and the promotion rather than between
+  /// them.
+  bool _pendingFinale = false;
+
+  /// The level that ends the game.
+  static const _finaleLevel = Rank.count * Rank.levelsPerRank;
+
+  /// Plays the ending after any clear, so it can be seen before a hundred
+  /// levels exist:
+  ///   flutter build apk --dart-define=FINDO_FINALE_DEMO=true
+  static const _finaleDemo = bool.fromEnvironment('FINDO_FINALE_DEMO');
   bool _servicesReady = false;
 
   @override
@@ -147,6 +161,8 @@ class _GameScreenState extends State<GameScreen> {
     final pending = (earned != null && earned.number > _services.save.rankSeen)
         ? earned
         : null;
+    _pendingFinale = (_finaleDemo || level.index >= _finaleLevel) &&
+        !_services.save.finaleSeen;
     setState(() {
       _result = result;
       _pendingRank = pending;
@@ -188,10 +204,10 @@ class _GameScreenState extends State<GameScreen> {
   void _afterRank(VoidCallback next) {
     final rank = _pendingRank;
     if (rank == null) {
-      next();
+      _finaleOr(next);
       return;
     }
-    _rankThen = next;
+    _rankThen = () => _finaleOr(next);
     unawaited(_services.save.setRankSeen(rank.number));
     unawaited(_services.audio.playPromotion());
     _game.overlays.remove(WinModal.overlayId);
@@ -199,6 +215,22 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   VoidCallback? _rankThen;
+
+  /// The ending takes over from whichever button the player pressed: it is
+  /// owed to them however they chose to leave the last level.
+  void _finaleOr(VoidCallback next) {
+    if (!_pendingFinale) {
+      next();
+      return;
+    }
+    _pendingFinale = false;
+    unawaited(_services.save.markFinaleSeen());
+    _game.overlays.remove(WinModal.overlayId);
+    // The hunt is over, so its bar goes too: left up, it sat across the
+    // bottom of the ending asking the player to find Findo.
+    _game.overlays.remove(HudOverlay.overlayId);
+    _game.overlays.add(FinaleScreen.overlayId);
+  }
 
   void _closeRank() {
     final next = _rankThen;
@@ -336,12 +368,22 @@ class _GameScreenState extends State<GameScreen> {
                 totalStars: _totalStars,
                 starHints: _starHints,
                 hasNextLevel: next != null,
+                moreComing: next == null && game.level.index < _finaleLevel,
                 onNext: () => _afterRank(() => _leaveLevel(() => _restart(next!))),
                 onReplay: () =>
                     _afterRank(() => _leaveLevel(() => _restart(game.level))),
                 onLevelList: () => _afterRank(() => _leaveLevel(_backToLevelList)),
               );
             },
+            FinaleScreen.overlayId: (context, game) => FinaleScreen(
+                  stars: _services.save.totalStars,
+                  starsPossible: _services.levels.levels.length * 3,
+                  rank: Rank.forLevel(game.level.index),
+                  mapAsset: game.level.map,
+                  chaseLevel: _services.levels.closestToThreeStars(),
+                  onChase: (level) => _restart(level),
+                  onLevelList: _backToLevelList,
+                ),
             RankScreen.overlayId: (context, game) {
               final rank = _pendingRank;
               if (rank == null) {

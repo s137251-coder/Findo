@@ -22,6 +22,7 @@ class WinModal extends StatelessWidget {
     required this.totalStars,
     required this.starHints,
     required this.hasNextLevel,
+    required this.moreComing,
     required this.onNext,
     required this.onReplay,
     required this.onLevelList,
@@ -38,6 +39,10 @@ class WinModal extends StatelessWidget {
   final int starHints;
 
   final bool hasNextLevel;
+
+  /// Set at the end of what is built so far, which is not the end of the
+  /// game: without a word here the last level reads as a dead end.
+  final bool moreComing;
   final VoidCallback onNext;
   final VoidCallback onReplay;
   final VoidCallback onLevelList;
@@ -106,6 +111,18 @@ class WinModal extends StatelessWidget {
                 fontSize: 15,
                 fontWeight: FontWeight.w700,
                 color: FindoColors.success,
+              ),
+            ),
+          ],
+          if (moreComing) ...[
+            const SizedBox(height: 12),
+            Text(
+              l10n.t('win.moreSoon'),
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: FindoColors.accent,
               ),
             ),
           ],

@@ -213,5 +213,19 @@
   "rank.yours": "Your rank",
   "rank.levels": "Levels {from}-{to}",
   "rank.continue": "Continue",
-  "rank.locked": "Keep playing to earn your first rank"
+  "rank.locked": "Keep playing to earn your first rank",
+  "title.greet1": "Ready to look for me?",
+  "title.greet2": "I hide well, you know.",
+  "title.greet3": "Come on, I found a perfect spot this time.",
+  "finale.eyebrow": "The end of the hunt",
+  "finale.title": "You found me everywhere",
+  "finale.body": "A hundred levels, a hundred crowds, and you found me in every one of them. Thank you for looking.",
+  "finale.perfectTitle": "Every level, every star",
+  "finale.perfectBody": "Not one star missed. There is nowhere left for me to hide.",
+  "finale.levels": "levels",
+  "finale.stars": "stars",
+  "finale.rank": "rank",
+  "finale.chase": "Level {index} · {name}",
+  "finale.menu": "Level list",
+  "win.moreSoon": "More levels on the way"
 }

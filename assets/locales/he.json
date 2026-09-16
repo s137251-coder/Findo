@@ -213,5 +213,19 @@
   "rank.yours": "הדרגה שלך",
   "rank.levels": "שלבים {from}-{to}",
   "rank.continue": "המשך",
-  "rank.locked": "שחקו כדי לזכות בדרגה הראשונה"
+  "rank.locked": "שחקו כדי לזכות בדרגה הראשונה",
+  "title.greet1": "מוכנים לחפש אותי?",
+  "title.greet2": "אני מתחבאת טוב, שתדעו.",
+  "title.greet3": "קדימה, מצאתי מקום מושלם הפעם.",
+  "finale.eyebrow": "סוף המסע",
+  "finale.title": "מצאתם אותי בכל מקום",
+  "finale.body": "מאה שלבים, מאה קהלים, ובכל אחד מהם מצאתם אותי. תודה שחיפשתם.",
+  "finale.perfectTitle": "כל השלבים, כל הכוכבים",
+  "finale.perfectBody": "לא פספסתם אף כוכב אחד. כבר אין לי איפה להתחבא מכם.",
+  "finale.levels": "שלבים",
+  "finale.stars": "כוכבים",
+  "finale.rank": "דרגה",
+  "finale.chase": "שלב {index} · {name}",
+  "finale.menu": "רשימת השלבים",
+  "win.moreSoon": "שלבים נוספים בדרך"
 }

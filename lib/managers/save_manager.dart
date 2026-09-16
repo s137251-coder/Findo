@@ -38,6 +38,7 @@ class SaveManager {
   static const _keyIntroSeen = 'findo.intro.seen';
   static const _keyRankSeen = 'findo.rank.seen';
   static const _keyStarHints = 'findo.stars.hintsGranted';
+  static const _keyFinaleSeen = 'findo.finale.seen';
 
   /// Hints the player starts with, so the hint button is usable on day one.
   static const startingHints = 3;
@@ -152,6 +153,14 @@ class SaveManager {
       allProgress.values.fold(0, (sum, progress) => sum + progress.stars);
 
   /// Free hints already paid out for stars.
+  /// True once the ending has played.
+  ///
+  /// It is a moment, not a screen: without this, replaying the last level
+  /// would hand the player their own ending again every time.
+  bool get finaleSeen => _prefs.getBool(_keyFinaleSeen) ?? false;
+
+  Future<void> markFinaleSeen() => _prefs.setBool(_keyFinaleSeen, true);
+
   int get starHintsGranted => _prefs.getInt(_keyStarHints) ?? 0;
 
   /// Pays the hints the star total has earned and not yet been given, and

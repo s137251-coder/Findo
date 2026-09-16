@@ -55,6 +55,36 @@ class LevelManager extends ChangeNotifier {
   LevelProgress progressOf(LevelDefinition level) =>
       _saveManager.progressFor(level.id);
 
+  /// The unlocked level nearest to a third star, or null when they all have
+  /// three already.
+  ///
+  /// Stars come first -- a two-star level is one good run from three -- and
+  /// within that, the level whose best score fell the least short, because
+  /// that is the one most likely to come off. It is what the ending points
+  /// at: clearing a hundred levels is not the same as finishing them.
+  LevelDefinition? closestToThreeStars() {
+    LevelDefinition? best;
+    var bestStars = -1;
+    var bestGap = 1 << 30;
+    for (final level in _levels) {
+      if (!isUnlocked(level)) {
+        continue;
+      }
+      final progress = progressOf(level);
+      if (progress.stars >= 3) {
+        continue;
+      }
+      final gap = level.starThresholds.three - progress.bestScore;
+      if (progress.stars > bestStars ||
+          (progress.stars == bestStars && gap < bestGap)) {
+        best = level;
+        bestStars = progress.stars;
+        bestGap = gap;
+      }
+    }
+    return best;
+  }
+
   LevelDefinition? levelAfter(LevelDefinition level) {
     final next = _levels.where((candidate) => candidate.index == level.index + 1);
     return next.isEmpty ? null : next.first;
