@@ -223,6 +223,13 @@ class _LevelCard extends StatelessWidget {
                 child: Image.asset(
                   'assets/images/${level.map}',
                   fit: BoxFit.cover,
+                  // Decoded at the size the card shows it, not the size it was
+                  // drawn at. A map is 1254 to 2048px square, which is 6 to 17
+                  // MB once decoded, and the card gives it a 118px strip --
+                  // so a list of fifty of them was asking the phone to hold
+                  // several hundred megabytes to draw a row of thumbnails.
+                  cacheWidth:
+                      (118 * MediaQuery.devicePixelRatioOf(context)).round(),
                 ),
               ),
               Expanded(

@@ -35,6 +35,10 @@ class _GameScreenState extends State<GameScreen> {
   late final ScoreManager _scoreManager;
   late FindoGame _game;
 
+  /// False until [_startLevel] has built the first game, so the level being
+  /// replaced can be told apart from there being no level yet.
+  bool _hasGame = false;
+
   LevelResult? _result;
 
   /// Stars banked across every level after this clear, and the free hints the
@@ -66,6 +70,7 @@ class _GameScreenState extends State<GameScreen> {
     // level ends. One loop across every level is what wore the old music out.
     unawaited(_services.audio.startRandomMusic());
     _result = null;
+    final outgoing = _hasGame ? _game : null;
     _game = FindoGame(
       level: level,
       // Picked per attempt, so replaying a level is another search.
@@ -76,10 +81,40 @@ class _GameScreenState extends State<GameScreen> {
       onLevelCleared: _handleLevelCleared,
       onTimeUp: _handleTimeUp,
     );
+    _hasGame = true;
+    _releaseMap(outgoing, keep: level.map);
+  }
+
+  /// Gives back the map the finished level was holding.
+  ///
+  /// Flame hands every game the same global image cache and nothing ever
+  /// clears it, so each level played left its map decoded for the rest of the
+  /// session: 6 MB for a 1254px map, 17 for a 2048px one. Fifteen levels into
+  /// a run that is a couple of hundred megabytes of pictures nobody will look
+  /// at again, which is what made the later levels stutter and then freeze.
+  ///
+  /// [keep] is the map the level starting now needs. Replaying a level asks
+  /// for the same picture, and disposing it here would pull it out from under
+  /// the game that is about to draw it.
+  void _releaseMap(FindoGame? outgoing, {required String keep}) {
+    if (outgoing == null || outgoing.level.map == keep) {
+      return;
+    }
+    final map = outgoing.level.map;
+    // After this frame, when the old game is off the widget tree: an image
+    // disposed while something is still drawing it takes the game down.
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => outgoing.images.clear(map),
+    );
   }
 
   @override
   void dispose() {
+    // Leaving for the level list ends the last level too, and its map goes
+    // back the same way.
+    if (_hasGame) {
+      _game.images.clear(_game.level.map);
+    }
     _scoreManager.dispose();
     super.dispose();
   }
