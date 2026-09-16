@@ -375,10 +375,14 @@ class _GameScreenState extends State<GameScreen> {
                 onLevelList: () => _afterRank(() => _leaveLevel(_backToLevelList)),
               );
             },
+            // The ending describes the whole game, not the level that set it
+            // off: a hundred levels, the last rank, and three stars for each
+            // level. Derived from the level just cleared, a demo run showed
+            // "10 levels" and the first rank.
             FinaleScreen.overlayId: (context, game) => FinaleScreen(
                   stars: _services.save.totalStars,
-                  starsPossible: _services.levels.levels.length * 3,
-                  rank: Rank.forLevel(game.level.index),
+                  starsPossible: _finaleLevel * 3,
+                  rank: const Rank(Rank.count),
                   mapAsset: game.level.map,
                   chaseLevel: _services.levels.closestToThreeStars(),
                   onChase: (level) => _restart(level),
