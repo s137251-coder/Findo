@@ -107,138 +107,135 @@ class _HomeScreenState extends State<HomeScreen>
 
     return Scaffold(
       body: TitleStage(
-        child: Stack(
-          children: [
-            // She stands in the scene, beneath the menu.
-            PositionedDirectional(
-              bottom: 0,
-              end: -8,
-              child: TitleFindo(enter: _enter),
-            ),
-            SafeAreaWrapper(
+        child: SafeAreaWrapper(
           maxContentWidth: 420,
-          padding: const EdgeInsets.fromLTRB(28, 16, 28, 110),
+          padding: const EdgeInsets.fromLTRB(28, 16, 28, 20),
           // A title screen does not scroll. On a phone too short for the
           // menu -- a navigation bar, a larger system font -- it is scaled
           // down a little to fit instead.
           child: _FitToHeight(
             child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _Rise(
-                controller: _enter,
-                from: 0.0,
-                to: 0.45,
-                lift: 26,
-                child: _Glass(idle: _idle, still: still),
-              ),
-              const SizedBox(height: 14),
-              _Rise(
-                controller: _enter,
-                from: 0.12,
-                to: 0.58,
-                child: _Wordmark(text: l10n.t('app.title'), idle: _idle, still: still),
-              ),
-              const SizedBox(height: 6),
-              _Rise(
-                controller: _enter,
-                from: 0.24,
-                to: 0.70,
-                child: Text(
-                  l10n.t('app.tagline'),
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 16, color: FindoColors.textMuted),
-                ),
-              ),
-              const SizedBox(height: 18),
-              // Rebuilt from the level manager, which notifies on every cleared
-              // level, so coming back from a promotion shows the new rank.
-              _Rise(
-                controller: _enter,
-                from: 0.36,
-                to: 0.82,
-                child: ListenableBuilder(
-                  listenable: services.levels,
-                  builder: (context, _) => _RankBadge(
-                    rank: Rank.earnedBy(services.save.unlockedLevelIndex),
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // The glass and the girl it is looking for, side by side: the
+                // whole game in the first thing on the screen.
+                _Rise(
+                  controller: _enter,
+                  from: 0.0,
+                  to: 0.45,
+                  lift: 26,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _Glass(idle: _idle, still: still),
+                      const SizedBox(width: 18),
+                      const TitleFindo(height: 150),
+                    ],
                   ),
                 ),
-              ),
-              const SizedBox(height: 18),
-              _Rise(
-                controller: _enter,
-                from: 0.48,
-                to: 0.92,
-                child: _Breathing(
-                  idle: _idle,
-                  still: still,
-                  child: FilledButton.icon(
+                const SizedBox(height: 10),
+                _Rise(
+                  controller: _enter,
+                  from: 0.12,
+                  to: 0.58,
+                  child: _Wordmark(text: l10n.t('app.title'), idle: _idle, still: still),
+                ),
+                const SizedBox(height: 6),
+                _Rise(
+                  controller: _enter,
+                  from: 0.24,
+                  to: 0.70,
+                  child: Text(
+                    l10n.t('app.tagline'),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 16, color: FindoColors.textMuted),
+                  ),
+                ),
+                const SizedBox(height: 18),
+                // Rebuilt from the level manager, which notifies on every
+                // cleared level, so coming back from a promotion shows the
+                // new rank.
+                _Rise(
+                  controller: _enter,
+                  from: 0.36,
+                  to: 0.82,
+                  child: ListenableBuilder(
+                    listenable: services.levels,
+                    builder: (context, _) => _RankBadge(
+                      rank: Rank.earnedBy(services.save.unlockedLevelIndex),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 18),
+                _Rise(
+                  controller: _enter,
+                  from: 0.48,
+                  to: 0.92,
+                  child: _Breathing(
+                    idle: _idle,
+                    still: still,
+                    child: FilledButton.icon(
+                      onPressed: () {
+                        services.audio.play(GameSound.tap);
+                        services.audio.startRandomMusic();
+                        Navigator.of(context).push(
+                          findoRoute<void>(const LevelSelectScreen()),
+                        );
+                      },
+                      icon: const Icon(Icons.play_arrow_rounded, size: 26),
+                      label: Text(l10n.t('menu.play')),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _Rise(
+                  controller: _enter,
+                  from: 0.53,
+                  to: 0.96,
+                  child: OutlinedButton.icon(
                     onPressed: () {
                       services.audio.play(GameSound.tap);
-                      services.audio.startRandomMusic();
-                      Navigator.of(context).push(
-                        findoRoute<void>(const LevelSelectScreen()),
-                      );
+                      showSettingsDialog(context);
                     },
-                    icon: const Icon(Icons.play_arrow_rounded, size: 26),
-                    label: Text(l10n.t('menu.play')),
+                    icon: const Icon(Icons.settings_rounded, size: 22),
+                    label: Text(l10n.t('menu.settings')),
                   ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              _Rise(
-                controller: _enter,
-                from: 0.53,
-                to: 0.96,
-                child: const DailyHuntButton(),
-              ),
-              const SizedBox(height: 12),
-              _Rise(
-                controller: _enter,
-                from: 0.58,
-                to: 1.0,
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: () {
-                          services.audio.play(GameSound.tap);
-                          showSettingsDialog(context);
-                        },
-                        icon: const Icon(Icons.settings_rounded, size: 22),
-                        label: Text(l10n.t('menu.settings')),
-                      ),
-                    ),
-                    // Android only. An iOS app is not meant to close itself,
-                    // and App Review rejects ones that do; there, the home
-                    // gesture is the exit.
-                    if (Theme.of(context).platform == TargetPlatform.android) ...[
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: TextButton.icon(
-                          onPressed: () async {
-                            // Stopped first, so the track cannot outlive the
-                            // screen by the moment the activity takes to finish.
-                            await services.audio.stopMusic();
-                            await SystemNavigator.pop();
-                          },
-                          style: TextButton.styleFrom(
-                            foregroundColor: FindoColors.textMuted,
-                          ),
-                          icon: const Icon(Icons.logout_rounded, size: 22),
-                          label: Text(l10n.t('menu.exit')),
-                        ),
-                      ),
-                    ],
-                  ],
+                const SizedBox(height: 12),
+                _Rise(
+                  controller: _enter,
+                  from: 0.58,
+                  to: 1.0,
+                  child: const DailyHuntButton(),
                 ),
-              ),
-            ],
-          ),
-          ),
+                // Android only. An iOS app is not meant to close itself, and
+                // App Review rejects ones that do; there, the home gesture is
+                // the exit.
+                if (Theme.of(context).platform == TargetPlatform.android) ...[
+                  const SizedBox(height: 8),
+                  _Rise(
+                    controller: _enter,
+                    from: 0.66,
+                    to: 1.0,
+                    child: TextButton.icon(
+                      onPressed: () async {
+                        // Stopped first, so the track cannot outlive the screen
+                        // by the moment the activity takes to finish.
+                        await services.audio.stopMusic();
+                        await SystemNavigator.pop();
+                      },
+                      style: TextButton.styleFrom(
+                        foregroundColor: FindoColors.textMuted,
+                      ),
+                      icon: const Icon(Icons.logout_rounded, size: 22),
+                      label: Text(l10n.t('menu.exit')),
+                    ),
+                  ),
+                ],
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

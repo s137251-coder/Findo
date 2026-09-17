@@ -11,9 +11,6 @@ import 'package:flutter_test/flutter_test.dart';
 /// device's real request.
 void main() {
   testWidgets('her clip is not paused by a reduced-motion request', (tester) async {
-    final enter = AnimationController(vsync: const TestVSync(), value: 1);
-    addTearDown(enter.dispose);
-
     await tester.pumpWidget(
       MediaQuery(
         data: const MediaQueryData(disableAnimations: true),
@@ -22,7 +19,7 @@ void main() {
           child: Stack(
             children: [
               const _Probe(),
-              Align(alignment: Alignment.bottomLeft, child: TitleFindo(enter: enter)),
+              const Align(alignment: Alignment.topCenter, child: TitleFindo(height: 150)),
             ],
           ),
         ),
