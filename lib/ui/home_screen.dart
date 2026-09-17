@@ -117,11 +117,11 @@ class _HomeScreenState extends State<HomeScreen>
             ),
             SafeAreaWrapper(
           maxContentWidth: 420,
-          padding: const EdgeInsets.fromLTRB(28, 24, 28, 150),
-          // Centred when it fits, scrollable when it does not: the daily hunt
-          // added a row, and on a short phone the menu would otherwise run
-          // off the bottom of the screen.
-          child: _FitOrScroll(
+          padding: const EdgeInsets.fromLTRB(28, 16, 28, 110),
+          // A title screen does not scroll. On a phone too short for the
+          // menu -- a navigation bar, a larger system font -- it is scaled
+          // down a little to fit instead.
+          child: _FitToHeight(
             child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -151,7 +151,7 @@ class _HomeScreenState extends State<HomeScreen>
                   style: const TextStyle(fontSize: 16, color: FindoColors.textMuted),
                 ),
               ),
-              const SizedBox(height: 26),
+              const SizedBox(height: 18),
               // Rebuilt from the level manager, which notifies on every cleared
               // level, so coming back from a promotion shows the new rank.
               _Rise(
@@ -165,7 +165,7 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
                 ),
               ),
-              const SizedBox(height: 26),
+              const SizedBox(height: 18),
               _Rise(
                 controller: _enter,
                 from: 0.48,
@@ -198,38 +198,42 @@ class _HomeScreenState extends State<HomeScreen>
                 controller: _enter,
                 from: 0.58,
                 to: 1.0,
-                child: OutlinedButton.icon(
-                  onPressed: () {
-                    services.audio.play(GameSound.tap);
-                    showSettingsDialog(context);
-                  },
-                  icon: const Icon(Icons.settings_rounded, size: 22),
-                  label: Text(l10n.t('menu.settings')),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          services.audio.play(GameSound.tap);
+                          showSettingsDialog(context);
+                        },
+                        icon: const Icon(Icons.settings_rounded, size: 22),
+                        label: Text(l10n.t('menu.settings')),
+                      ),
+                    ),
+                    // Android only. An iOS app is not meant to close itself,
+                    // and App Review rejects ones that do; there, the home
+                    // gesture is the exit.
+                    if (Theme.of(context).platform == TargetPlatform.android) ...[
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: TextButton.icon(
+                          onPressed: () async {
+                            // Stopped first, so the track cannot outlive the
+                            // screen by the moment the activity takes to finish.
+                            await services.audio.stopMusic();
+                            await SystemNavigator.pop();
+                          },
+                          style: TextButton.styleFrom(
+                            foregroundColor: FindoColors.textMuted,
+                          ),
+                          icon: const Icon(Icons.logout_rounded, size: 22),
+                          label: Text(l10n.t('menu.exit')),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ),
-              // Android only. An iOS app is not meant to close itself, and App
-              // Review rejects ones that do; there, the home gesture is the exit.
-              if (Theme.of(context).platform == TargetPlatform.android) ...[
-                const SizedBox(height: 12),
-                _Rise(
-                  controller: _enter,
-                  from: 0.66,
-                  to: 1.0,
-                  child: TextButton.icon(
-                    onPressed: () async {
-                      // Stopped first, so the track cannot outlive the screen by
-                      // the moment the activity takes to finish.
-                      await services.audio.stopMusic();
-                      await SystemNavigator.pop();
-                    },
-                    style: TextButton.styleFrom(
-                      foregroundColor: FindoColors.textMuted,
-                    ),
-                    icon: const Icon(Icons.logout_rounded, size: 22),
-                    label: Text(l10n.t('menu.exit')),
-                  ),
-                ),
-              ],
             ],
           ),
           ),
@@ -241,20 +245,20 @@ class _HomeScreenState extends State<HomeScreen>
   }
 }
 
-/// Centres [child] in the space it is given, and scrolls it instead when it is
-/// taller than that space.
-class _FitOrScroll extends StatelessWidget {
-  const _FitOrScroll({required this.child});
+/// Centres [child] at the width it is given, and scales it down, never up,
+/// when it is taller than the space it has.
+class _FitToHeight extends StatelessWidget {
+  const _FitToHeight({required this.child});
 
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
-      builder: (context, constraints) => SingleChildScrollView(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(minHeight: constraints.maxHeight),
-          child: Center(child: child),
+      builder: (context, constraints) => Center(
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: SizedBox(width: constraints.maxWidth, child: child),
         ),
       ),
     );
@@ -320,7 +324,7 @@ class _Glass extends StatelessWidget {
           child: Transform.rotate(
             angle: tilt,
             child: Container(
-              height: 96,
+              height: 80,
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
@@ -333,7 +337,7 @@ class _Glass extends StatelessWidget {
                 ],
               ),
               child: const Icon(Icons.search_rounded,
-                  size: 84, color: FindoColors.primary),
+                  size: 70, color: FindoColors.primary),
             ),
           ),
         );
