@@ -252,5 +252,6 @@
   "lb.error": "לא הצלחנו לטעון את הטבלה. בדקו את החיבור לאינטרנט.",
   "lb.retry": "ניסיון נוסף",
   "lb.unsupported": "טבלת השיאים זמינה כרגע רק באנדרואיד.",
-  "lb.openInGoogle": "פתיחה ב-Google Play Games"
+  "lb.openInGoogle": "פתיחה ב-Google Play Games",
+  "menu.home": "מסך הבית"
 }

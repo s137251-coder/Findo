@@ -36,6 +36,16 @@ class LevelSelectScreen extends StatelessWidget {
               children: [
                 Row(
                   children: [
+                    // Straight back to the title screen, from here or from
+                    // however deep the player has come.
+                    IconButton(
+                      onPressed: () => Navigator.of(context).popUntil((route) => route.isFirst),
+                      icon: const Icon(Icons.home_rounded),
+                      color: FindoColors.textPrimary,
+                      iconSize: 28,
+                      tooltip: l10n.t('menu.home'),
+                    ),
+                    const SizedBox(width: 4),
                     Expanded(
                       child: Text(
                         l10n.t('level.select.title'),

@@ -149,7 +149,14 @@ class _HomeScreenState extends State<HomeScreen>
                   child: Text(
                     l10n.t('app.tagline'),
                     textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 16, color: FindoColors.textMuted),
+                    // A shadow so the line holds up over the brighter crowd.
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: FindoColors.textPrimary,
+                      shadows: [
+                        Shadow(color: Color(0xCC000000), blurRadius: 10, offset: Offset(0, 2)),
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(height: 18),
@@ -189,10 +196,19 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
                 ),
                 const SizedBox(height: 12),
+                // Second only to Play: the one thing on the screen that is
+                // different every day.
                 _Rise(
                   controller: _enter,
                   from: 0.53,
                   to: 0.96,
+                  child: const DailyHuntButton(),
+                ),
+                const SizedBox(height: 12),
+                _Rise(
+                  controller: _enter,
+                  from: 0.58,
+                  to: 1.0,
                   child: OutlinedButton.icon(
                     onPressed: () {
                       services.audio.play(GameSound.tap);
@@ -201,13 +217,6 @@ class _HomeScreenState extends State<HomeScreen>
                     icon: const Icon(Icons.settings_rounded, size: 22),
                     label: Text(l10n.t('menu.settings')),
                   ),
-                ),
-                const SizedBox(height: 12),
-                _Rise(
-                  controller: _enter,
-                  from: 0.58,
-                  to: 1.0,
-                  child: const DailyHuntButton(),
                 ),
                 // Android only. An iOS app is not meant to close itself, and
                 // App Review rejects ones that do; there, the home gesture is

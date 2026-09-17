@@ -115,7 +115,7 @@ class _Backdrop extends StatelessWidget {
           scale: 1.22,
           child: Transform.translate(
             offset: Offset(driftX * 120, driftY * 120),
-            child: Opacity(opacity: 0.38, child: map),
+            child: Opacity(opacity: 0.62, child: map),
           ),
         ),
         // --- the same crowd, lit, only where the lens is ------------------
@@ -148,9 +148,11 @@ class _Backdrop extends StatelessWidget {
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                Color(0xE6141824),
-                Color(0x99141824),
-                Color(0xF2141824),
+                // Dark enough at the top and bottom for the name and the
+                // buttons to read, and thin in the middle so the crowd shows.
+                Color(0xB3141824),
+                Color(0x59141824),
+                Color(0xCC141824),
               ],
               stops: [0.0, 0.42, 1.0],
             ),
@@ -161,7 +163,7 @@ class _Backdrop extends StatelessWidget {
             gradient: RadialGradient(
               center: Alignment.center,
               radius: 0.95,
-              colors: [Colors.transparent, Color(0xB3080A12)],
+              colors: [Colors.transparent, Color(0x80080A12)],
               stops: [0.55, 1.0],
             ),
           ),

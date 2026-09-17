@@ -174,34 +174,88 @@ class _DailyHuntButtonState extends State<DailyHuntButton> {
       subtitle = l10n.t('daily.cta.missed');
     }
 
-    return OutlinedButton(
-      onPressed: () => _open(services, hunt, level, started: started),
-      style: OutlinedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+    // In the accent blue, not Play's gold: the second thing on the screen
+    // to look at, and plainly a different kind of thing from Play.
+    final radius = BorderRadius.circular(FindoMetrics.radiusControl);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: radius,
+        boxShadow: [
+          BoxShadow(
+            color: FindoColors.accent.withValues(alpha: 0.22),
+            blurRadius: 18,
+            spreadRadius: 1,
+          ),
+        ],
       ),
-      child: Row(
-        children: [
-          const Icon(Icons.today_rounded, size: 24, color: FindoColors.primary),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  l10n.t('daily.title'),
-                  style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
-                ),
-                Text(
-                  subtitle,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 13, color: FindoColors.textMuted),
-                ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: radius,
+        child: Ink(
+          decoration: BoxDecoration(
+            borderRadius: radius,
+            border: Border.all(color: FindoColors.accent, width: 1.6),
+            gradient: LinearGradient(
+              begin: AlignmentDirectional.centerStart,
+              end: AlignmentDirectional.centerEnd,
+              colors: [
+                FindoColors.accent.withValues(alpha: 0.30),
+                FindoColors.surface.withValues(alpha: 0.92),
               ],
             ),
           ),
-        ],
+          child: InkWell(
+            borderRadius: radius,
+            onTap: () => _open(services, hunt, level, started: started),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+              child: Row(
+                children: [
+                  Container(
+                    width: 42,
+                    height: 42,
+                    alignment: Alignment.center,
+                    decoration: const BoxDecoration(
+                      color: FindoColors.accent,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.today_rounded, size: 24, color: FindoColors.background),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          l10n.t('daily.title'),
+                          style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w800),
+                        ),
+                        Text(
+                          subtitle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: FindoColors.accent,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Pointing onwards in the reading direction.
+                  Icon(
+                    Directionality.of(context) == TextDirection.rtl
+                        ? Icons.chevron_left_rounded
+                        : Icons.chevron_right_rounded,
+                    color: FindoColors.accent,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
