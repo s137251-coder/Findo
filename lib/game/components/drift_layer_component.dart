@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:ui' as ui;
 
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
@@ -110,15 +111,43 @@ class DriftLayerComponent extends PositionComponent {
 
   final Random _random;
   final List<_Particle> _particles = [];
-  final Paint _paint = Paint()..isAntiAlias = true;
+  final Paint _paint = Paint()
+    ..isAntiAlias = true
+    ..filterQuality = FilterQuality.medium;
+
+  /// The one particle of this kind, drawn once and then stamped for every
+  /// particle in the field in a single call.
+  ///
+  /// The first version drew each particle itself, with a fill and a rim: at the
+  /// top of the difficulty curve that is over five hundred draw calls a frame,
+  /// which is a large part of what made the late levels stutter on a phone.
+  /// The shape never changes from one particle to the next -- only where it is,
+  /// how big, how turned and what colour -- and that is exactly what a single
+  /// `drawAtlas` call takes.
+  ui.Image? _sprite;
+
+  /// One stamp per kind for the whole session, because a level is thrown away
+  /// and rebuilt every time the player moves on, and Flame does not run
+  /// `onRemove` on the components of a game it replaces -- an image made per
+  /// level would be an image leaked per level.
+  static final Map<DriftKind, ui.Image> _sprites = {};
+
+  /// The radius the stamp is drawn at, so a particle's own radius becomes a
+  /// scale factor.
+  static const _spriteRadius = 32.0;
 
   /// Particles carry a dark rim. Without it white snow over a white ski slope
   /// is invisible, which is the one scene where snow is the obvious choice --
   /// the drift has to read on whatever the artwork happens to be.
-  final Paint _rim = Paint()
-    ..isAntiAlias = true
-    ..style = PaintingStyle.stroke
-    ..color = const Color(0x40101820);
+  static const _rimColour = Color(0x40101820);
+
+  /// How many particles this layer carries.
+  @visibleForTesting
+  int get particleCount => _particles.length;
+
+  /// Whether the stamp is ready; until it is, the layer draws nothing.
+  @visibleForTesting
+  bool get spriteReady => _sprite != null;
 
   @override
   Future<void> onLoad() async {
@@ -126,6 +155,49 @@ class DriftLayerComponent extends PositionComponent {
     for (var i = 0; i < count; i++) {
       _particles.add(_spawn(anywhere: true));
     }
+    _sprite = _sprites[kind] ??= await _drawSprite();
+  }
+
+  /// Draws this kind's particle -- a circle, a flake or a streak -- in white
+  /// with its rim, so that a per-particle colour can be multiplied over it at
+  /// draw time and the rim stays dark.
+  Future<ui.Image> _drawSprite() async {
+    const r = _spriteRadius;
+    final stroke = r * 0.35;
+    final (double width, double height) = switch (kind) {
+      DriftKind.rain => (r * 0.6 + stroke * 2, r * 7 + stroke * 2),
+      _ when kind.spin > 0 => (r * 2 + stroke * 2, r * 1.1 + stroke * 2),
+      _ => (r * 2 + stroke * 2, r * 2 + stroke * 2),
+    };
+    final recorder = ui.PictureRecorder();
+    final canvas = Canvas(recorder);
+    final fill = Paint()
+      ..isAntiAlias = true
+      ..color = const Color(0xFFFFFFFF);
+    final rim = Paint()
+      ..isAntiAlias = true
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = stroke
+      ..color = _rimColour;
+    final centre = Offset(width / 2, height / 2);
+    if (kind == DriftKind.rain || kind.spin > 0) {
+      final shape = Rect.fromCenter(
+        center: centre,
+        width: width - stroke * 2,
+        height: height - stroke * 2,
+      );
+      canvas
+        ..drawRect(shape, fill)
+        ..drawRect(shape, rim);
+    } else {
+      canvas
+        ..drawCircle(centre, r, fill)
+        ..drawCircle(centre, r, rim);
+    }
+    final picture = recorder.endRecording();
+    final image = await picture.toImage(width.ceil(), height.ceil());
+    picture.dispose();
+    return image;
   }
 
   _Particle _spawn({bool anywhere = false}) {
@@ -166,13 +238,26 @@ class DriftLayerComponent extends PositionComponent {
 
   @override
   void render(Canvas canvas) {
+    final sprite = _sprite;
+    if (sprite == null) {
+      return;
+    }
     // Only what the camera can see. The field is spread over the whole 2048
     // square, but a player pinched in is looking at a fraction of it, and
-    // every particle outside that fraction still costs two draw calls a frame.
-    // The clip Flame sets for the viewport says which fraction; a canvas
-    // without one reports a huge rectangle, which culls nothing -- the right
-    // answer when the whole map is on screen.
+    // every particle outside that fraction still costs work every frame. The
+    // clip Flame sets for the viewport says which fraction; a canvas without
+    // one reports a huge rectangle, which culls nothing -- the right answer
+    // when the whole map is on screen.
     final visible = canvas.getLocalClipBounds().inflate(kind.radius * 8);
+    final src = Rect.fromLTWH(
+      0,
+      0,
+      sprite.width.toDouble(),
+      sprite.height.toDouble(),
+    );
+    final transforms = <RSTransform>[];
+    final rects = <Rect>[];
+    final colours = <Color>[];
     for (final particle in _particles) {
       final drift = sin(particle.phase) * kind.sway;
       final x = particle.position.x + drift;
@@ -182,35 +267,39 @@ class DriftLayerComponent extends PositionComponent {
           particle.position.y > visible.bottom) {
         continue;
       }
-      final radius = kind.radius * particle.scale;
-      // Fading with the sway keeps the layer from reading as a flat stencil.
-      _paint.color = kind.colour.withValues(
-        alpha: 0.30 + 0.25 * (0.5 + 0.5 * sin(particle.phase * 0.7)),
+      transforms.add(
+        RSTransform.fromComponents(
+          rotation: kind.spin > 0 ? particle.angle : 0,
+          scale: kind.radius * particle.scale / _spriteRadius,
+          anchorX: src.width / 2,
+          anchorY: src.height / 2,
+          translateX: x,
+          translateY: particle.position.y,
+        ),
       );
-      _rim.strokeWidth = radius * 0.35;
-      if (kind == DriftKind.rain) {
-        final streak =
-            Rect.fromLTWH(x, particle.position.y, radius * 0.6, radius * 7);
-        canvas.drawRect(streak, _paint);
-        canvas.drawRect(streak, _rim);
-      } else if (kind.spin > 0) {
-        canvas.save();
-        canvas.translate(x, particle.position.y);
-        canvas.rotate(particle.angle);
-        final flake = Rect.fromCenter(
-          center: Offset.zero,
-          width: radius * 2,
-          height: radius * 1.1,
-        );
-        canvas.drawRect(flake, _paint);
-        canvas.drawRect(flake, _rim);
-        canvas.restore();
-      } else {
-        final centre = Offset(x, particle.position.y);
-        canvas.drawCircle(centre, radius, _paint);
-        canvas.drawCircle(centre, radius, _rim);
-      }
+      rects.add(src);
+      // Fading with the sway keeps the layer from reading as a flat stencil.
+      colours.add(
+        kind.colour.withValues(
+          alpha: 0.30 + 0.25 * (0.5 + 0.5 * sin(particle.phase * 0.7)),
+        ),
+      );
     }
+    if (transforms.isEmpty) {
+      return;
+    }
+    // The whole field in one call. The stamp is white, so multiplying it by
+    // each particle's colour gives that particle its colour back and leaves
+    // the dark rim dark.
+    canvas.drawAtlas(
+      sprite,
+      transforms,
+      rects,
+      colours,
+      BlendMode.modulate,
+      null,
+      _paint,
+    );
   }
 }
 

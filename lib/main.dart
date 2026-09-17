@@ -16,6 +16,13 @@ import 'ui/home_screen.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Flutter will hold a hundred megabytes of decoded pictures by default. This
+  // game shows a title screen, a list of thumbnails and one map at a time, so
+  // that ceiling is not a budget -- it is just how much a phone can end up
+  // holding before anything is given back, and on a cheap handset the rest of
+  // the game pays for it. Forty is more than the screens ever need at once.
+  PaintingBinding.instance.imageCache.maximumSizeBytes = 40 << 20;
+
   await Flame.device.fullScreen();
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,

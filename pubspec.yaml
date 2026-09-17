@@ -35,6 +35,10 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+  # So a test can stand in for the audio platform and count the players the
+  # game asks for. It comes in with flame_audio either way; this only makes
+  # the test's use of it declared.
+  audioplayers_platform_interface: ^7.2.0
 
 flutter:
   uses-material-design: true

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math' as math;
+import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flame/camera.dart';
@@ -39,6 +40,16 @@ class FindoGame extends FlameGame with ScaleDetector {
   /// The character sheet, relative to Flame's image prefix. Drawn on the map,
   /// used for the shape of her hit area, and shown by the HUD as her portrait.
   static const targetSprite = 'targets/findo.png';
+
+  /// Findo's pixels, read out once for the whole session.
+  ///
+  /// Tapping her is judged against her alpha channel rather than her box, and
+  /// reading that channel means unpacking the sheet into raw bytes: 616 by
+  /// 1758 pixels is 4.1 MB. She is the same picture in every level, but this
+  /// ran on every level start, so a long session handed the collector another
+  /// four megabytes each time a player moved on -- and a phone that is already
+  /// short of memory spends the difference on stutter. Read once, kept.
+  static ByteData? _targetAlpha;
 
   /// How far past the fit-to-screen zoom the player may pinch in. The maps are
   /// authored at 2048px square so this much magnification stays sharp.
@@ -123,10 +134,12 @@ class FindoGame extends FlameGame with ScaleDetector {
     // The map ships without her. She is drawn here, at the spot chosen for
     // this attempt, which is what lets a replay be a fresh search.
     final findoImage = await images.load(targetSprite);
+    _targetAlpha ??=
+        await findoImage.toByteData(format: ui.ImageByteFormat.rawRgba);
     final placed = ItemTargetComponent(
       target: target,
       sprite: Sprite(findoImage),
-      alpha: await findoImage.toByteData(format: ui.ImageByteFormat.rawRgba),
+      alpha: _targetAlpha,
       tint: level.tint,
     );
     _target = placed;

@@ -147,12 +147,57 @@ class AudioManager with WidgetsBindingObserver {
     await _playClip(clip, volume: volume);
   }
 
+  /// How many sound effects can overlap. Four covers the busiest moment in the
+  /// game -- a found sting over a star chime over the tap that set them off --
+  /// and a fifth sound simply takes the oldest voice back.
+  static const sfxVoices = 4;
+
+  /// The voices, created once and reused for the life of the app.
+  final List<AudioPlayer> _sfxPlayers = [];
+  int _nextVoice = 0;
+
+  /// How many players exist. Never more than [sfxVoices], however long the
+  /// session runs.
+  @visibleForTesting
+  int get voiceCount => _sfxPlayers.length;
+
+  /// A voice to play the next effect on.
+  ///
+  /// This exists because `FlameAudio.play` builds a brand new player for every
+  /// single sound and never disposes it: the native player stays registered,
+  /// its event channel stays open, and nothing ever takes them back. One tap
+  /// is nothing; a player who taps their way to level fifty has left hundreds
+  /// of them behind, and the whole game slows down until the app is closed and
+  /// opened again -- which is exactly what testers reported. A fixed few
+  /// players, reused, cost the same at level one and at level a hundred.
+  Future<AudioPlayer> _voice() async {
+    if (_sfxPlayers.length < sfxVoices) {
+      final player = AudioPlayer()..audioCache = FlameAudio.audioCache;
+      // Added before the first await, so two sounds firing at once cannot both
+      // decide the ring still has room.
+      _sfxPlayers.add(player);
+      // Stop rather than release: a released player throws its source away and
+      // has to prepare it again next time, which is the latency this pool is
+      // meant to avoid.
+      await player.setReleaseMode(ReleaseMode.stop);
+      return player;
+    }
+    final player = _sfxPlayers[_nextVoice];
+    _nextVoice = (_nextVoice + 1) % _sfxPlayers.length;
+    return player;
+  }
+
   Future<void> _playClip(String clip, {double volume = 1.0}) async {
     if (!sfxEnabled) {
       return;
     }
     try {
-      await FlameAudio.play(clip, volume: volume);
+      final player = await _voice();
+      await player.play(
+        AssetSource(clip),
+        volume: volume,
+        mode: PlayerMode.lowLatency,
+      );
     } catch (error, stack) {
       _report('sfx $clip failed', error, stack);
     }
@@ -234,16 +279,8 @@ class AudioManager with WidgetsBindingObserver {
     _musicWasPlaying = false;
   }
 
-  Future<void> play(GameSound sound, {double volume = 1.0}) async {
-    if (!sfxEnabled) {
-      return;
-    }
-    try {
-      await FlameAudio.play(sound.fileName, volume: volume);
-    } catch (error, stack) {
-      _report('sfx ${sound.fileName} failed', error, stack);
-    }
-  }
+  Future<void> play(GameSound sound, {double volume = 1.0}) =>
+      _playClip(sound.fileName, volume: volume);
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
@@ -267,6 +304,14 @@ class AudioManager with WidgetsBindingObserver {
   Future<void> dispose() async {
     WidgetsBinding.instance.removeObserver(this);
     await stopMusic();
+    for (final player in _sfxPlayers) {
+      try {
+        await player.dispose();
+      } catch (error, stack) {
+        _report('voice not released', error, stack);
+      }
+    }
+    _sfxPlayers.clear();
   }
 
   void _report(String message, Object error, StackTrace stack) {
