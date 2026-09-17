@@ -224,5 +224,22 @@
   "finale.rank": "rank",
   "finale.chase": "Level {index} · {name}",
   "finale.menu": "Level list",
-  "win.moreSoon": "More levels on the way"
+  "win.moreSoon": "More levels on the way",
+  "daily.title": "Daily Hunt",
+  "daily.cta.new": "Extra hard · first try counts",
+  "daily.cta.done": "Your time today: {time}",
+  "daily.cta.missed": "Not found today · new hunt tomorrow",
+  "daily.intro.body": "One level for every player today, at the hardest difficulty, with Findo waiting in the same place for everyone. Only your first try goes on the leaderboard, and there are no hints.",
+  "daily.start": "Start",
+  "daily.table": "Leaderboard",
+  "daily.home": "Back",
+  "daily.result.found": "Found in {time}",
+  "daily.result.missed": "Time's up",
+  "daily.result.officialMissed": "That was today's official try. A new hunt is waiting tomorrow.",
+  "daily.result.posting": "Posting your time…",
+  "daily.result.posted": "Your time is on today's leaderboard.",
+  "daily.result.rank": "Rank {rank} on today's leaderboard",
+  "daily.result.offline": "Couldn't reach Google Play Games, so your time wasn't posted.",
+  "daily.tableUnavailable": "The leaderboard isn't available right now. You need to be signed in to Google Play Games.",
+  "daily.done.body": "You've played today. A new hunt is waiting tomorrow."
 }

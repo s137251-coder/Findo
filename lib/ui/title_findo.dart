@@ -29,7 +29,7 @@ class TitleFindo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final height = min(MediaQuery.sizeOf(context).height * 0.26, 235.0);
+    final height = min(MediaQuery.sizeOf(context).height * 0.24, 220.0);
     final arrival = CurvedAnimation(
       parent: enter,
       curve: const Interval(0.55, 1.0, curve: Curves.easeOutCubic),

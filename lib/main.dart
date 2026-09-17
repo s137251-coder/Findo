@@ -5,6 +5,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'app_services.dart';
 import 'managers/audio_manager.dart';
+import 'managers/games_services_manager.dart';
 import 'managers/level_manager.dart';
 import 'managers/localization_manager.dart';
 import 'managers/monetization_manager.dart';
@@ -40,6 +41,7 @@ Future<void> main() async {
     audio: audio,
     levels: levels,
     monetization: MonetizationManager(save),
+    games: GamesServicesManager(),
   );
 
   runApp(FindoApp(services: services));
@@ -64,6 +66,9 @@ class _FindoAppState extends State<FindoApp> {
     // runs after the first frame rather than during startup.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       widget.services.monetization.initialize();
+      // Quietly, and never in the way: a player with no Play Games account
+      // still plays everything, the daily hunt included.
+      widget.services.games.signInQuietly();
     });
   }
 

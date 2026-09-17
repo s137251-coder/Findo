@@ -39,6 +39,8 @@ class SaveManager {
   static const _keyRankSeen = 'findo.rank.seen';
   static const _keyStarHints = 'findo.stars.hintsGranted';
   static const _keyFinaleSeen = 'findo.finale.seen';
+  static const _keyDailyStarted = 'findo.daily.started';
+  static const _keyDailyTime = 'findo.daily.timeMs';
 
   /// Hints the player starts with, so the hint button is usable on day one.
   static const startingHints = 3;
@@ -160,6 +162,27 @@ class SaveManager {
   bool get finaleSeen => _prefs.getBool(_keyFinaleSeen) ?? false;
 
   Future<void> markFinaleSeen() => _prefs.setBool(_keyFinaleSeen, true);
+
+  // -- daily hunt ------------------------------------------------------------
+
+  /// Whether the player has already opened the hunt for [day].
+  ///
+  /// Marked when the hunt opens, not when it ends: otherwise a player could
+  /// look, quit before the clock ran out, and come back knowing where she is.
+  bool dailyStarted(String day) => _prefs.getString(_keyDailyStarted) == day;
+
+  Future<void> markDailyStarted(String day) async {
+    await _prefs.setString(_keyDailyStarted, day);
+    await _prefs.remove(_keyDailyTime);
+  }
+
+  /// The official time for [day] in milliseconds, -1 when she was not found,
+  /// null when that day's first attempt has no result (or was another day).
+  int? dailyTimeFor(String day) =>
+      dailyStarted(day) ? _prefs.getInt(_keyDailyTime) : null;
+
+  Future<void> recordDailyTime(int milliseconds) =>
+      _prefs.setInt(_keyDailyTime, milliseconds);
 
   int get starHintsGranted => _prefs.getInt(_keyStarHints) ?? 0;
 

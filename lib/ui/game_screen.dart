@@ -8,8 +8,10 @@ import '../game/findo_game.dart';
 import '../managers/audio_manager.dart';
 import '../managers/localization_manager.dart';
 import '../managers/score_manager.dart';
+import '../models/daily_hunt.dart';
 import '../models/level_definition.dart';
 import 'character_sheet_modal.dart';
+import 'daily_hunt_ui.dart';
 import 'finale_screen.dart';
 import 'hint_dialog.dart';
 import '../models/rank.dart';
@@ -23,9 +25,13 @@ import 'win_modal.dart';
 /// The Flame side never navigates: it reports "cleared" or "time up", and this
 /// widget decides which overlay to raise and what to persist.
 class GameScreen extends StatefulWidget {
-  const GameScreen({super.key, required this.level});
+  const GameScreen({super.key, required this.level, this.daily});
 
   final LevelDefinition level;
+
+  /// Set for the daily hunt: a fixed hiding place, no hints, and a time for
+  /// the table instead of stars and progress.
+  final DailyHunt? daily;
 
   @override
   State<GameScreen> createState() => _GameScreenState();
@@ -65,6 +71,12 @@ class _GameScreenState extends State<GameScreen> {
   static const _finaleDemo = bool.fromEnvironment('FINDO_FINALE_DEMO');
   bool _servicesReady = false;
 
+  /// The daily hunt's first attempt of the day, the one that is posted.
+  bool _officialAttempt = false;
+
+  /// How the daily hunt just went, for its result panel.
+  DailyOutcome? _dailyOutcome;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -74,10 +86,19 @@ class _GameScreenState extends State<GameScreen> {
     _services = AppServices.of(context);
     _servicesReady = true;
     _scoreManager = ScoreManager();
+    final daily = widget.daily;
+    if (daily != null) {
+      _officialAttempt = !_services.save.dailyStarted(daily.day);
+      if (_officialAttempt) {
+        unawaited(_services.save.markDailyStarted(daily.day));
+      }
+    }
     _startLevel(widget.level);
   }
 
-  void _startLevel(LevelDefinition level) {
+  void _startLevel(LevelDefinition chosen) {
+    // The daily hunt plays its map at the top of the difficulty curve.
+    final level = widget.daily == null ? chosen : DailyHunt.harden(chosen);
     _services.levels.startLevel(level);
     _scoreManager.startLevel(level);
     // A track picked at random from assets/audio/music, looped until the
@@ -87,8 +108,11 @@ class _GameScreenState extends State<GameScreen> {
     final outgoing = _hasGame ? _game : null;
     _game = FindoGame(
       level: level,
-      // Picked per attempt, so replaying a level is another search.
-      target: _services.levels.pickTarget(level),
+      // Picked per attempt, so replaying a level is another search -- except
+      // in the daily hunt, where everyone looks in the same place.
+      target: widget.daily == null
+          ? _services.levels.pickTarget(level)
+          : level.targets[widget.daily!.spotSeed % level.targets.length],
       scoreManager: _scoreManager,
       levelManager: _services.levels,
       audioManager: _services.audio,
@@ -136,6 +160,9 @@ class _GameScreenState extends State<GameScreen> {
   // -- outcomes ------------------------------------------------------------
 
   Future<void> _handleLevelCleared() async {
+    if (widget.daily != null) {
+      return _handleDailyEnd(found: true);
+    }
     final level = _game.level;
     final projected = _scoreManager.projectedTotal(cleared: true);
     final stars = level.starThresholds.starsFor(projected);
@@ -174,6 +201,9 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   Future<void> _handleTimeUp() async {
+    if (widget.daily != null) {
+      return _handleDailyEnd(found: false);
+    }
     final level = _game.level;
     await _services.levels.recordResult(
       level: level,
@@ -186,6 +216,50 @@ class _GameScreenState extends State<GameScreen> {
     }
     _game.setAccepting(false);
     _game.overlays.add(TimeUpModal.overlayId);
+  }
+
+  /// Ends a daily hunt: the time (misclick penalties included) is saved and
+  /// posted if this was the day's first attempt, and never touches the
+  /// level's stars or the player's progress -- the daily level can be one the
+  /// player has not unlocked.
+  Future<void> _handleDailyEnd({required bool found}) async {
+    final elapsed = _scoreManager.timeLimit - _scoreManager.timeRemaining;
+    final milliseconds = (elapsed * 1000).round();
+    final official = _officialAttempt;
+    _officialAttempt = false;
+    _game.setAccepting(false);
+    setState(() {
+      _dailyOutcome = DailyOutcome(
+        found: found,
+        milliseconds: milliseconds,
+        official: official,
+        posting: official && found,
+      );
+    });
+    _game.overlays.add(DailyResultPanel.overlayId);
+    if (!official) {
+      return;
+    }
+    await _services.save.recordDailyTime(found ? milliseconds : -1);
+    if (!found) {
+      return;
+    }
+    final posted = await _services.games.submitDailyTime(milliseconds);
+    final rank = posted ? await _services.games.todaysRank() : null;
+    if (mounted) {
+      setState(() {
+        _dailyOutcome = _dailyOutcome?.settled(posted: posted, rank: rank);
+      });
+    }
+  }
+
+  Future<void> _showDailyTable() async {
+    final shown = await _services.games.showTodaysTable();
+    if (!shown && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.l10n.t('daily.tableUnavailable'))),
+      );
+    }
   }
 
   // -- navigation ----------------------------------------------------------
@@ -283,7 +357,7 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   Future<void> _requestHint() async {
-    if (_services.levels.isFound) {
+    if (_services.levels.isFound || widget.daily != null) {
       return;
     }
     _services.audio.play(GameSound.tap);
@@ -327,7 +401,8 @@ class _GameScreenState extends State<GameScreen> {
         } else if (_game.overlays.isActive(PauseModal.overlayId)) {
           _resume();
         } else if (_game.overlays.isActive(WinModal.overlayId) ||
-            _game.overlays.isActive(TimeUpModal.overlayId)) {
+            _game.overlays.isActive(TimeUpModal.overlayId) ||
+            _game.overlays.isActive(DailyResultPanel.overlayId)) {
           _leaveLevel(_backToLevelList);
         } else {
           _pause();
@@ -350,7 +425,19 @@ class _GameScreenState extends State<GameScreen> {
                   onPause: _pause,
                   onHint: _requestHint,
                   onOpenCharacter: _openCharacterSheet,
+                  daily: widget.daily != null,
                 ),
+            DailyResultPanel.overlayId: (context, game) {
+              final outcome = _dailyOutcome;
+              if (outcome == null) {
+                return const SizedBox.shrink();
+              }
+              return DailyResultPanel(
+                outcome: outcome,
+                onTable: _showDailyTable,
+                onHome: () => _leaveLevel(_backToLevelList),
+              );
+            },
             CharacterSheetModal.overlayId: (context, game) =>
                 CharacterSheetModal(onClose: _closeCharacterSheet),
             PauseModal.overlayId: (context, game) => PauseModal(

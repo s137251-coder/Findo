@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 
 import 'managers/audio_manager.dart';
+import 'managers/games_services_manager.dart';
 import 'managers/level_manager.dart';
 import 'managers/localization_manager.dart';
 import 'managers/monetization_manager.dart';
@@ -15,6 +16,7 @@ class AppServices {
     required this.audio,
     required this.levels,
     required this.monetization,
+    required this.games,
   });
 
   final SaveManager save;
@@ -22,6 +24,9 @@ class AppServices {
   final AudioManager audio;
   final LevelManager levels;
   final MonetizationManager monetization;
+
+  /// Google Play Games: the daily hunt's table.
+  final GamesServicesManager games;
 
   static AppServices of(BuildContext context) {
     final scope = context.dependOnInheritedWidgetOfExactType<AppServicesScope>();

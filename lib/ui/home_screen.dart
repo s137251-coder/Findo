@@ -8,6 +8,7 @@ import '../managers/audio_manager.dart';
 import '../managers/localization_manager.dart';
 import '../models/rank.dart';
 import '../theme.dart';
+import 'daily_hunt_ui.dart';
 import 'level_select_screen.dart';
 import 'motion.dart';
 import 'rank_screen.dart';
@@ -116,9 +117,13 @@ class _HomeScreenState extends State<HomeScreen>
             ),
             SafeAreaWrapper(
           maxContentWidth: 420,
-          padding: const EdgeInsets.fromLTRB(28, 24, 28, 76),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+          padding: const EdgeInsets.fromLTRB(28, 24, 28, 150),
+          // Centred when it fits, scrollable when it does not: the daily hunt
+          // added a row, and on a short phone the menu would otherwise run
+          // off the bottom of the screen.
+          child: _FitOrScroll(
+            child: Column(
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               _Rise(
@@ -184,6 +189,13 @@ class _HomeScreenState extends State<HomeScreen>
               const SizedBox(height: 12),
               _Rise(
                 controller: _enter,
+                from: 0.53,
+                to: 0.96,
+                child: const DailyHuntButton(),
+              ),
+              const SizedBox(height: 12),
+              _Rise(
+                controller: _enter,
                 from: 0.58,
                 to: 1.0,
                 child: OutlinedButton.icon(
@@ -220,8 +232,29 @@ class _HomeScreenState extends State<HomeScreen>
               ],
             ],
           ),
+          ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Centres [child] in the space it is given, and scrolls it instead when it is
+/// taller than that space.
+class _FitOrScroll extends StatelessWidget {
+  const _FitOrScroll({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) => SingleChildScrollView(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minHeight: constraints.maxHeight),
+          child: Center(child: child),
         ),
       ),
     );

@@ -224,5 +224,22 @@
   "finale.rank": "דרגה",
   "finale.chase": "שלב {index} · {name}",
   "finale.menu": "רשימת השלבים",
-  "win.moreSoon": "שלבים נוספים בדרך"
+  "win.moreSoon": "שלבים נוספים בדרך",
+  "daily.title": "החיפוש היומי",
+  "daily.cta.new": "קשה במיוחד · הניסיון הראשון נספר",
+  "daily.cta.done": "הזמן שלך היום: {time}",
+  "daily.cta.missed": "היום לא נמצאה · מחר יש חדש",
+  "daily.intro.body": "שלב אחד לכל השחקנים היום, ברמת הקושי הגבוהה ביותר, ופינדו מחכה באותו מקום אצל כולם. רק הניסיון הראשון נכנס לטבלה, ואין רמזים.",
+  "daily.start": "התחילו",
+  "daily.table": "טבלת השיאים",
+  "daily.home": "חזרה",
+  "daily.result.found": "מצאת אותה תוך {time}",
+  "daily.result.missed": "הזמן נגמר",
+  "daily.result.officialMissed": "זה היה הניסיון הרשמי של היום. מחר יש חיפוש חדש.",
+  "daily.result.posting": "שולח את הזמן לטבלה…",
+  "daily.result.posted": "הזמן שלך נכנס לטבלה של היום.",
+  "daily.result.rank": "מקום {rank} בטבלה של היום",
+  "daily.result.offline": "לא הצלחנו להתחבר ל-Google Play Games, אז הזמן לא נשלח לטבלה.",
+  "daily.tableUnavailable": "טבלת השיאים לא זמינה כרגע. צריך להיות מחוברים ל-Google Play Games.",
+  "daily.done.body": "כבר שיחקת היום. חיפוש חדש מחכה מחר."
 }

@@ -76,3 +76,9 @@ kotlin {
 flutter {
     source = "../.."
 }
+
+dependencies {
+    // MainActivity initialises Play Games itself, so the app needs the SDK on
+    // its own compile path, not only through the games_services plugin.
+    implementation("com.google.android.gms:play-services-games-v2:21.0.0")
+}

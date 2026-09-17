@@ -25,6 +25,13 @@
             android:name="com.google.android.gms.ads.flag.OPTIMIZE_AD_LOADING"
             android:value="true"/>
 
+        <!-- The Play Games Services project that holds the daily hunt's
+             leaderboard. A string resource, not a literal: a bare number in
+             android:value is read as a number, and Play Games wants text. -->
+        <meta-data
+            android:name="com.google.android.gms.games.APP_ID"
+            android:value="@string/game_services_project_id"/>
+
         <activity
             android:name=".MainActivity"
             android:exported="true"

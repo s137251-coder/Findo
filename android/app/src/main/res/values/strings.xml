@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Play Games Services application id, from Play Console. -->
+    <string name="game_services_project_id" translatable="false">66476755858</string>
+</resources>

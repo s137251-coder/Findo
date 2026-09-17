@@ -19,9 +19,13 @@ class HudOverlay extends StatelessWidget {
     required this.onPause,
     required this.onHint,
     required this.onOpenCharacter,
+    this.daily = false,
   });
 
   static const overlayId = 'hud';
+
+  /// The daily hunt: no hint button, and the bar says which hunt this is.
+  final bool daily;
 
   final FindoGame game;
   final MonetizationManager monetization;
@@ -44,6 +48,7 @@ class HudOverlay extends StatelessWidget {
               scoreManager: game.scoreManager,
               level: game.level,
               onPause: onPause,
+              daily: daily,
             ),
             const Spacer(),
             KeyedSubtree(
@@ -57,6 +62,7 @@ class HudOverlay extends StatelessWidget {
               // The compact form drops the subtitle and shrinks the portrait.
               child: _ObjectiveBar(
                 level: game.level,
+                daily: daily,
                 monetization: monetization,
                 onHint: onHint,
                 onOpenCharacter: onOpenCharacter,
@@ -143,11 +149,15 @@ class _TopBar extends StatelessWidget {
     required this.scoreManager,
     required this.level,
     required this.onPause,
+    required this.daily,
   });
 
   final ScoreManager scoreManager;
   final LevelDefinition level;
   final VoidCallback onPause;
+
+  /// The daily hunt is a race against the clock: no score, no stars.
+  final bool daily;
 
   @override
   Widget build(BuildContext context) {
@@ -158,12 +168,14 @@ class _TopBar extends StatelessWidget {
         final lowOnTime = scoreManager.timeRemaining <= 15;
         return Row(
           children: [
-            StatChip(
-              icon: Icons.stars_rounded,
-              value: '${scoreManager.score}',
-              color: FindoColors.primary,
-            ),
-            const SizedBox(width: 8),
+            if (!daily) ...[
+              StatChip(
+                icon: Icons.stars_rounded,
+                value: '${scoreManager.score}',
+                color: FindoColors.primary,
+              ),
+              const SizedBox(width: 8),
+            ],
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -204,12 +216,14 @@ class _TopBar extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(width: 8),
-            StarRow(
-              stars: level.starThresholds
-                  .starsFor(scoreManager.projectedTotal(cleared: true)),
-              size: 20,
-            ),
+            if (!daily) ...[
+              const SizedBox(width: 8),
+              StarRow(
+                stars: level.starThresholds
+                    .starsFor(scoreManager.projectedTotal(cleared: true)),
+                size: 20,
+              ),
+            ],
             const SizedBox(width: 4),
             IconButton(
               onPressed: onPause,
@@ -232,6 +246,7 @@ class _TopBar extends StatelessWidget {
 class _ObjectiveBar extends StatelessWidget {
   const _ObjectiveBar({
     required this.level,
+    required this.daily,
     required this.monetization,
     required this.onHint,
     required this.onOpenCharacter,
@@ -239,6 +254,7 @@ class _ObjectiveBar extends StatelessWidget {
   });
 
   final LevelDefinition level;
+  final bool daily;
   final MonetizationManager monetization;
   final VoidCallback onHint;
   final VoidCallback onOpenCharacter;
@@ -251,8 +267,10 @@ class _ObjectiveBar extends StatelessWidget {
     final l10n = context.l10n;
     // "Level 59 - Fish Hall". Players could see which level they were on
     // everywhere but here, where they spend the whole minute.
-    final where = '${l10n.t('level.number', params: {'index': level.index})}'
+    final place = '${l10n.t('level.number', params: {'index': level.index})}'
         '  ·  ${l10n.t(level.nameKey)}';
+    // The daily hunt names the place but not the level's number.
+    final where = daily ? '${l10n.t('daily.title')}  ·  ${l10n.t(level.nameKey)}' : place;
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 12, vertical: compact ? 7 : 10),
       decoration: BoxDecoration(
@@ -295,8 +313,12 @@ class _ObjectiveBar extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: 10),
-          _HintButton(monetization: monetization, onHint: onHint),
+          // Hints lead the camera straight to her, which would turn a race
+          // against everyone's clock into a race to the hint button.
+          if (!daily) ...[
+            const SizedBox(width: 10),
+            _HintButton(monetization: monetization, onHint: onHint),
+          ],
         ],
       ),
     );
