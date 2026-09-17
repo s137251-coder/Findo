@@ -112,7 +112,7 @@ class _HomeScreenState extends State<HomeScreen>
             PositionedDirectional(
               bottom: 0,
               end: -8,
-              child: TitleFindo(enter: _enter, still: still),
+              child: TitleFindo(enter: _enter),
             ),
             SafeAreaWrapper(
           maxContentWidth: 420,
