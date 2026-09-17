@@ -14,6 +14,7 @@ import 'rank_screen.dart';
 import 'safe_area_wrapper.dart';
 import 'rules_screen.dart';
 import 'settings_dialog.dart';
+import 'title_findo.dart';
 import 'title_stage.dart';
 import 'update_prompt.dart';
 
@@ -107,6 +108,12 @@ class _HomeScreenState extends State<HomeScreen>
       body: TitleStage(
         child: Stack(
           children: [
+            // She stands in the scene, beneath the menu.
+            PositionedDirectional(
+              bottom: 0,
+              end: -8,
+              child: TitleFindo(enter: _enter, idle: _idle, still: still),
+            ),
             SafeAreaWrapper(
           maxContentWidth: 420,
           padding: const EdgeInsets.fromLTRB(28, 24, 28, 76),
@@ -213,20 +220,6 @@ class _HomeScreenState extends State<HomeScreen>
               ],
             ],
           ),
-            ),
-            // Over the menu, not under it: her speech bubble rises into the
-            // buttons, and drawn beneath them its words ran through theirs.
-            // She stands clear of every button, so only the bubble overlaps,
-            // and it lets taps through.
-            PositionedDirectional(
-              bottom: 0,
-              end: -8,
-              child: _FindoGreeter(
-                enter: _enter,
-                idle: _idle,
-                still: still,
-                onGreet: () => services.audio.play(GameSound.peek),
-              ),
             ),
           ],
         ),
@@ -496,165 +489,3 @@ class _RankBadge extends StatelessWidget {
     );
   }
 }
-
-/// Findo herself, standing on the title screen.
-///
-/// A hundred levels are spent looking for her, and the only place she could be
-/// seen whole was a panel inside a level. Here she is simply there: she
-/// arrives last, she breathes, and she answers a tap -- which is the one thing
-/// the player has been trying to do to her all game.
-class _FindoGreeter extends StatefulWidget {
-  const _FindoGreeter({
-    required this.enter,
-    required this.idle,
-    required this.still,
-    required this.onGreet,
-  });
-
-  final AnimationController enter;
-  final AnimationController idle;
-  final bool still;
-  final VoidCallback onGreet;
-
-  @override
-  State<_FindoGreeter> createState() => _FindoGreeterState();
-}
-
-class _FindoGreeterState extends State<_FindoGreeter>
-    with SingleTickerProviderStateMixin {
-  /// One pass covers the hop and the line she says: the jump happens in the
-  /// first fifth of it and the words hold for the rest, so a tap needs no
-  /// timer to clean up after itself.
-  late final AnimationController _hop = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 2800),
-  );
-
-  static const _lines = ['title.greet1', 'title.greet2', 'title.greet3'];
-  final Random _random = Random();
-  String _line = _lines.first;
-
-  @override
-  void dispose() {
-    _hop.dispose();
-    super.dispose();
-  }
-
-  void _greet() {
-    setState(() {
-      // Never the same line twice running: repetition is what makes a
-      // character read as a machine.
-      final others = _lines.where((line) => line != _line).toList();
-      _line = others[_random.nextInt(others.length)];
-    });
-    widget.onGreet();
-    _hop.forward(from: 0);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final height = min(MediaQuery.sizeOf(context).height * 0.26, 235.0);
-    final arrival = CurvedAnimation(
-      parent: widget.enter,
-      curve: const Interval(0.55, 1.0, curve: Curves.easeOutCubic),
-    );
-
-    return AnimatedBuilder(
-      animation: Listenable.merge([arrival, widget.idle, _hop]),
-      builder: (context, _) {
-        final angle = widget.idle.value * pi * 2;
-        // Breathing: a couple of pixels, and a hair of stretch with it.
-        final breath = widget.still ? 0.0 : sin(angle * 2.0);
-        final jump = Curves.easeOutCubic.transform(
-          (_hop.value / 0.18).clamp(0.0, 1.0),
-        ) - Curves.easeInCubic.transform(
-          ((_hop.value - 0.18) / 0.22).clamp(0.0, 1.0),
-        );
-        final speech = _hop.value == 0
-            ? 0.0
-            : (_hop.value / 0.10).clamp(0.0, 1.0) *
-                (1 - ((_hop.value - 0.86) / 0.14).clamp(0.0, 1.0));
-
-        return Opacity(
-          opacity: arrival.value,
-          child: Transform.translate(
-            offset: Offset(0, (1 - arrival.value) * 60 + breath * 2.5 - jump * 26),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Opacity(
-                  opacity: speech,
-                  child: Transform.translate(
-                    // Pushed towards the middle of the screen: she stands at
-                    // the very edge, and a bubble centred over her head hangs
-                    // half of itself off the side.
-                    offset: Offset(
-                      (Directionality.of(context) == TextDirection.rtl ? 1 : -1) * 64,
-                      8 * (1 - speech),
-                    ),
-                    child: IgnorePointer(
-                      child: _SpeechBubble(text: l10n.t(_line)),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 6),
-                GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: _greet,
-                  child: Transform.scale(
-                    scaleY: 1 + breath * 0.008 - jump * 0.02,
-                    scaleX: 1 - breath * 0.004 + jump * 0.02,
-                    alignment: Alignment.bottomCenter,
-                    child: SizedBox(
-                      height: height,
-                      child: Image.asset(
-                        'assets/images/targets/findo.png',
-                        fit: BoxFit.contain,
-                        filterQuality: FilterQuality.medium,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
-
-/// What she says when tapped.
-class _SpeechBubble extends StatelessWidget {
-  const _SpeechBubble({required this.text});
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      constraints: const BoxConstraints(maxWidth: 190),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-      decoration: BoxDecoration(
-        color: FindoColors.primary,
-        borderRadius: BorderRadius.circular(FindoMetrics.radiusControl),
-        boxShadow: const [
-          BoxShadow(color: Color(0x66000000), blurRadius: 16, offset: Offset(0, 4)),
-        ],
-      ),
-      child: Text(
-        text,
-        textAlign: TextAlign.center,
-        style: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w700,
-          color: FindoColors.onPrimary,
-          height: 1.3,
-        ),
-      ),
-    );
-  }
-}
-
