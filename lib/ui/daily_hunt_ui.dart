@@ -7,6 +7,7 @@ import '../models/daily_hunt.dart';
 import '../models/level_definition.dart';
 import '../theme.dart';
 import 'game_screen.dart';
+import 'leaderboard_screen.dart';
 import 'motion.dart';
 import 'widgets/common.dart';
 
@@ -270,12 +271,7 @@ class _DailyHuntButtonState extends State<DailyHuntButton> {
       return;
     }
     if (choice == 'table') {
-      final shown = await services.games.showTodaysTable();
-      if (!shown && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.t('daily.tableUnavailable'))),
-        );
-      }
+      await openLeaderboard(context);
     } else if (choice == 'play') {
       services.audio.startRandomMusic();
       await Navigator.of(context).push(

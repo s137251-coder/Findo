@@ -240,6 +240,17 @@
   "daily.result.posted": "Your time is on today's leaderboard.",
   "daily.result.rank": "Rank {rank} on today's leaderboard",
   "daily.result.offline": "Couldn't reach Google Play Games, so your time wasn't posted.",
-  "daily.tableUnavailable": "The leaderboard isn't available right now. You need to be signed in to Google Play Games.",
-  "daily.done.body": "You've played today. A new hunt is waiting tomorrow."
+  "daily.done.body": "You've played today. A new hunt is waiting tomorrow.",
+  "lb.title": "Leaderboard",
+  "lb.tab.today": "Today",
+  "lb.tab.week": "This week",
+  "lb.tab.all": "All time",
+  "lb.you": "you",
+  "lb.empty": "No times here yet. Be the first.",
+  "lb.signedOut": "Sign in to Google Play Games to see the leaderboard.",
+  "lb.signIn": "Sign in",
+  "lb.error": "Couldn't load the leaderboard. Check your internet connection.",
+  "lb.retry": "Try again",
+  "lb.unsupported": "The leaderboard is only available on Android for now.",
+  "lb.openInGoogle": "Open in Google Play Games"
 }

@@ -14,6 +14,7 @@ import 'character_sheet_modal.dart';
 import 'daily_hunt_ui.dart';
 import 'finale_screen.dart';
 import 'hint_dialog.dart';
+import 'leaderboard_screen.dart';
 import '../models/rank.dart';
 import 'hud_overlay.dart';
 import 'rank_screen.dart';
@@ -253,14 +254,7 @@ class _GameScreenState extends State<GameScreen> {
     }
   }
 
-  Future<void> _showDailyTable() async {
-    final shown = await _services.games.showTodaysTable();
-    if (!shown && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.t('daily.tableUnavailable'))),
-      );
-    }
-  }
+  Future<void> _showDailyTable() => openLeaderboard(context);
 
   // -- navigation ----------------------------------------------------------
 

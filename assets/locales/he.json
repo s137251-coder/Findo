@@ -240,6 +240,17 @@
   "daily.result.posted": "הזמן שלך נכנס לטבלה של היום.",
   "daily.result.rank": "מקום {rank} בטבלה של היום",
   "daily.result.offline": "לא הצלחנו להתחבר ל-Google Play Games, אז הזמן לא נשלח לטבלה.",
-  "daily.tableUnavailable": "טבלת השיאים לא זמינה כרגע. צריך להיות מחוברים ל-Google Play Games.",
-  "daily.done.body": "כבר שיחקת היום. חיפוש חדש מחכה מחר."
+  "daily.done.body": "כבר שיחקת היום. חיפוש חדש מחכה מחר.",
+  "lb.title": "טבלת השיאים",
+  "lb.tab.today": "היום",
+  "lb.tab.week": "השבוע",
+  "lb.tab.all": "כל הזמנים",
+  "lb.you": "אתם",
+  "lb.empty": "עוד אין זמנים כאן. היו הראשונים.",
+  "lb.signedOut": "כדי לראות את הטבלה צריך להתחבר ל-Google Play Games.",
+  "lb.signIn": "התחברות",
+  "lb.error": "לא הצלחנו לטעון את הטבלה. בדקו את החיבור לאינטרנט.",
+  "lb.retry": "ניסיון נוסף",
+  "lb.unsupported": "טבלת השיאים זמינה כרגע רק באנדרואיד.",
+  "lb.openInGoogle": "פתיחה ב-Google Play Games"
 }
