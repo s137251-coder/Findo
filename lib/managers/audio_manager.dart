@@ -170,12 +170,23 @@ class AudioManager with WidgetsBindingObserver {
   /// of them behind, and the whole game slows down until the app is closed and
   /// opened again -- which is exactly what testers reported. A fixed few
   /// players, reused, cost the same at level one and at level a hundred.
+  /// Sound effects mix with whatever else is playing, the music included.
+  ///
+  /// Without this a voice asks Android for audio focus the moment it plays,
+  /// and the system stops the music to give it -- so tapping Findo's portrait
+  /// killed the soundtrack, and nothing brought it back. Flame sets exactly
+  /// this on every sound it plays; the pool has to as well.
+  static final AudioContext _mixWithMusic = AudioContextConfig(
+    focus: AudioContextConfigFocus.mixWithOthers,
+  ).build();
+
   Future<AudioPlayer> _voice() async {
     if (_sfxPlayers.length < sfxVoices) {
       final player = AudioPlayer()..audioCache = FlameAudio.audioCache;
       // Added before the first await, so two sounds firing at once cannot both
       // decide the ring still has room.
       _sfxPlayers.add(player);
+      await player.setAudioContext(_mixWithMusic);
       // Stop rather than release: a released player throws its source away and
       // has to prepare it again next time, which is the latency this pool is
       // meant to avoid.

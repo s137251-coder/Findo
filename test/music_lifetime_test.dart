@@ -17,9 +17,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
+  late _SilentPlatform platform;
+
   setUp(() {
     SharedPreferences.setMockInitialValues({});
-    AudioplayersPlatformInterface.instance = _SilentPlatform();
+    platform = _SilentPlatform();
+    AudioplayersPlatformInterface.instance = platform;
     GlobalAudioplayersPlatformInterface.instance = _SilentGlobal();
     // A track is played from a copy of the asset on disk, so the plugin that
     // says where to put that copy has to answer.
@@ -63,6 +66,31 @@ void main() {
 
       expect(audio.currentTrack, track, reason: 'the hunt lost its music');
     });
+  });
+
+  testWidgets('a sound effect plays over the music, not instead of it',
+      (tester) async {
+    // Tapping Findo's portrait stopped the soundtrack dead: the voice playing
+    // the sound asked Android for audio focus, and the system took the music
+    // away to give it. Flame's own sounds say they mix; these have to say it
+    // too, before they play a note.
+    final audio = AudioManager(await SaveManager.load());
+
+    await tester.runAsync(() async {
+      await audio.startRandomMusic();
+      await audio.play(GameSound.peek);
+      // The voices report their position back on every frame; handing them in
+      // stops that, so the test does not end with one still ticking.
+      await audio.dispose();
+    });
+
+    expect(platform.contexts, isNotEmpty, reason: 'no voice said how to play');
+    for (final context in platform.contexts) {
+      expect(
+        context,
+        AudioContextConfig(focus: AudioContextConfigFocus.mixWithOthers).build(),
+      );
+    }
   });
 
   testWidgets('turning it on in the menu starts nothing', (tester) async {
@@ -113,6 +141,14 @@ class _SilentPlatform extends AudioplayersPlatformInterface {
     _channel(playerId).add(
       const AudioEvent(eventType: AudioEventType.prepared, isPrepared: true),
     );
+  }
+
+  /// Every audio context a voice was given before it played.
+  final List<AudioContext> contexts = [];
+
+  @override
+  Future<void> setAudioContext(String playerId, AudioContext audioContext) async {
+    contexts.add(audioContext);
   }
 
   @override
