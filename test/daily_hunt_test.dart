@@ -36,6 +36,58 @@ void main() {
     });
   });
 
+  group('when the next hunt opens', () {
+    test('is the next midnight Pacific', () {
+      // 17 Sep 2026, 12:00 UTC is 05:00 in California; the hunt turns over 19
+      // hours later, which is ten in the morning in Israel.
+      expect(
+        DailyHunt.nextReset(DateTime.utc(2026, 9, 17, 12)),
+        DateTime.utc(2026, 9, 18, 7),
+      );
+      expect(
+        DailyHunt.untilNextHunt(DateTime.utc(2026, 9, 17, 12)),
+        const Duration(hours: 19),
+      );
+    });
+
+    test('is the next midnight in winter too, an hour later by UTC', () {
+      expect(
+        DailyHunt.nextReset(DateTime.utc(2026, 1, 15, 12)),
+        DateTime.utc(2026, 1, 16, 8),
+      );
+    });
+
+    test('follows the clocks when they change in between', () {
+      // The Sunday the US goes forward: the day that starts at 08:00 UTC ends
+      // at 07:00 UTC, because an hour of it was skipped.
+      expect(
+        DailyHunt.nextReset(DateTime.utc(2026, 3, 8, 12)),
+        DateTime.utc(2026, 3, 9, 7),
+      );
+      // And the Sunday it goes back, the day is an hour longer.
+      expect(
+        DailyHunt.nextReset(DateTime.utc(2026, 11, 1, 12)),
+        DateTime.utc(2026, 11, 2, 8),
+      );
+    });
+
+    test('never promises a hunt more than a day away', () {
+      for (var hour = 0; hour < 24 * 400; hour++) {
+        final instant = DateTime.utc(2026).add(Duration(hours: hour));
+        final left = DailyHunt.untilNextHunt(instant);
+        expect(left, greaterThan(Duration.zero), reason: '$instant');
+        expect(left, lessThanOrEqualTo(const Duration(hours: 25)),
+            reason: '$instant');
+        // And the hunt on the far side of it is a different one.
+        expect(
+          DailyHunt.at(instant.add(left)).day,
+          isNot(DailyHunt.at(instant).day),
+          reason: '$instant',
+        );
+      }
+    });
+  });
+
   group('the pick', () {
     test('is pinned: changing it would split the table between app versions', () {
       // Computed independently of this code. If one of these fails, players on

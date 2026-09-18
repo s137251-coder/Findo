@@ -85,6 +85,35 @@ class DailyHunt {
     return '${local.year.toString().padLeft(4, '0')}-${two(local.month)}-${two(local.day)}';
   }
 
+  /// How long until the next hunt opens.
+  ///
+  /// Players reasonably expect a daily thing to turn over at their own
+  /// midnight, and this one does not -- it turns over with Google's table, so
+  /// that everyone's time on the table belongs to the same hunt. The screen
+  /// therefore has to say when, rather than leave a player to discover that
+  /// their midnight changed nothing.
+  static Duration untilNextHunt(DateTime instant) =>
+      nextReset(instant).difference(instant.toUtc());
+
+  /// The instant, in UTC, when the day's hunt is replaced.
+  ///
+  /// Found by asking [pacificDay] rather than by arithmetic on the offset: the
+  /// clocks go forward or back in between twice a year, and a day worked out
+  /// from today's offset was an hour wrong on both of those days -- once
+  /// promising a new hunt that was still the old one. The offset is always a
+  /// whole number of hours, so the turn is always on a whole hour, and at most
+  /// twenty-five of them need asking.
+  static DateTime nextReset(DateTime instant) {
+    final utc = instant.toUtc();
+    final today = pacificDay(utc);
+    var hour = DateTime.utc(utc.year, utc.month, utc.day, utc.hour)
+        .add(const Duration(hours: 1));
+    while (pacificDay(hour) == today) {
+      hour = hour.add(const Duration(hours: 1));
+    }
+    return hour;
+  }
+
   /// US daylight saving: from 02:00 local on the second Sunday of March to
   /// 02:00 local on the first Sunday of November.
   static bool _isPacificDaylightTime(DateTime utc) {

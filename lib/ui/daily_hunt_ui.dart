@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../app_services.dart';
@@ -18,6 +20,26 @@ String formatDailyTime(int milliseconds) {
   final minutes = tenths ~/ 600;
   final seconds = (tenths ~/ 10) % 60;
   return '$minutes:${seconds.toString().padLeft(2, '0')}.${tenths % 10}';
+}
+
+/// How long until the next hunt opens, in words: "7 hours and 12 minutes".
+///
+/// Rounded to whole minutes, because this is shown to someone deciding
+/// whether to wait, not timing anything.
+String formatUntilNextHunt(LocalizationManager l10n, Duration left) {
+  final minutes = left.inMinutes.clamp(0, 24 * 60);
+  final hours = minutes ~/ 60;
+  final rest = minutes % 60;
+  if (hours == 0) {
+    return l10n.t('daily.next.minutes', params: {'minutes': rest});
+  }
+  if (rest == 0) {
+    return l10n.t('daily.next.hours', params: {'hours': hours});
+  }
+  return l10n.t(
+    'daily.next.hoursMinutes',
+    params: {'hours': hours, 'minutes': rest},
+  );
 }
 
 /// How a daily hunt went, for the result panel.
@@ -73,11 +95,15 @@ class DailyResultPanel extends StatelessWidget {
         ? l10n.t('daily.result.found', params: {'time': formatDailyTime(outcome.milliseconds)})
         : l10n.t('daily.result.missed');
 
+    final next = formatUntilNextHunt(
+      l10n,
+      DailyHunt.untilNextHunt(DateTime.now()),
+    );
     final String status;
     if (!outcome.official) {
-      status = l10n.t('daily.done.body');
+      status = l10n.t('daily.done.body', params: {'time': next});
     } else if (!outcome.found) {
-      status = l10n.t('daily.result.officialMissed');
+      status = l10n.t('daily.result.officialMissed', params: {'time': next});
     } else if (outcome.posting) {
       status = l10n.t('daily.result.posting');
     } else if (!outcome.posted) {
@@ -153,6 +179,28 @@ class DailyHuntButton extends StatefulWidget {
 }
 
 class _DailyHuntButtonState extends State<DailyHuntButton> {
+  /// The hunt turns over while the app is open -- at ten in the morning for a
+  /// player in Israel, not at their midnight -- and the countdown below it
+  /// runs down meanwhile. Without this the button kept yesterday's answer
+  /// until something else happened to rebuild it.
+  Timer? _tick;
+
+  @override
+  void initState() {
+    super.initState();
+    _tick = Timer.periodic(const Duration(seconds: 30), (_) {
+      if (mounted) {
+        setState(() {});
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _tick?.cancel();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final services = AppServices.of(context);
@@ -173,6 +221,16 @@ class _DailyHuntButtonState extends State<DailyHuntButton> {
     } else {
       subtitle = l10n.t('daily.cta.missed');
     }
+    // Once today's hunt is spent, the useful thing to tell the player is when
+    // the next one arrives -- their own midnight is not the answer.
+    final String? countdown = started
+        ? l10n.t('daily.cta.next', params: {
+            'time': formatUntilNextHunt(
+              l10n,
+              DailyHunt.untilNextHunt(DateTime.now()),
+            ),
+          })
+        : null;
 
     // In the accent blue, not Play's gold: the second thing on the screen
     // to look at, and plainly a different kind of thing from Play.
@@ -241,6 +299,17 @@ class _DailyHuntButtonState extends State<DailyHuntButton> {
                             color: FindoColors.accent,
                           ),
                         ),
+                        if (countdown != null)
+                          Text(
+                            countdown,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: FindoColors.textMuted,
+                            ),
+                          ),
                       ],
                     ),
                   ),
@@ -280,7 +349,12 @@ class _DailyHuntButtonState extends State<DailyHuntButton> {
     // One hunt a day. Once it is played there is nothing to start again,
     // only today's table to look at.
     final String body = started
-        ? l10n.t('daily.done.body')
+        ? l10n.t('daily.done.body', params: {
+            'time': formatUntilNextHunt(
+              l10n,
+              DailyHunt.untilNextHunt(DateTime.now()),
+            ),
+          })
         : l10n.t('daily.intro.body');
 
     final choice = await showDialog<String>(
