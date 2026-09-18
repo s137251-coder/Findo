@@ -185,7 +185,9 @@ class _HomeScreenState extends State<HomeScreen>
                     child: FilledButton.icon(
                       onPressed: () {
                         services.audio.play(GameSound.tap);
-                        services.audio.startRandomMusic();
+                        // No music out here: it starts with a hunt and ends
+                        // with it, so the list is as quiet coming back from a
+                        // level as it is on the way in.
                         Navigator.of(context).push(
                           findoRoute<void>(const LevelSelectScreen()),
                         );

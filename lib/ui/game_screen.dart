@@ -154,6 +154,11 @@ class _GameScreenState extends State<GameScreen> {
     if (_hasGame) {
       _game.images.clear(_game.level.map);
     }
+    // The music belonged to the hunt, and the hunt is over. Without this it
+    // carried on under the level list and the title screen.
+    if (_servicesReady) {
+      unawaited(_services.audio.endMusic());
+    }
     _scoreManager.dispose();
     super.dispose();
   }

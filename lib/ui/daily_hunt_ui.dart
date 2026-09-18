@@ -401,7 +401,8 @@ class _DailyHuntButtonState extends State<DailyHuntButton> {
     if (choice == 'table') {
       await openLeaderboard(context);
     } else if (choice == 'play') {
-      services.audio.startRandomMusic();
+      // The hunt starts its own music; starting one here as well meant two
+      // tracks beginning a moment apart.
       await Navigator.of(context).push(
         findoRoute<void>(GameScreen(level: level, daily: hunt)),
       );

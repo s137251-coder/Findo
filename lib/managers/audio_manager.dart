@@ -236,10 +236,14 @@ class AudioManager with WidgetsBindingObserver {
 
   Future<void> setMusicEnabled(bool value) async {
     await _saveManager.setMusicEnabled(value);
-    if (value) {
+    if (!value) {
+      return stopMusic();
+    }
+    // Only back to a hunt that is still going. Turning music on from the menu,
+    // where nothing was playing, should not start a soundtrack over a screen
+    // that has none.
+    if (_currentTrack != null) {
       await startMusic(track: _currentTrack);
-    } else {
-      await stopMusic();
     }
   }
 
@@ -270,6 +274,8 @@ class AudioManager with WidgetsBindingObserver {
     }
   }
 
+  /// Stops the music but remembers the track, so turning the sound back on
+  /// mid-hunt picks it up again.
   Future<void> stopMusic() async {
     try {
       await FlameAudio.bgm.stop();
@@ -278,6 +284,22 @@ class AudioManager with WidgetsBindingObserver {
     }
     _musicWasPlaying = false;
   }
+
+  /// Ends the hunt's music for good: it stops, and there is nothing to go back
+  /// to.
+  ///
+  /// A track belongs to the hunt it was started for. Nothing used to stop it,
+  /// so the level's music followed the player out to the level list and on to
+  /// the title screen, where it played under a screen that is meant to be
+  /// quiet -- and the next level then started a second track over it.
+  Future<void> endMusic() async {
+    await stopMusic();
+    _currentTrack = null;
+  }
+
+  /// The track playing, or null when no hunt owns the music.
+  @visibleForTesting
+  String? get currentTrack => _currentTrack;
 
   Future<void> play(GameSound sound, {double volume = 1.0}) =>
       _playClip(sound.fileName, volume: volume);
