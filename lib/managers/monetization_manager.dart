@@ -21,6 +21,22 @@ import 'save_manager.dart';
 class AdUnitIds {
   const AdUnitIds._();
 
+  /// Makes a release build use Google's test units, on purpose.
+  ///
+  /// AdMob does not serve real ads to an app that is not published: an app in
+  /// internal or closed testing is not linked to a store listing, so its
+  /// requests come back with no fill. That looks exactly like a broken app
+  /// from the outside, and testers reported seeing no ads at all with no way
+  /// to tell which it was. A build made with this flag shows Google's own test
+  /// ads, which always fill, so the whole path -- consent, start-up, load, and
+  /// the interstitial after every second level -- can be seen working before
+  /// the app is ever published.
+  ///
+  ///   flutter build appbundle --dart-define=FINDO_TEST_ADS=true
+  ///
+  /// Off unless asked for, so an ordinary release build is untouched.
+  static const useTestUnits = bool.fromEnvironment('FINDO_TEST_ADS');
+
   static const _androidInterstitial = 'ca-app-pub-6774231477266357/8178274812';
   static const _androidRewarded = 'ca-app-pub-6774231477266357/8708310748';
 
@@ -34,14 +50,18 @@ class AdUnitIds {
     if (Platform.isIOS) {
       return _testIosInterstitial;
     }
-    return kReleaseMode ? _androidInterstitial : _testAndroidInterstitial;
+    return kReleaseMode && !useTestUnits
+        ? _androidInterstitial
+        : _testAndroidInterstitial;
   }
 
   static String get rewarded {
     if (Platform.isIOS) {
       return _testIosRewarded;
     }
-    return kReleaseMode ? _androidRewarded : _testAndroidRewarded;
+    return kReleaseMode && !useTestUnits
+        ? _androidRewarded
+        : _testAndroidRewarded;
   }
 }
 
@@ -257,6 +277,30 @@ class MonetizationManager extends ChangeNotifier {
     }
   }
 
+  /// Starts the ad SDK if consent now allows it and it has not started yet.
+  ///
+  /// Consent is asked for once, at launch. A player who had not answered by
+  /// then -- or whose answer arrived after the form timed out -- left
+  /// `canRequestAds` false, and nothing ever asked again: ads stayed off for
+  /// the life of that install, silently, however many levels were played.
+  /// Every path that wants an ad comes through here first now.
+  Future<void> _ensureAds() async {
+    if (_adsInitialized) {
+      return;
+    }
+    if (!_canRequestAds) {
+      try {
+        _canRequestAds = await ConsentInformation.instance.canRequestAds();
+      } catch (error) {
+        _log('consent still unknown: $error');
+        return;
+      }
+    }
+    if (_canRequestAds) {
+      await _initializeAds();
+    }
+  }
+
   Future<void> _loadInterstitial() async {
     if (!_adsInitialized || adsRemoved || _interstitial != null) {
       return;
@@ -313,7 +357,11 @@ class MonetizationManager extends ChangeNotifier {
 
   /// Counts a finished level and shows an interstitial when one is due.
   Future<void> onLevelFinished() async {
-    if (adsRemoved || !_adsInitialized) {
+    if (adsRemoved) {
+      return;
+    }
+    await _ensureAds();
+    if (!_adsInitialized) {
       return;
     }
     _levelsSinceInterstitial++;
@@ -371,6 +419,7 @@ class MonetizationManager extends ChangeNotifier {
 
   /// Shows a rewarded ad and reports whether the reward was earned.
   Future<bool> showRewardedForHint() async {
+    await _ensureAds();
     final ad = _rewarded;
     if (ad == null) {
       unawaited(loadRewarded());
