@@ -101,9 +101,10 @@ def upload(api, path, track, code, notes, draft):
         "status": "draft" if draft else "completed",
     }
     if notes:
+        hebrew, english = notes
         release["releaseNotes"] = [
-            {"language": "he-IL", "text": notes},
-            {"language": "en-US", "text": notes},
+            {"language": "he-IL", "text": hebrew},
+            {"language": "en-US", "text": english or hebrew},
         ]
     edits.tracks().update(
         packageName=PACKAGE,
@@ -121,7 +122,9 @@ def main():
                         help="actually send the bundle; without it, nothing is changed")
     parser.add_argument("--track", default="internal", choices=TRACKS)
     parser.add_argument("--bundle", default=str(DEFAULT_BUNDLE))
-    parser.add_argument("--notes", default="", help="release notes, both languages")
+    parser.add_argument("--notes", default="", help="release notes, in Hebrew")
+    parser.add_argument("--notes-en", default="", dest="notes_en",
+                        help="the same notes in English; falls back to --notes")
     parser.add_argument("--draft", action="store_true",
                         help="upload without rolling out")
     parser.add_argument("--yes", action="store_true", help="skip the question")
@@ -149,7 +152,8 @@ def main():
     if not args.yes:
         if input("  type yes to go ahead: ").strip().lower() != "yes":
             raise SystemExit("  stopped; nothing was uploaded.")
-    upload(api, path, args.track, code, args.notes, args.draft)
+    notes = (args.notes, args.notes_en) if args.notes else None
+    upload(api, path, args.track, code, notes, args.draft)
 
 
 if __name__ == "__main__":
