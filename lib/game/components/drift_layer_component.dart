@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flame/components.dart';
@@ -141,6 +142,15 @@ class DriftLayerComponent extends PositionComponent {
   /// the drift has to read on whatever the artwork happens to be.
   static const _rimColour = Color(0x40101820);
 
+  /// Where each visible particle goes, what part of the stamp it takes, and
+  /// what colour to tint it: filled in place every frame, never rebuilt.
+  late final Float32List _transforms;
+  late final Float32List _rects;
+  late final Int32List _colours;
+
+  /// This kind's colour without its alpha, which varies per particle.
+  late final int _rgb;
+
   /// How many particles this layer carries.
   @visibleForTesting
   int get particleCount => _particles.length;
@@ -149,6 +159,11 @@ class DriftLayerComponent extends PositionComponent {
   @visibleForTesting
   bool get spriteReady => _sprite != null;
 
+  /// The buffer the transforms are written into, to check that drawing writes
+  /// into it rather than building a new one.
+  @visibleForTesting
+  Float32List get transformBuffer => _transforms;
+
   @override
   Future<void> onLoad() async {
     final count = (maxParticles * intensity).round();
@@ -156,6 +171,17 @@ class DriftLayerComponent extends PositionComponent {
       _particles.add(_spawn(anywhere: true));
     }
     _sprite = _sprites[kind] ??= await _drawSprite();
+    _transforms = Float32List(count * 4);
+    _colours = Int32List(count);
+    _rgb = kind.colour.toARGB32() & 0x00FFFFFF;
+    // Every particle takes the whole stamp, so this is written once and then
+    // only ever read.
+    final sprite = _sprite!;
+    _rects = Float32List(count * 4);
+    for (var i = 0; i < count; i++) {
+      _rects[i * 4 + 2] = sprite.width.toDouble();
+      _rects[i * 4 + 3] = sprite.height.toDouble();
+    }
   }
 
   /// Draws this kind's particle -- a circle, a flake or a streak -- in white
@@ -249,53 +275,54 @@ class DriftLayerComponent extends PositionComponent {
     // one reports a huge rectangle, which culls nothing -- the right answer
     // when the whole map is on screen.
     final visible = canvas.getLocalClipBounds().inflate(kind.radius * 8);
-    final src = Rect.fromLTWH(
-      0,
-      0,
-      sprite.width.toDouble(),
-      sprite.height.toDouble(),
-    );
-    final transforms = <RSTransform>[];
-    final rects = <Rect>[];
-    final colours = <Color>[];
+    final halfWidth = sprite.width / 2;
+    final halfHeight = sprite.height / 2;
+    var shown = 0;
     for (final particle in _particles) {
       final drift = sin(particle.phase) * kind.sway;
       final x = particle.position.x + drift;
+      final y = particle.position.y;
       if (x < visible.left ||
           x > visible.right ||
-          particle.position.y < visible.top ||
-          particle.position.y > visible.bottom) {
+          y < visible.top ||
+          y > visible.bottom) {
         continue;
       }
-      transforms.add(
-        RSTransform.fromComponents(
-          rotation: kind.spin > 0 ? particle.angle : 0,
-          scale: kind.radius * particle.scale / _spriteRadius,
-          anchorX: src.width / 2,
-          anchorY: src.height / 2,
-          translateX: x,
-          translateY: particle.position.y,
-        ),
-      );
-      rects.add(src);
+      // An RSTransform is four numbers: the scale folded into a cosine and a
+      // sine, and where the stamp lands once its middle is over the particle.
+      final scale = kind.radius * particle.scale / _spriteRadius;
+      final double scos;
+      final double ssin;
+      if (kind.spin > 0) {
+        scos = cos(particle.angle) * scale;
+        ssin = sin(particle.angle) * scale;
+      } else {
+        scos = scale;
+        ssin = 0;
+      }
+      final at = shown * 4;
+      _transforms[at] = scos;
+      _transforms[at + 1] = ssin;
+      _transforms[at + 2] = x - scos * halfWidth + ssin * halfHeight;
+      _transforms[at + 3] = y - ssin * halfWidth - scos * halfHeight;
       // Fading with the sway keeps the layer from reading as a flat stencil.
-      colours.add(
-        kind.colour.withValues(
-          alpha: 0.30 + 0.25 * (0.5 + 0.5 * sin(particle.phase * 0.7)),
-        ),
-      );
+      final alpha =
+          (76 + 64 * (0.5 + 0.5 * sin(particle.phase * 0.7))).toInt() & 0xFF;
+      _colours[shown] = (alpha << 24) | _rgb;
+      shown++;
     }
-    if (transforms.isEmpty) {
+    if (shown == 0) {
       return;
     }
-    // The whole field in one call. The stamp is white, so multiplying it by
-    // each particle's colour gives that particle its colour back and leaves
-    // the dark rim dark.
-    canvas.drawAtlas(
+    // The whole field in one call, from buffers that were filled in place.
+    // Building a list of transforms and colours each frame instead meant a few
+    // hundred short-lived objects sixty times a second, and the collecting
+    // that followed is work a phone pays for in warmth.
+    canvas.drawRawAtlas(
       sprite,
-      transforms,
-      rects,
-      colours,
+      Float32List.view(_transforms.buffer, 0, shown * 4),
+      Float32List.view(_rects.buffer, 0, shown * 4),
+      Int32List.view(_colours.buffer, 0, shown),
       BlendMode.modulate,
       null,
       _paint,

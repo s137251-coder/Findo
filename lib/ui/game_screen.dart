@@ -204,6 +204,8 @@ class _GameScreenState extends State<GameScreen> {
     });
     _game.setAccepting(false);
     _game.overlays.add(WinModal.overlayId);
+    // The level is over: nothing behind the summary needs another frame.
+    _game.pauseEngine();
   }
 
   Future<void> _handleTimeUp() async {
@@ -222,6 +224,7 @@ class _GameScreenState extends State<GameScreen> {
     }
     _game.setAccepting(false);
     _game.overlays.add(TimeUpModal.overlayId);
+    _game.pauseEngine();
   }
 
   /// Ends a daily hunt: the time (misclick penalties included) is saved and
@@ -243,6 +246,7 @@ class _GameScreenState extends State<GameScreen> {
       );
     });
     _game.overlays.add(DailyResultPanel.overlayId);
+    _game.pauseEngine();
     if (!official) {
       return;
     }
@@ -331,6 +335,11 @@ class _GameScreenState extends State<GameScreen> {
     _services.audio.play(GameSound.tap);
     _game.setAccepting(false);
     _game.overlays.add(PauseModal.overlayId);
+    // A paused game kept drawing: the drift went on falling behind the panel
+    // and the whole scene was redrawn sixty times a second for a player who
+    // had put the phone down. Stopping the loop leaves the last frame on
+    // screen, which is all the panel needs behind it.
+    _game.pauseEngine();
   }
 
   /// Opens Findo full size. The clock stops while she is up: otherwise the
@@ -352,6 +361,7 @@ class _GameScreenState extends State<GameScreen> {
   void _resume() {
     _services.audio.play(GameSound.tap);
     _game.overlays.remove(PauseModal.overlayId);
+    _game.resumeEngine();
     _game.setAccepting(true);
   }
 

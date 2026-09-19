@@ -42,7 +42,13 @@ class ScoreManager extends ChangeNotifier {
   double _sinceNotify = 0;
 
   /// How often the running clock repaints the HUD.
-  static const _clockNotifySeconds = 0.1;
+  ///
+  /// The clock reads in whole seconds and the bar beside it empties over a
+  /// minute or more, so five times a second is already finer than either can
+  /// show: at this rate the bar moves by a third of a percent between
+  /// repaints. Ten was twice as many rebuilds of the panel -- layout, paint
+  /// and all -- for a picture that does not differ.
+  static const _clockNotifySeconds = 0.2;
 
   double get timeRemaining => _timeRemaining;
 
