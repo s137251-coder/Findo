@@ -104,3 +104,8 @@ store/previews/
 # prompt per level. They are 95% the same shared rules, so they are rebuilt on
 # demand rather than kept as eighty-one near-copies.
 docs/prompts/
+
+# The Play publishing key, if it is ever put here by mistake. It is a
+# credential for the whole developer account: it lives outside the repo.
+findo-publisher.json
+*publisher*.json
