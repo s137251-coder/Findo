@@ -48,13 +48,19 @@ def write_version(name: str, code: int) -> None:
     )
 
 
-def build() -> None:
+def build(defines: list[str]) -> None:
+    """Builds the bundle, with any --dart-define values asked for.
+
+    A define changes what the built app does, so the ones in force are printed
+    with the summary at the end: a bundle made with FINDO_TEST_ADS is for
+    testers and must never go to production, and that is worth reading rather
+    than remembering.
+    """
     print("building the app bundle, this takes a few minutes...")
-    result = subprocess.run(
-        ["flutter", "build", "appbundle", "--release"],
-        cwd=ROOT,
-        shell=os.name == "nt",
-    )
+    command = ["flutter", "build", "appbundle", "--release"]
+    for define in defines:
+        command += ["--dart-define", define]
+    result = subprocess.run(command, cwd=ROOT, shell=os.name == "nt")
     if result.returncode != 0:
         raise SystemExit(f"flutter build failed with {result.returncode}")
 
@@ -73,7 +79,7 @@ def bundle_version_code(bundle: zipfile.ZipFile) -> int | None:
     return int(match.group(2)) if match else None
 
 
-def verify(expected_code: int) -> None:
+def verify(expected_code: int, defines: list[str]) -> None:
     if not BUNDLE.exists():
         raise SystemExit(f"no bundle at {BUNDLE}")
 
@@ -109,6 +115,10 @@ def verify(expected_code: int) -> None:
     print(f"  character    {'present' if sprite else 'MISSING'}")
     print(f"  audio        ok {pools['ok']}, notok {pools['notok']}, music {pools['music']}")
     print(f"  signed       {'yes' if signed else 'NO -- check android/key.properties'}")
+    if defines:
+        print(f"  built with   {', '.join(defines)}")
+        if any("FINDO_TEST_ADS" in d for d in defines):
+            print("  ads          GOOGLE'S TEST ADS -- testers only, never production")
 
     problems = []
     if levels < 1:
@@ -130,6 +140,8 @@ def main() -> None:
                         help="set this version code instead of adding one")
     parser.add_argument("--no-build", action="store_true",
                         help="write the new version and stop")
+    parser.add_argument("--define", action="append", default=[], metavar="K=V",
+                        help="a --dart-define for the build; may be repeated")
     args = parser.parse_args()
 
     name, current = read_version()
@@ -143,8 +155,8 @@ def main() -> None:
     print(f"version {name}+{current} -> {name}+{nxt}")
     if args.no_build:
         return
-    build()
-    verify(nxt)
+    build(args.define)
+    verify(nxt, args.define)
 
 
 if __name__ == "__main__":
