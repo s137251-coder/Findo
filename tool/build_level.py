@@ -203,6 +203,12 @@ def _against_sky(pixels, fx: int, fy: int, width: int, height: int) -> bool:
     return float(sky.mean()) > 0.42
 
 
+# The game refuses two hiding places closer than this, in world units, and so
+# does test/level_definition_test.dart. A spot nearer than this to another is
+# the same hunt twice over.
+FLOOR_SEPARATION = 420
+
+
 def find_spots(scene: Image.Image, count: int, width: int, height: int,
                margin: int = 140, separation: int = 520):
     """Picks places to hide her: among people, and far enough apart to matter.
@@ -211,6 +217,12 @@ def find_spots(scene: Image.Image, count: int, width: int, height: int,
     a player is concerned, so the separation is what makes a replay feel like
     a new hunt. It is relaxed rather than abandoned when a map has fewer
     distinct crowds, because two real spots beat five that overlap.
+
+    It is never relaxed below `FLOOR_SEPARATION`, which is the rule the game's
+    own tests hold every level to. The first version let the last fallback drop
+    to 286, and a sparse scene duly produced two spots 398 apart -- inside the
+    limit, and rejected. Fewer spots on a thin map is the right answer; spots
+    the game will not accept is not.
     """
     import numpy as np
 
@@ -229,7 +241,8 @@ def find_spots(scene: Image.Image, count: int, width: int, height: int,
     floor = max(160.0, float(density.max()) * 0.12)
 
     best = []
-    for gap in (separation, int(separation * 0.75), int(separation * 0.55)):
+    gaps = [separation, int(separation * 0.8), int(separation * 0.65)]
+    for gap in [g for g in gaps if g >= FLOOR_SEPARATION] or [FLOOR_SEPARATION]:
         spots = []
         scores = density.copy()
         for _ in range(count):

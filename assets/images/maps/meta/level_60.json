@@ -1,0 +1,42 @@
+{
+  "id": "level_60",
+  "index": 60,
+  "nameKey": "level.skatepark",
+  "map": "maps/level_60.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 57,
+  "starThresholds": {
+    "one": 157,
+    "two": 356,
+    "three": 510
+  },
+  "motion": 0.57,
+  "targets": [
+    {
+      "x": 861,
+      "y": 1069,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 160,
+      "y": 1715,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1608,
+      "y": 1714,
+      "width": 35,
+      "height": 100
+    }
+  ],
+  "tint": {
+    "r": 1.087,
+    "g": 1.036,
+    "b": 0.982
+  }
+}

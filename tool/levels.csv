@@ -58,7 +58,7 @@ index,id,name_key,height,time,motion,tint,spots,crowd,fraction,one_trait,two_tra
 57,level_57,level.trampoline,100,58,0.54,0.45,5,740,30,10,2,,day,yes
 58,level_58,level.lecture,100,58,0.55,0.45,5,747,30,10,2,,day,yes
 59,level_59,level.fishhall,100,57,0.56,0.45,5,753,30,10,2,,day,yes
-60,level_60,level.skatepark,100,57,0.57,0.45,5,760,30,10,2,,day,no
+60,level_60,level.skatepark,100,57,0.57,0.45,5,760,30,10,2,,day,yes
 61,level_61,level.sunflower,100,57,0.58,0.45,5,780,30,12,2,yellow,day,yes
 62,level_62,level.harvest,100,57,0.59,0.45,5,787,30,12,2,yellow,day,yes
 63,level_63,level.cornmaze,100,56,0.60,0.45,5,793,30,12,2,yellow,day,yes
