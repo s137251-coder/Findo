@@ -254,8 +254,12 @@ class _GameScreenState extends State<GameScreen> {
     if (!found) {
       return;
     }
-    final posted = await _services.games.submitDailyTime(milliseconds);
-    final rank = posted ? await _services.games.todaysRank() : null;
+    final day = widget.daily!.day;
+    final posted = await _services.table.submitDailyTime(
+      day: day,
+      milliseconds: milliseconds,
+    );
+    final rank = posted ? await _services.table.todaysRank(day) : null;
     if (mounted) {
       setState(() {
         _dailyOutcome = _dailyOutcome?.settled(posted: posted, rank: rank);

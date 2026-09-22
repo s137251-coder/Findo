@@ -11,6 +11,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// The daily hunt only works if every phone agrees on the day, the level and
 /// the hiding place, without asking a server. These tests pin that agreement.
 void main() {
+  _weekGroup();
+
   group('the day', () {
     test('turns over at midnight Pacific standard time in winter', () {
       expect(DailyHunt.pacificDay(DateTime.utc(2026, 1, 15, 7, 59)), '2026-01-14');
@@ -172,6 +174,41 @@ void main() {
 
       await save.markDailyStarted('2026-09-18');
       expect(save.dailyTimeFor('2026-09-18'), isNull, reason: 'yesterday\'s time carried over');
+    });
+  });
+}
+
+/// Weeks, for the table that ranks a player's best of seven hunts.
+void _weekGroup() {
+  group('the week a hunt belongs to', () {
+    test('is named by the Sunday it started on', () {
+      // 22 Sep 2026 is a Tuesday; its week began on Sunday the 20th.
+      expect(DailyHunt.pacificWeek(DateTime.utc(2026, 9, 22, 20)), '2026-09-20');
+      expect(DailyHunt.pacificWeek(DateTime.utc(2026, 9, 20, 20)), '2026-09-20');
+      // The Saturday is the last day of that week.
+      expect(DailyHunt.pacificWeek(DateTime.utc(2026, 9, 26, 20)), '2026-09-20');
+      // And the Sunday after starts the next one.
+      expect(DailyHunt.pacificWeek(DateTime.utc(2026, 9, 27, 20)), '2026-09-27');
+    });
+
+    test('turns over with the hunt, not with the phone', () {
+      // Seven in the morning UTC on a Sunday is still Saturday in California,
+      // so it is still the old week -- the same edge the day itself has.
+      expect(DailyHunt.pacificWeek(DateTime.utc(2026, 9, 27, 6)), '2026-09-20');
+      expect(DailyHunt.pacificWeek(DateTime.utc(2026, 9, 27, 7)), '2026-09-27');
+    });
+
+    test('a week holds exactly the seven days of its own hunts', () {
+      final weeks = <String, Set<String>>{};
+      for (var i = 0; i < 70; i++) {
+        final instant = DateTime.utc(2026, 9, 1, 20).add(Duration(days: i));
+        weeks
+            .putIfAbsent(DailyHunt.pacificWeek(instant), () => <String>{})
+            .add(DailyHunt.pacificDay(instant));
+      }
+      // The first and last may be part weeks; every whole one has seven days.
+      final whole = weeks.values.where((days) => days.length != 7).length;
+      expect(whole, lessThanOrEqualTo(2), reason: '$weeks');
     });
   });
 }

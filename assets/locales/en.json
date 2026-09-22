@@ -236,6 +236,8 @@
   "daily.intro.body": "One level for every player today, at the hardest difficulty, with Findo waiting in the same place for everyone. Only your first try goes on the leaderboard, and there are no hints.",
   "daily.start": "Start",
   "daily.table": "Leaderboard",
+  "daily.name.on": "You're on the table as {name}",
+  "daily.name.change": "Another name",
   "daily.home": "Back",
   "daily.result.found": "Found in {time}",
   "daily.result.missed": "Time's up",

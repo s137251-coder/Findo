@@ -1,1 +1,25 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"findo-hunt","appId":"1:658689014098:android:6e8847769764816577628b","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"findo-hunt","configurations":{"android":"1:658689014098:android:6e8847769764816577628b","ios":"1:658689014098:ios:2882935b10acc8a277628b"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "findo-hunt",
+          "appId": "1:658689014098:android:6e8847769764816577628b",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "findo-hunt",
+          "configurations": {
+            "android": "1:658689014098:android:6e8847769764816577628b",
+            "ios": "1:658689014098:ios:2882935b10acc8a277628b"
+          }
+        }
+      }
+    }
+  },
+  "firestore": {
+    "rules": "firestore.rules"
+  }
+}

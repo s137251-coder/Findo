@@ -236,6 +236,8 @@
   "daily.intro.body": "שלב אחד לכל השחקנים היום, ברמת הקושי הגבוהה ביותר, ופינדו מחכה באותו מקום אצל כולם. רק הניסיון הראשון נכנס לטבלה, ואין רמזים.",
   "daily.start": "התחילו",
   "daily.table": "טבלת השיאים",
+  "daily.name.on": "אתה בטבלה בתור {name}",
+  "daily.name.change": "שם אחר",
   "daily.home": "חזרה",
   "daily.result.found": "מצאת אותה תוך {time}",
   "daily.result.missed": "הזמן נגמר",

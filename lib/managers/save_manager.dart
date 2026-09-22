@@ -41,6 +41,7 @@ class SaveManager {
   static const _keyFinaleSeen = 'findo.finale.seen';
   static const _keyDailyStarted = 'findo.daily.started';
   static const _keyDailyTime = 'findo.daily.timeMs';
+  static const _keyPlayerName = 'findo.player.name';
 
   /// Hints the player starts with, so the hint button is usable on day one.
   static const startingHints = 3;
@@ -162,6 +163,19 @@ class SaveManager {
   bool get finaleSeen => _prefs.getBool(_keyFinaleSeen) ?? false;
 
   Future<void> markFinaleSeen() => _prefs.setBool(_keyFinaleSeen, true);
+
+  // -- the name on the table --------------------------------------------------
+
+  /// The name this player appears under on the leaderboard, or null until one
+  /// has been made.
+  ///
+  /// Made once, when there is first a time to post, and kept: a player who has
+  /// been on the table for a month under one name should not become somebody
+  /// else because they changed the app's language.
+  String? get playerName => _prefs.getString(_keyPlayerName);
+
+  Future<void> setPlayerName(String name) =>
+      _prefs.setString(_keyPlayerName, name);
 
   // -- daily hunt ------------------------------------------------------------
 

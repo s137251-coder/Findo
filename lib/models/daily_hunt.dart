@@ -85,6 +85,22 @@ class DailyHunt {
     return '${local.year.toString().padLeft(4, '0')}-${two(local.month)}-${two(local.day)}';
   }
 
+  /// The week a day belongs to, named by the Sunday it started on.
+  ///
+  /// Weeks are counted on the same clock as the days, so a week begins and
+  /// ends with a hunt rather than in the middle of one, and a player near the
+  /// turn is never in two weeks at once.
+  static String pacificWeek(DateTime instant) {
+    final day = pacificDay(instant);
+    final parts = day.split('-').map(int.parse).toList();
+    final date = DateTime.utc(parts[0], parts[1], parts[2]);
+    // Dart counts Sunday as 7; the week here starts on it.
+    final sunday = date.subtract(Duration(days: date.weekday % 7));
+    String two(int n) => n.toString().padLeft(2, '0');
+    return '${sunday.year.toString().padLeft(4, '0')}'
+        '-${two(sunday.month)}-${two(sunday.day)}';
+  }
+
   /// How long until the next hunt opens.
   ///
   /// Players reasonably expect a daily thing to turn over at their own

@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flame/flame.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -5,12 +6,13 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'app_services.dart';
 import 'managers/audio_manager.dart';
-import 'managers/games_services_manager.dart';
+import 'managers/leaderboard_service.dart';
 import 'managers/level_manager.dart';
 import 'managers/localization_manager.dart';
 import 'managers/monetization_manager.dart';
 import 'managers/save_manager.dart';
 import 'theme.dart';
+import 'firebase_options.dart';
 import 'ui/home_screen.dart';
 
 Future<void> main() async {
@@ -42,13 +44,24 @@ Future<void> main() async {
   final audio = AudioManager(save);
   await audio.initialize();
 
+  // The leaderboard's home. A failure here costs the table and nothing else:
+  // the game is played from the phone, and every call into it is allowed to
+  // come back empty.
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (error) {
+    debugPrint('leaderboard unavailable: $error');
+  }
+
   final services = AppServices(
     save: save,
     localization: localization,
     audio: audio,
     levels: levels,
     monetization: MonetizationManager(save),
-    games: GamesServicesManager(),
+    table: LeaderboardService(save),
   );
 
   runApp(FindoApp(services: services));
@@ -73,9 +86,6 @@ class _FindoAppState extends State<FindoApp> {
     // runs after the first frame rather than during startup.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       widget.services.monetization.initialize();
-      // Quietly, and never in the way: a player with no Play Games account
-      // still plays everything, the daily hunt included.
-      widget.services.games.signInQuietly();
     });
   }
 

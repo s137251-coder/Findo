@@ -59,7 +59,7 @@ class DailyOutcome {
   /// The first attempt of the day: the one that counts.
   final bool official;
 
-  /// Waiting on Play Games.
+  /// Waiting on the table.
   final bool posting;
   final bool posted;
   final int? rank;
@@ -149,6 +149,10 @@ class DailyResultPanel extends StatelessWidget {
                     : FindoColors.textMuted,
               ),
             ),
+            if (outcome.official && outcome.found) ...[
+              const SizedBox(height: 14),
+              const _NameOnTheTable(),
+            ],
             const SizedBox(height: 22),
             FilledButton.icon(
               onPressed: onTable,
@@ -163,6 +167,78 @@ class DailyResultPanel extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// The name this player is on the table under, and a way to get another.
+///
+/// Shown the first time there is a time to post, which is the moment the name
+/// starts to mean anything: the player has just been placed among other
+/// people. Nobody is asked to think of a name at launch, before they know
+/// whether they like the game.
+class _NameOnTheTable extends StatefulWidget {
+  const _NameOnTheTable();
+
+  @override
+  State<_NameOnTheTable> createState() => _NameOnTheTableState();
+}
+
+class _NameOnTheTableState extends State<_NameOnTheTable> {
+  String? _name;
+  bool _changing = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _name ??= AppServices.of(context).save.playerName;
+    if (_name == null) {
+      unawaited(_load());
+    }
+  }
+
+  Future<void> _load() async {
+    final name = await AppServices.of(context).table.playerName();
+    if (mounted) {
+      setState(() => _name = name);
+    }
+  }
+
+  Future<void> _reroll() async {
+    final services = AppServices.of(context);
+    services.audio.play(GameSound.tap);
+    setState(() => _changing = true);
+    final name = await services.table.rerollName();
+    if (mounted) {
+      setState(() {
+        _name = name;
+        _changing = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final name = _name;
+    if (name == null) {
+      return const SizedBox.shrink();
+    }
+    final l10n = context.l10n;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          l10n.t('daily.name.on', params: {'name': name}),
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontSize: 14, color: FindoColors.textMuted),
+        ),
+        TextButton.icon(
+          onPressed: _changing ? null : _reroll,
+          icon: const Icon(Icons.casino_rounded, size: 18),
+          label: Text(l10n.t('daily.name.change')),
+          style: TextButton.styleFrom(foregroundColor: FindoColors.accent),
+        ),
+      ],
     );
   }
 }

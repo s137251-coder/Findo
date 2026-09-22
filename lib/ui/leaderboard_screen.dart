@@ -15,13 +15,12 @@ Future<void> openLeaderboard(
   BuildContext context, {
   LeaderboardSpan initial = LeaderboardSpan.today,
 }) {
-  final games = AppServices.of(context).games;
+  final table = AppServices.of(context).table;
   return Navigator.of(context).push(
     findoRoute<void>(
       LeaderboardScreen(
-        load: games.loadTable,
-        signIn: games.signIn,
-        openInGoogle: games.showTable,
+        load: table.loadTable,
+        signIn: table.signIn,
         initial: initial,
       ),
     ),
