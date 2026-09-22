@@ -1,3 +1,5 @@
+import 'package:firebase_app_check/firebase_app_check.dart';
+import 'package:flutter/foundation.dart' show kReleaseMode;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flame/flame.dart';
 import 'package:flutter/material.dart';
@@ -50,6 +52,27 @@ Future<void> main() async {
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
+    );
+    // Who is allowed to write to the table.
+    //
+    // A leaderboard reached over the internet is a leaderboard anyone can
+    // write to with a script, and a table full of impossible times is worth
+    // nothing to the people who earned their place on it. App Check has the
+    // phone prove to Google that the request came from this app, unmodified,
+    // on a real device -- Play Integrity on Android, App Attest on an iPhone
+    // -- before Firestore will accept a word of it.
+    //
+    // A debug build cannot prove any of that, so it says so and is given a
+    // token that only works for devices registered by hand.
+    await FirebaseAppCheck.instance.activate(
+      providerAndroid: kReleaseMode
+          ? const AndroidPlayIntegrityProvider()
+          : const AndroidDebugProvider(),
+      // App Attest with DeviceCheck behind it: App Attest wants iOS 14, and
+      // the older phones fall back rather than being shut out of the table.
+      providerApple: kReleaseMode
+          ? const AppleAppAttestWithDeviceCheckFallbackProvider()
+          : const AppleDebugProvider(),
     );
   } catch (error) {
     debugPrint('leaderboard unavailable: $error');
