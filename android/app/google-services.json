@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "658689014098",
+    "project_id": "findo-hunt",
+    "storage_bucket": "findo-hunt.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:658689014098:android:6e8847769764816577628b",
+        "android_client_info": {
+          "package_name": "com.findo.game"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDSpycUYmgYd-MG-_0TgvqOLJ1InQoisng"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
