@@ -1,0 +1,23 @@
+{
+  "indexes": [
+    {
+      "//": "The week's table: every player whose best belongs to this week, in time order. Firestore serves a filter and a sort on the same field by itself, but not a filter on one field and a sort on another, so this pair has to be declared. Without it the week tab answers with an error, which the game shows as 'we could not load the table'.",
+      "collectionGroup": "players",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "weekKey", "order": "ASCENDING" },
+        { "fieldPath": "weekBestMs", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "//": "The same week's table read backwards, which is how the rows just ahead of a player are found when they rank below the top.",
+      "collectionGroup": "players",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "weekKey", "order": "ASCENDING" },
+        { "fieldPath": "weekBestMs", "order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

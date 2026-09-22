@@ -208,7 +208,7 @@ class LeaderboardService {
       return const LeaderboardLoad.signedOut();
     }
     try {
-      final (query, field) = _queryFor(span);
+      final (query, field, mine) = _queryFor(span, uid);
       final top = await query.orderBy(field).limit(topCount).get();
       final rows = <LeaderboardRow>[];
       for (var i = 0; i < top.docs.length; i++) {
@@ -219,7 +219,7 @@ class LeaderboardService {
       }
       return LeaderboardLoad.ok(
         top: rows,
-        aroundMe: await _neighbours(query, field, uid),
+        aroundMe: await _neighbours(query, field, uid, mine),
       );
     } catch (error) {
       _log('table not loaded: $error');
@@ -227,28 +227,34 @@ class LeaderboardService {
     }
   }
 
-  /// Which rows a period reads, and the field they are ranked by.
+  /// Which rows a period reads, the field they are ranked by, and where this
+  /// player's own row lives.
   ///
   /// Today is a day's own rows. The week and all-time tables read one row per
   /// player instead, because a week's best is a player's best of seven hunts,
   /// not their seven times listed separately.
-  (Query<Map<String, dynamic>>, String) _queryFor(LeaderboardSpan span) {
+  ///
+  /// The player's row comes back as a reference rather than as another query:
+  /// asking a filtered collection for one document by its id is a second thing
+  /// for the server to index, and it is the same document either way.
+  (Query<Map<String, dynamic>>, String, DocumentReference<Map<String, dynamic>>)
+      _queryFor(LeaderboardSpan span, String uid) {
     final now = DateTime.now();
+    final players = _db.collection('players');
     return switch (span) {
-      LeaderboardSpan.today => (
-          _db
+      LeaderboardSpan.today => () {
+          final day = _db
               .collection('daily')
               .doc(DailyHunt.pacificDay(now))
-              .collection('scores'),
-          'ms',
-        ),
+              .collection('scores');
+          return (day, 'ms', day.doc(uid));
+        }(),
       LeaderboardSpan.week => (
-          _db
-              .collection('players')
-              .where('weekKey', isEqualTo: DailyHunt.pacificWeek(now)),
+          players.where('weekKey', isEqualTo: DailyHunt.pacificWeek(now)),
           'weekBestMs',
+          players.doc(uid),
         ),
-      LeaderboardSpan.allTime => (_db.collection('players'), 'bestMs'),
+      LeaderboardSpan.allTime => (players, 'bestMs', players.doc(uid)),
     };
   }
 
@@ -257,13 +263,10 @@ class LeaderboardService {
     Query<Map<String, dynamic>> query,
     String field,
     String uid,
+    DocumentReference<Map<String, dynamic>> mine,
   ) async {
-    final mine = await query.where(FieldPath.documentId, isEqualTo: uid).get();
-    if (mine.docs.isEmpty) {
-      return const [];
-    }
-    final me = mine.docs.first;
-    final ms = (me.data()[field] as num?)?.toInt();
+    final me = await mine.get();
+    final ms = (me.data()?[field] as num?)?.toInt();
     if (ms == null) {
       return const [];
     }
@@ -283,7 +286,7 @@ class LeaderboardService {
     for (var i = ahead.docs.length - 1; i >= 0; i--) {
       rows.add(_rowAt(ahead.docs[i], place - 1 - i, uid, field));
     }
-    rows.add(_rowAt(me, place, uid, field));
+    rows.add(_rowOf(me.data() ?? const {}, place, isMe: true, field: field));
     for (var i = 0; i < behind.docs.length; i++) {
       rows.add(_rowAt(behind.docs[i], place + 1 + i, uid, field));
     }
@@ -295,15 +298,21 @@ class LeaderboardService {
     int rank,
     String uid,
     String field,
-  ) {
-    final data = doc.data();
-    return LeaderboardRow(
-      rank: rank,
-      name: (data['name'] as String?) ?? '?',
-      milliseconds: (data[field] as num?)?.toInt() ?? 0,
-      isMe: doc.id == uid,
-    );
-  }
+  ) =>
+      _rowOf(doc.data(), rank, isMe: doc.id == uid, field: field);
+
+  LeaderboardRow _rowOf(
+    Map<String, dynamic> data,
+    int rank, {
+    required bool isMe,
+    required String field,
+  }) =>
+      LeaderboardRow(
+        rank: rank,
+        name: (data['name'] as String?) ?? '?',
+        milliseconds: (data[field] as num?)?.toInt() ?? 0,
+        isMe: isMe,
+      );
 
   void _log(String message) {
     if (kDebugMode) {
