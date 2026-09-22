@@ -1,0 +1,54 @@
+{
+  "id": "level_76",
+  "index": 76,
+  "nameKey": "level.beachgig",
+  "map": "maps/level_76.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 52,
+  "starThresholds": {
+    "one": 152,
+    "two": 334,
+    "three": 474
+  },
+  "motion": 0.74,
+  "targets": [
+    {
+      "x": 1111,
+      "y": 514,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 257,
+      "y": 454,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1874,
+      "y": 472,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1472,
+      "y": 1801,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 157,
+      "y": 974,
+      "width": 35,
+      "height": 100
+    }
+  ],
+  "tint": {
+    "r": 0.988,
+    "g": 0.859,
+    "b": 0.889
+  }
+}

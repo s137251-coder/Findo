@@ -1,0 +1,54 @@
+{
+  "id": "level_78",
+  "index": 78,
+  "nameKey": "level.purplecarnival",
+  "map": "maps/level_78.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 52,
+  "starThresholds": {
+    "one": 152,
+    "two": 334,
+    "three": 474
+  },
+  "motion": 0.76,
+  "targets": [
+    {
+      "x": 266,
+      "y": 415,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1660,
+      "y": 1776,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1365,
+      "y": 147,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1274,
+      "y": 999,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 184,
+      "y": 1744,
+      "width": 35,
+      "height": 100
+    }
+  ],
+  "tint": {
+    "r": 1.003,
+    "g": 0.928,
+    "b": 0.967
+  }
+}

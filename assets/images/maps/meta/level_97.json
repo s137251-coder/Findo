@@ -1,0 +1,54 @@
+{
+  "id": "level_97",
+  "index": 97,
+  "nameKey": "level.rooftopfest",
+  "map": "maps/level_97.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 46,
+  "starThresholds": {
+    "one": 146,
+    "two": 307,
+    "three": 431
+  },
+  "motion": 0.97,
+  "targets": [
+    {
+      "x": 356,
+      "y": 519,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1482,
+      "y": 1035,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 829,
+      "y": 1479,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1713,
+      "y": 1682,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 297,
+      "y": 1798,
+      "width": 35,
+      "height": 100
+    }
+  ],
+  "tint": {
+    "r": 0.76,
+    "g": 0.73,
+    "b": 0.683
+  }
+}

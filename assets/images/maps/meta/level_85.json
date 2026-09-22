@@ -1,0 +1,54 @@
+{
+  "id": "level_85",
+  "index": 85,
+  "nameKey": "level.lighttrail",
+  "map": "maps/level_85.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 50,
+  "starThresholds": {
+    "one": 150,
+    "two": 325,
+    "three": 460
+  },
+  "motion": 0.84,
+  "targets": [
+    {
+      "x": 292,
+      "y": 172,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 698,
+      "y": 785,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 881,
+      "y": 251,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1821,
+      "y": 845,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1873,
+      "y": 210,
+      "width": 35,
+      "height": 100
+    }
+  ],
+  "tint": {
+    "r": 0.78,
+    "g": 0.747,
+    "b": 0.78
+  }
+}

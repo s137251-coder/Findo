@@ -1,0 +1,54 @@
+{
+  "id": "level_98",
+  "index": 98,
+  "nameKey": "level.floatingmarket",
+  "map": "maps/level_98.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 46,
+  "starThresholds": {
+    "one": 146,
+    "two": 307,
+    "three": 431
+  },
+  "motion": 0.98,
+  "targets": [
+    {
+      "x": 1653,
+      "y": 491,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1865,
+      "y": 1303,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 318,
+      "y": 1779,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1115,
+      "y": 1111,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 236,
+      "y": 174,
+      "width": 35,
+      "height": 100
+    }
+  ],
+  "tint": {
+    "r": 0.733,
+    "g": 0.69,
+    "b": 0.663
+  }
+}

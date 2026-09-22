@@ -1,0 +1,54 @@
+{
+  "id": "level_72",
+  "index": 72,
+  "nameKey": "level.jacaranda",
+  "map": "maps/level_72.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 54,
+  "starThresholds": {
+    "one": 154,
+    "two": 343,
+    "three": 489
+  },
+  "motion": 0.7,
+  "targets": [
+    {
+      "x": 451,
+      "y": 1287,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1813,
+      "y": 1448,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 478,
+      "y": 447,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1867,
+      "y": 478,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 976,
+      "y": 1390,
+      "width": 35,
+      "height": 100
+    }
+  ],
+  "tint": {
+    "r": 1.015,
+    "g": 0.922,
+    "b": 1.027
+  }
+}

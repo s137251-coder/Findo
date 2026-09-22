@@ -1,0 +1,54 @@
+{
+  "id": "level_95",
+  "index": 95,
+  "nameKey": "level.midnightsale",
+  "map": "maps/level_95.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 47,
+  "starThresholds": {
+    "one": 147,
+    "two": 312,
+    "three": 438
+  },
+  "motion": 0.95,
+  "targets": [
+    {
+      "x": 376,
+      "y": 140,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1669,
+      "y": 1205,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 140,
+      "y": 1500,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 750,
+      "y": 773,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1637,
+      "y": 140,
+      "width": 35,
+      "height": 100
+    }
+  ],
+  "tint": {
+    "r": 0.783,
+    "g": 0.763,
+    "b": 0.783
+  }
+}

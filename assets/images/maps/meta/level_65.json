@@ -1,0 +1,54 @@
+{
+  "id": "level_65",
+  "index": 65,
+  "nameKey": "level.roadworks",
+  "map": "maps/level_65.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 56,
+  "starThresholds": {
+    "one": 156,
+    "two": 352,
+    "three": 503
+  },
+  "motion": 0.62,
+  "targets": [
+    {
+      "x": 1383,
+      "y": 404,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1268,
+      "y": 1367,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1853,
+      "y": 1086,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 736,
+      "y": 1292,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 404,
+      "y": 438,
+      "width": 35,
+      "height": 100
+    }
+  ],
+  "tint": {
+    "r": 1.027,
+    "g": 0.997,
+    "b": 0.82
+  }
+}

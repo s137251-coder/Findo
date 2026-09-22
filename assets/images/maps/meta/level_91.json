@@ -1,0 +1,54 @@
+{
+  "id": "level_91",
+  "index": 91,
+  "nameKey": "level.countdown",
+  "map": "maps/level_91.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 48,
+  "starThresholds": {
+    "one": 148,
+    "two": 316,
+    "three": 446
+  },
+  "motion": 0.9,
+  "targets": [
+    {
+      "x": 1779,
+      "y": 1175,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 169,
+      "y": 472,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1266,
+      "y": 456,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 268,
+      "y": 1018,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 707,
+      "y": 317,
+      "width": 35,
+      "height": 100
+    }
+  ],
+  "tint": {
+    "r": 0.753,
+    "g": 0.72,
+    "b": 0.713
+  }
+}

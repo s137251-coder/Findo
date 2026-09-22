@@ -1,0 +1,54 @@
+{
+  "id": "level_96",
+  "index": 96,
+  "nameKey": "level.pilgrimage",
+  "map": "maps/level_96.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 46,
+  "starThresholds": {
+    "one": 146,
+    "two": 307,
+    "three": 431
+  },
+  "motion": 0.96,
+  "targets": [
+    {
+      "x": 1258,
+      "y": 881,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1792,
+      "y": 450,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 735,
+      "y": 1000,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 727,
+      "y": 477,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 514,
+      "y": 1520,
+      "width": 35,
+      "height": 100
+    }
+  ],
+  "tint": {
+    "r": 0.71,
+    "g": 0.683,
+    "b": 0.703
+  }
+}

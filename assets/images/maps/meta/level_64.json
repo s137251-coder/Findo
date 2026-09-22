@@ -1,0 +1,54 @@
+{
+  "id": "level_64",
+  "index": 64,
+  "nameKey": "level.taxirank",
+  "map": "maps/level_64.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 56,
+  "starThresholds": {
+    "one": 156,
+    "two": 352,
+    "three": 503
+  },
+  "motion": 0.61,
+  "targets": [
+    {
+      "x": 1012,
+      "y": 232,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 178,
+      "y": 1211,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1874,
+      "y": 260,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 386,
+      "y": 1774,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1511,
+      "y": 1728,
+      "width": 35,
+      "height": 100
+    }
+  ],
+  "tint": {
+    "r": 1.081,
+    "g": 1.03,
+    "b": 0.904
+  }
+}

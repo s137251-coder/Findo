@@ -1,0 +1,54 @@
+{
+  "id": "level_89",
+  "index": 89,
+  "nameKey": "level.procession",
+  "map": "maps/level_89.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 48,
+  "starThresholds": {
+    "one": 148,
+    "two": 316,
+    "three": 446
+  },
+  "motion": 0.88,
+  "targets": [
+    {
+      "x": 985,
+      "y": 912,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 464,
+      "y": 505,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1432,
+      "y": 1526,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1672,
+      "y": 697,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 310,
+      "y": 1174,
+      "width": 35,
+      "height": 100
+    }
+  ],
+  "tint": {
+    "r": 0.733,
+    "g": 0.707,
+    "b": 0.69
+  }
+}

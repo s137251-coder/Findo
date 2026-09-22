@@ -1,0 +1,54 @@
+{
+  "id": "level_67",
+  "index": 67,
+  "nameKey": "level.lemongrove",
+  "map": "maps/level_67.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 55,
+  "starThresholds": {
+    "one": 155,
+    "two": 348,
+    "three": 496
+  },
+  "motion": 0.64,
+  "targets": [
+    {
+      "x": 790,
+      "y": 625,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1789,
+      "y": 1313,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 943,
+      "y": 1459,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 410,
+      "y": 1560,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 162,
+      "y": 846,
+      "width": 35,
+      "height": 100
+    }
+  ],
+  "tint": {
+    "r": 1.033,
+    "g": 0.982,
+    "b": 0.742
+  }
+}

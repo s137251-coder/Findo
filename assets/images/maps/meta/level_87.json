@@ -1,0 +1,54 @@
+{
+  "id": "level_87",
+  "index": 87,
+  "nameKey": "level.drivein",
+  "map": "maps/level_87.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 49,
+  "starThresholds": {
+    "one": 149,
+    "two": 320,
+    "three": 453
+  },
+  "motion": 0.86,
+  "targets": [
+    {
+      "x": 876,
+      "y": 190,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 279,
+      "y": 283,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1060,
+      "y": 1372,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1505,
+      "y": 822,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1857,
+      "y": 1672,
+      "width": 35,
+      "height": 100
+    }
+  ],
+  "tint": {
+    "r": 0.753,
+    "g": 0.73,
+    "b": 0.72
+  }
+}

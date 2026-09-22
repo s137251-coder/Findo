@@ -1,0 +1,54 @@
+{
+  "id": "level_68",
+  "index": 68,
+  "nameKey": "level.schoolbus",
+  "map": "maps/level_68.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 55,
+  "starThresholds": {
+    "one": 155,
+    "two": 348,
+    "three": 496
+  },
+  "motion": 0.66,
+  "targets": [
+    {
+      "x": 1648,
+      "y": 211,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1774,
+      "y": 977,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 684,
+      "y": 140,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1482,
+      "y": 1788,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 148,
+      "y": 1461,
+      "width": 35,
+      "height": 100
+    }
+  ],
+  "tint": {
+    "r": 1.177,
+    "g": 1.096,
+    "b": 0.766
+  }
+}

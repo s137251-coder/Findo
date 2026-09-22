@@ -1,0 +1,54 @@
+{
+  "id": "level_92",
+  "index": 92,
+  "nameKey": "level.carnivalfinale",
+  "map": "maps/level_92.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 47,
+  "starThresholds": {
+    "one": 147,
+    "two": 312,
+    "three": 438
+  },
+  "motion": 0.91,
+  "targets": [
+    {
+      "x": 1687,
+      "y": 1213,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1407,
+      "y": 1733,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 213,
+      "y": 1314,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 371,
+      "y": 419,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 886,
+      "y": 1454,
+      "width": 35,
+      "height": 100
+    }
+  ],
+  "tint": {
+    "r": 0.81,
+    "g": 0.753,
+    "b": 0.683
+  }
+}

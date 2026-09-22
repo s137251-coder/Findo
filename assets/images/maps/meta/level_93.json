@@ -1,0 +1,54 @@
+{
+  "id": "level_93",
+  "index": 93,
+  "nameKey": "level.rushhour",
+  "map": "maps/level_93.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 47,
+  "starThresholds": {
+    "one": 147,
+    "two": 312,
+    "three": 438
+  },
+  "motion": 0.92,
+  "targets": [
+    {
+      "x": 464,
+      "y": 545,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1565,
+      "y": 713,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1871,
+      "y": 1801,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 535,
+      "y": 1065,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1803,
+      "y": 1233,
+      "width": 35,
+      "height": 100
+    }
+  ],
+  "tint": {
+    "r": 0.8,
+    "g": 0.773,
+    "b": 0.763
+  }
+}

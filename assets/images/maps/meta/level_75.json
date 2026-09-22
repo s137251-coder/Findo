@@ -1,0 +1,54 @@
+{
+  "id": "level_75",
+  "index": 75,
+  "nameKey": "level.amethyst",
+  "map": "maps/level_75.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 53,
+  "starThresholds": {
+    "one": 153,
+    "two": 338,
+    "three": 482
+  },
+  "motion": 0.73,
+  "targets": [
+    {
+      "x": 776,
+      "y": 991,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1833,
+      "y": 1325,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1394,
+      "y": 195,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 206,
+      "y": 723,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1312,
+      "y": 1293,
+      "width": 35,
+      "height": 100
+    }
+  ],
+  "tint": {
+    "r": 0.832,
+    "g": 0.796,
+    "b": 0.88
+  }
+}

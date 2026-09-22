@@ -1,0 +1,54 @@
+{
+  "id": "level_66",
+  "index": 66,
+  "nameKey": "level.bees",
+  "map": "maps/level_66.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 55,
+  "starThresholds": {
+    "one": 155,
+    "two": 348,
+    "three": 496
+  },
+  "motion": 0.63,
+  "targets": [
+    {
+      "x": 728,
+      "y": 757,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1449,
+      "y": 1094,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1104,
+      "y": 1712,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 203,
+      "y": 601,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 352,
+      "y": 1277,
+      "width": 35,
+      "height": 100
+    }
+  ],
+  "tint": {
+    "r": 1.036,
+    "g": 1.009,
+    "b": 0.766
+  }
+}

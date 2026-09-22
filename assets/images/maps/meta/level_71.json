@@ -1,0 +1,54 @@
+{
+  "id": "level_71",
+  "index": 71,
+  "nameKey": "level.lavender",
+  "map": "maps/level_71.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 54,
+  "starThresholds": {
+    "one": 154,
+    "two": 343,
+    "three": 489
+  },
+  "motion": 0.69,
+  "targets": [
+    {
+      "x": 505,
+      "y": 140,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 319,
+      "y": 866,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1053,
+      "y": 266,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1839,
+      "y": 336,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 328,
+      "y": 1386,
+      "width": 35,
+      "height": 100
+    }
+  ],
+  "tint": {
+    "r": 0.886,
+    "g": 0.838,
+    "b": 0.922
+  }
+}

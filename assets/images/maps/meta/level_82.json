@@ -1,0 +1,54 @@
+{
+  "id": "level_82",
+  "index": 82,
+  "nameKey": "level.fireworks",
+  "map": "maps/level_82.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 50,
+  "starThresholds": {
+    "one": 150,
+    "two": 325,
+    "three": 460
+  },
+  "motion": 0.81,
+  "targets": [
+    {
+      "x": 1849,
+      "y": 625,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 633,
+      "y": 945,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 283,
+      "y": 1482,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1574,
+      "y": 1801,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 366,
+      "y": 177,
+      "width": 35,
+      "height": 100
+    }
+  ],
+  "tint": {
+    "r": 0.7,
+    "g": 0.743,
+    "b": 0.783
+  }
+}

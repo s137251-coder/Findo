@@ -1,0 +1,54 @@
+{
+  "id": "level_100",
+  "index": 100,
+  "nameKey": "level.greatcrowd",
+  "map": "maps/level_100.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 45,
+  "starThresholds": {
+    "one": 145,
+    "two": 302,
+    "three": 424
+  },
+  "motion": 1.0,
+  "targets": [
+    {
+      "x": 1582,
+      "y": 697,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 353,
+      "y": 188,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1739,
+      "y": 1255,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1337,
+      "y": 146,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 557,
+      "y": 1801,
+      "width": 35,
+      "height": 100
+    }
+  ],
+  "tint": {
+    "r": 0.803,
+    "g": 0.75,
+    "b": 0.76
+  }
+}

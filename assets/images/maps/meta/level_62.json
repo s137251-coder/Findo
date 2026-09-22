@@ -1,0 +1,54 @@
+{
+  "id": "level_62",
+  "index": 62,
+  "nameKey": "level.harvest",
+  "map": "maps/level_62.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 57,
+  "starThresholds": {
+    "one": 157,
+    "two": 356,
+    "three": 510
+  },
+  "motion": 0.59,
+  "targets": [
+    {
+      "x": 1496,
+      "y": 1799,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1741,
+      "y": 611,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1084,
+      "y": 516,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 149,
+      "y": 907,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 423,
+      "y": 328,
+      "width": 35,
+      "height": 100
+    }
+  ],
+  "tint": {
+    "r": 1.159,
+    "g": 1.039,
+    "b": 0.799
+  }
+}

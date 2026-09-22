@@ -1,0 +1,54 @@
+{
+  "id": "level_88",
+  "index": 88,
+  "nameKey": "level.nightski",
+  "map": "maps/level_88.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 49,
+  "starThresholds": {
+    "one": 149,
+    "two": 320,
+    "three": 453
+  },
+  "motion": 0.87,
+  "targets": [
+    {
+      "x": 620,
+      "y": 1006,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1183,
+      "y": 1075,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1828,
+      "y": 1688,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 140,
+      "y": 1622,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1758,
+      "y": 197,
+      "width": 35,
+      "height": 100
+    }
+  ],
+  "tint": {
+    "r": 1.0,
+    "g": 0.917,
+    "b": 0.887
+  }
+}

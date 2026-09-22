@@ -1,0 +1,54 @@
+{
+  "id": "level_70",
+  "index": 70,
+  "nameKey": "level.rally",
+  "map": "maps/level_70.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 54,
+  "starThresholds": {
+    "one": 154,
+    "two": 343,
+    "three": 489
+  },
+  "motion": 0.68,
+  "targets": [
+    {
+      "x": 1305,
+      "y": 778,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1874,
+      "y": 471,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 704,
+      "y": 1063,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1637,
+      "y": 1421,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 871,
+      "y": 1583,
+      "width": 35,
+      "height": 100
+    }
+  ],
+  "tint": {
+    "r": 1.18,
+    "g": 1.102,
+    "b": 0.859
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "id": "level_86",
+  "index": 86,
+  "nameKey": "level.duskharbour",
+  "map": "maps/level_86.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 49,
+  "starThresholds": {
+    "one": 149,
+    "two": 320,
+    "three": 453
+  },
+  "motion": 0.85,
+  "targets": [
+    {
+      "x": 773,
+      "y": 149,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 425,
+      "y": 669,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1820,
+      "y": 525,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1208,
+      "y": 858,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 237,
+      "y": 148,
+      "width": 35,
+      "height": 100
+    }
+  ],
+  "tint": {
+    "r": 0.723,
+    "g": 0.703,
+    "b": 0.767
+  }
+}

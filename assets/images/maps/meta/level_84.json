@@ -1,0 +1,54 @@
+{
+  "id": "level_84",
+  "index": 84,
+  "nameKey": "level.midnightbazaar",
+  "map": "maps/level_84.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 50,
+  "starThresholds": {
+    "one": 150,
+    "two": 325,
+    "three": 460
+  },
+  "motion": 0.83,
+  "targets": [
+    {
+      "x": 168,
+      "y": 985,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1121,
+      "y": 730,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1874,
+      "y": 941,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1531,
+      "y": 1725,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1781,
+      "y": 150,
+      "width": 35,
+      "height": 100
+    }
+  ],
+  "tint": {
+    "r": 0.883,
+    "g": 0.747,
+    "b": 0.693
+  }
+}

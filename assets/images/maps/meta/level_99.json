@@ -1,0 +1,54 @@
+{
+  "id": "level_99",
+  "index": 99,
+  "nameKey": "level.icepalace",
+  "map": "maps/level_99.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 45,
+  "starThresholds": {
+    "one": 145,
+    "two": 302,
+    "three": 424
+  },
+  "motion": 0.99,
+  "targets": [
+    {
+      "x": 1852,
+      "y": 140,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1706,
+      "y": 1699,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 401,
+      "y": 197,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 919,
+      "y": 1790,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 218,
+      "y": 1641,
+      "width": 35,
+      "height": 100
+    }
+  ],
+  "tint": {
+    "r": 0.937,
+    "g": 0.93,
+    "b": 1.167
+  }
+}

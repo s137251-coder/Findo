@@ -1,0 +1,54 @@
+{
+  "id": "level_79",
+  "index": 79,
+  "nameKey": "level.blackberry",
+  "map": "maps/level_79.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 51,
+  "starThresholds": {
+    "one": 151,
+    "two": 330,
+    "three": 467
+  },
+  "motion": 0.77,
+  "targets": [
+    {
+      "x": 451,
+      "y": 285,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1769,
+      "y": 1534,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 771,
+      "y": 1784,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 633,
+      "y": 960,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1388,
+      "y": 547,
+      "width": 35,
+      "height": 100
+    }
+  ],
+  "tint": {
+    "r": 0.982,
+    "g": 0.88,
+    "b": 0.877
+  }
+}

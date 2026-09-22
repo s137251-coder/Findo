@@ -1,0 +1,54 @@
+{
+  "id": "level_73",
+  "index": 73,
+  "nameKey": "level.neonalley",
+  "map": "maps/level_73.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 53,
+  "starThresholds": {
+    "one": 153,
+    "two": 338,
+    "three": 482
+  },
+  "motion": 0.71,
+  "targets": [
+    {
+      "x": 1681,
+      "y": 1067,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 824,
+      "y": 428,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 991,
+      "y": 1494,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1143,
+      "y": 964,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 414,
+      "y": 1502,
+      "width": 35,
+      "height": 100
+    }
+  ],
+  "tint": {
+    "r": 0.922,
+    "g": 0.811,
+    "b": 1.024
+  }
+}

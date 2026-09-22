@@ -1,0 +1,54 @@
+{
+  "id": "level_74",
+  "index": 74,
+  "nameKey": "level.grapes",
+  "map": "maps/level_74.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 53,
+  "starThresholds": {
+    "one": 153,
+    "two": 338,
+    "three": 482
+  },
+  "motion": 0.72,
+  "targets": [
+    {
+      "x": 1708,
+      "y": 171,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 189,
+      "y": 365,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 186,
+      "y": 1473,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 819,
+      "y": 221,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1571,
+      "y": 1782,
+      "width": 35,
+      "height": 100
+    }
+  ],
+  "tint": {
+    "r": 0.937,
+    "g": 0.91,
+    "b": 0.793
+  }
+}

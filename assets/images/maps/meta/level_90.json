@@ -1,0 +1,54 @@
+{
+  "id": "level_90",
+  "index": 90,
+  "nameKey": "level.nightairport",
+  "map": "maps/level_90.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 48,
+  "starThresholds": {
+    "one": 148,
+    "two": 316,
+    "three": 446
+  },
+  "motion": 0.89,
+  "targets": [
+    {
+      "x": 1874,
+      "y": 543,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 948,
+      "y": 1113,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 414,
+      "y": 935,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1486,
+      "y": 1313,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1193,
+      "y": 586,
+      "width": 35,
+      "height": 100
+    }
+  ],
+  "tint": {
+    "r": 0.873,
+    "g": 0.863,
+    "b": 0.857
+  }
+}

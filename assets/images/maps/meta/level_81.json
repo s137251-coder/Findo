@@ -1,0 +1,54 @@
+{
+  "id": "level_81",
+  "index": 81,
+  "nameKey": "level.lanterns",
+  "map": "maps/level_81.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 51,
+  "starThresholds": {
+    "one": 151,
+    "two": 330,
+    "three": 467
+  },
+  "motion": 0.8,
+  "targets": [
+    {
+      "x": 1661,
+      "y": 1062,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 167,
+      "y": 450,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 705,
+      "y": 199,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1817,
+      "y": 541,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 224,
+      "y": 1432,
+      "width": 35,
+      "height": 100
+    }
+  ],
+  "tint": {
+    "r": 0.687,
+    "g": 0.69,
+    "b": 0.747
+  }
+}

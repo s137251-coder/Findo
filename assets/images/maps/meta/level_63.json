@@ -1,0 +1,54 @@
+{
+  "id": "level_63",
+  "index": 63,
+  "nameKey": "level.cornmaze",
+  "map": "maps/level_63.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 56,
+  "starThresholds": {
+    "one": 156,
+    "two": 352,
+    "three": 503
+  },
+  "motion": 0.6,
+  "targets": [
+    {
+      "x": 1269,
+      "y": 1476,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 385,
+      "y": 480,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 657,
+      "y": 1048,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1204,
+      "y": 909,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1789,
+      "y": 1025,
+      "width": 35,
+      "height": 100
+    }
+  ],
+  "tint": {
+    "r": 1.084,
+    "g": 0.946,
+    "b": 0.679
+  }
+}

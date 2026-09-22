@@ -1,0 +1,54 @@
+{
+  "id": "level_61",
+  "index": 61,
+  "nameKey": "level.sunflower",
+  "map": "maps/level_61.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 57,
+  "starThresholds": {
+    "one": 157,
+    "two": 356,
+    "three": 510
+  },
+  "motion": 0.58,
+  "targets": [
+    {
+      "x": 919,
+      "y": 1160,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1594,
+      "y": 1662,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1326,
+      "y": 562,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 165,
+      "y": 977,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 868,
+      "y": 1801,
+      "width": 35,
+      "height": 100
+    }
+  ],
+  "tint": {
+    "r": 0.994,
+    "g": 0.982,
+    "b": 0.706
+  }
+}

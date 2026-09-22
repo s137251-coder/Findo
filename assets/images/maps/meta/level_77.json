@@ -1,0 +1,54 @@
+{
+  "id": "level_77",
+  "index": 77,
+  "nameKey": "level.orchid",
+  "map": "maps/level_77.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 52,
+  "starThresholds": {
+    "one": 152,
+    "two": 334,
+    "three": 474
+  },
+  "motion": 0.75,
+  "targets": [
+    {
+      "x": 1611,
+      "y": 316,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1855,
+      "y": 1755,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1189,
+      "y": 1025,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 356,
+      "y": 1110,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 734,
+      "y": 335,
+      "width": 35,
+      "height": 100
+    }
+  ],
+  "tint": {
+    "r": 0.925,
+    "g": 0.88,
+    "b": 0.886
+  }
+}

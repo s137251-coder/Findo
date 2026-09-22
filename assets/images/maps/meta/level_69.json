@@ -1,0 +1,54 @@
+{
+  "id": "level_69",
+  "index": 69,
+  "nameKey": "level.marigold",
+  "map": "maps/level_69.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 54,
+  "starThresholds": {
+    "one": 154,
+    "two": 343,
+    "three": 489
+  },
+  "motion": 0.67,
+  "targets": [
+    {
+      "x": 1450,
+      "y": 290,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 357,
+      "y": 779,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1745,
+      "y": 1537,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1221,
+      "y": 1515,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 690,
+      "y": 1725,
+      "width": 35,
+      "height": 100
+    }
+  ],
+  "tint": {
+    "r": 1.126,
+    "g": 1.012,
+    "b": 0.766
+  }
+}

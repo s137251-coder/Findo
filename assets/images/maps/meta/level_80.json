@@ -1,0 +1,54 @@
+{
+  "id": "level_80",
+  "index": 80,
+  "nameKey": "level.promenade",
+  "map": "maps/level_80.webp",
+  "mapSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "timeLimitSeconds": 51,
+  "starThresholds": {
+    "one": 151,
+    "two": 330,
+    "three": 467
+  },
+  "motion": 0.78,
+  "targets": [
+    {
+      "x": 158,
+      "y": 424,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 1622,
+      "y": 1173,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 755,
+      "y": 149,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 162,
+      "y": 1775,
+      "width": 35,
+      "height": 100
+    },
+    {
+      "x": 971,
+      "y": 1105,
+      "width": 35,
+      "height": 100
+    }
+  ],
+  "tint": {
+    "r": 0.919,
+    "g": 0.829,
+    "b": 0.943
+  }
+}
