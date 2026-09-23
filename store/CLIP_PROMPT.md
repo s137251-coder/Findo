@@ -33,70 +33,88 @@ highlights, sparkles, glow, gradients, drop shadows, camera shake, music`.
 
 הטקסט המלא שמור גם ב-`store/clip_refs/PROMPT.txt`, להעתקה נוחה.
 
+**ההיפוך לדמות המצוירת נמצא בסוף, לא בהתחלה.** היא אמיתית לאורך כל הסרטון —
+הדבר האמיתי היחיד בתוך ציור — ורק בשנייה השביעית היא הופכת לפינדו המצוירת
+ונבלעת בקהל. זה גם מה שפותר את בעיית הגודל: **רגע ההיפוך הוא רגע ההתכווצות**,
+כך שאין שלב שבו היא מצוירת אבל עדיין ענקית.
+
 ```
-An eight-second vertical 9:16 video of a girl who turns into a cartoon and
-hides inside an illustrated crowd. Silent, with no text anywhere in the frame.
+An eight-second vertical 9:16 video: a real girl walks into a drawn world, and
+at the end she becomes a drawing herself and vanishes into the crowd. Silent,
+no text anywhere in the frame.
 
 THE GIRL, FROM THE FIRST REFERENCE IMAGE
-A young girl with brown hair in two long braids, a bright yellow sleeveless top
-with a black V-shaped neckline, and a mid-violet knee-length skirt. Keep her
-face, her hair and her clothes the same person in every frame. Those three
-things -- two brown braids, yellow sleeveless top, violet skirt -- are the
-whole point of her and must never change colour or shape.
+Brown hair in two long braids, a bright yellow sleeveless top with a black
+V-shaped neckline, a mid-violet knee-length skirt, black shoes. The same real
+girl, filmed, in every frame until the very end.
 
-THE CARTOON SHE BECOMES, FROM THE SECOND REFERENCE IMAGE
-Flat vector illustration: one uniform thick black outline of even weight around
-her, solid flat colour fills, a simple friendly face with small dot eyes. No
-gradients, no soft shading, no airbrushing, no drop shadows, no glow, no blur.
-Match that drawing rather than inventing a cartoon of your own.
+0.0 to 1.5 SECONDS - THE REAL GIRL
+She stands on a plain white background, framed from the knees up, evenly lit.
+She looks into the camera, smiles, and gives one small friendly wave. Camera
+still.
 
-THE WORLD, FROM THE THIRD AND FOURTH REFERENCE IMAGES
-A bright outdoor funfair drawn in the same flat vector style, seen from a high
-three-quarter aerial angle looking down at about 55 degrees, with stalls,
-bunting, a carousel and a big wheel. Every person and every object carries the
-same uniform thick black outline. The fourth image shows how small a person is
-in that world: at the end of the clip the people are that size.
+1.5 to 3.0 SECONDS - A DRAWN WORLD BUILDS AROUND HER
+The white background is replaced by the illustrated funfair from the THIRD
+reference image: stalls, bunting, a carousel, a big wheel, all flat vector
+illustration with uniform thick black outlines, seen from a high
+three-quarter aerial angle about 55 degrees looking down. Cartoon people are
+walking about.
 
-0.0 to 1.5 SECONDS
-The real girl stands on a plain white background, framed from the knees up,
-evenly lit. She looks straight into the camera, smiles, and gives one small
-friendly wave. The camera is still. Warm, natural, unhurried.
+She stays exactly as she is: a real, filmed girl, with real skin, real hair and
+real fabric, standing inside a drawing. She is deliberately the only real thing
+in the frame, and she should look it. She turns and begins to walk away from
+the camera into the fair.
 
-1.5 to 2.5 SECONDS
-She turns into the cartoon. The change sweeps up her body once, from her feet
-to her head, in under a second: as it passes, the photograph becomes the flat
-vector drawing, the black outline draws itself around her, and the colours
-flatten into solid yellow, violet and brown. Her pose and her expression do not
-change while it happens. It is the same girl, drawn. No sparkles, no magic
-dust, no particles, no light beams.
+3.0 to 6.0 SECONDS - SHE WALKS IN, STILL REAL
+She walks deeper into the fair, seen from behind. The camera rises and pulls
+back steadily into the high aerial view. More and more cartoon people fill in
+around her as the fair opens out. She is still filmed and still real, and she
+is getting smaller only because the camera is getting further away.
 
-2.5 to 4.5 SECONDS
-The white background falls away and the illustrated funfair builds around her
-in every direction. The camera begins to rise and pull back into the high
-aerial angle while she walks away from it, deeper into the scene. Cartoon
-people appear around her as the fair fills in, all in the same style and the
-same weight of outline.
+6.0 to 7.0 SECONDS - THE CHANGE, AND THIS IS THE MOMENT THE CLIP IS FOR
+She becomes a drawing. The change sweeps up her body once, feet to head, in
+under a second, and as it passes she turns into the flat cartoon girl in the
+SECOND reference image: one uniform black outline of even weight, solid flat
+colour fills, a simple face, no skin shading, no separate strands of hair, no
+folds in the fabric, no highlights.
 
-4.5 to 8.0 SECONDS
-The camera keeps rising and pulling back, faster. She walks into the thickening
-crowd, glances back over her shoulder at the viewer once, then turns away and
-stands still among the other people. The crowd grows until hundreds of small
-figures fill the frame edge to edge and she is simply one of them: still there,
-still in the yellow top and violet skirt, but no bigger and no brighter than
-anybody else. The last second holds completely still on the crowded fair.
+At the same instant she also settles to exactly the size of the cartoon people
+around her. She does not shrink oddly or squash: the drawing of her that
+appears is simply the same height as everybody else in the crowd, about one
+thirtieth of the image height, as in the FOURTH reference image.
 
-THE RULE THAT MATTERS MOST
-Nobody else in the crowd may carry all three of her signatures. Other people
-may have brown braids, or a yellow top, or a violet skirt, but never two of
-them on one person and never all three. A second girl who looks like her ruins
-the whole idea. Nothing in the scene may point at her, circle her, spotlight
-her or mark her, and no other character looks at the camera. The viewer has to
-find her.
+7.0 to 8.0 SECONDS - SHE IS ONE OF THEM
+The camera holds completely still on the whole fair, hundreds of small people
+filling the frame. She is among them and nothing marks her out:
+
+- HER SIZE: the same height as everyone else. If she is taller than the people
+  beside her, the shot is wrong.
+- AROUND HER: other people standing close on every side, within one body width.
+  No clearing, no gap, no empty ground around her.
+- WHERE SHE IS: not in the middle of the frame. About a third of the way in
+  from one edge, among stalls and people.
+- HOW SHE IS DRAWN: exactly like everyone else - same outline weight, same flat
+  fills, same proportions. Her yellow and her violet are ordinary colours here,
+  no brighter than anyone else's.
+- FACING: away from the camera, standing still, doing nothing that draws the
+  eye.
+
+A viewer should have to search for several seconds to find her. If she is
+obvious the moment the change finishes, the clip has failed.
+
+THE OTHER RULE
+Nobody else may wear all three of her signatures together. Other people may
+have brown braids, or a yellow top, or a violet skirt, but never two on one
+person and never all three. Plenty of the crowd wear yellow of other shades and
+purple of other shades, so those colours are ordinary here.
+
+Nothing points at her, circles her, lights her or marks her. No other character
+looks at the camera.
 
 DO NOT INCLUDE
 No text, letters, numbers, signs, logos or watermarks. No arrows, circles,
-sparkles or highlights. No camera shake, no zoom punches, no speed ramps. No
-music, no speech, no sound effects.
+sparkles, magic dust or highlights. No camera shake, no speed ramps. No music
+or speech.
 ```
 
 ---
