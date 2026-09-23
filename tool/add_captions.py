@@ -99,7 +99,9 @@ def show(lines, t: float):
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--clip", default="store/clips/story_clip.mp4")
-    parser.add_argument("--music", default="854591-sergequadrado-simple-happy-loop.mp3")
+    # Measured rather than chosen by its name: 129 beats a minute and the
+    # strongest pulse of the six tracks the game ships with.
+    parser.add_argument("--music", default="mixkit-lovin-life-1107.mp3")
     parser.add_argument("--volume", type=float, default=0.55)
     parser.add_argument("--out", default="story_clip_captioned.mp4")
     args = parser.parse_args()
@@ -110,13 +112,20 @@ def main() -> None:
     width, height = meta["size"]
     fps = meta["fps"]
 
-    # Told rather than sold: a question, and then where to get it.
+    # A joke in five beats: hello, goodbye, good luck, and the punchline on
+    # its own line. Saying it straight -- "she hides in the crowd, can you
+    # find her" -- describes the clip the viewer is already watching, which is
+    # the one thing a caption should never do.
+    #
+    # No emoji: the font that draws Hebrew here has none, and a missing glyph
+    # is an empty box in the middle of the joke.
     lines = [
         # Low, under her face, which is what this shot is for.
-        (0.4, 2.4, "זאת פינדו", False, LOW),
-        (2.9, 5.5, "היא נכנסת לקהל", False, HIGH),
-        (6.6, 9.4, "מוצאים אותה?", True, HIGH),
-        (9.8, 99.0, "100 שלבים · חינם", False, HIGH),
+        (0.4, 2.4, "זאת פינדו. תגידו שלום.", False, LOW),
+        (2.9, 5.4, "עכשיו תגידו ביי", False, HIGH),
+        (6.5, 9.2, "מוצאים אותה? בהצלחה", True, HIGH),
+        (9.6, 10.9, "יש עוד 99 שלבים כאלה", False, HIGH),
+        (11.0, 99.0, "סליחה", True, HIGH),
     ]
 
     silent = clip.with_name("_silent.mp4")
