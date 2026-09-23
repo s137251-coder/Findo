@@ -1,65 +1,62 @@
-An eight-second vertical 9:16 video: a real girl walks into a drawn world, and
-at the end she becomes a drawing herself and vanishes into the crowd. Silent,
-no text anywhere in the frame.
+A vertical 9:16 video: a real girl walks into a drawn world, becomes a drawing
+herself, and is lost in the crowd. Silent, no text anywhere in the frame.
 
 THE GIRL, FROM THE FIRST REFERENCE IMAGE
 Brown hair in two long braids, a bright yellow sleeveless top with a black
-V-shaped neckline, a mid-violet knee-length skirt, black shoes. The same real
-girl, filmed, in every frame until the very end.
+V-shaped neckline, a mid-violet knee-length skirt, black shoes.
 
-0.0 to 1.5 SECONDS - THE REAL GIRL
+0.0 to 2.0 SECONDS - THE REAL GIRL
 She stands on a plain white background, framed from the knees up, evenly lit.
 She looks into the camera, smiles, and gives one small friendly wave. Camera
 still.
 
-1.5 to 3.0 SECONDS - A DRAWN WORLD BUILDS AROUND HER
+2.0 to 3.5 SECONDS - A DRAWN WORLD BUILDS AROUND HER
 The white background is replaced by the illustrated funfair from the THIRD
-reference image: stalls, bunting, a carousel, a big wheel, all flat vector
+reference image: stalls, bunting, a carousel, a big wheel, flat vector
 illustration with uniform thick black outlines, seen from a high
-three-quarter aerial angle about 55 degrees looking down. Cartoon people are
-walking about.
+three-quarter aerial angle about 55 degrees looking down. Cartoon people walk
+about. She stays a real, filmed girl with real skin, hair and fabric, standing
+inside a drawing -- deliberately the only real thing in the frame. She turns
+and walks away from the camera into the fair.
 
-She stays exactly as she is: a real, filmed girl, with real skin, real hair and
-real fabric, standing inside a drawing. She is deliberately the only real thing
-in the frame, and she should look it. She turns and begins to walk away from
-the camera into the fair.
+3.5 to 7.0 SECONDS - SHE WALKS IN AND THE CAMERA LEAVES HER BEHIND
+She walks deeper into the fair. The camera rises and pulls back steadily and
+does not stop. The fair opens out below: more stalls, more rides, more cartoon
+people, until hundreds of them fill the frame. She keeps walking and keeps
+getting smaller, because the camera keeps getting further away. By seven
+seconds she is a tiny figure among hundreds of others, no taller than the
+cartoon people walking beside her.
 
-3.0 to 6.0 SECONDS - SHE WALKS IN, STILL REAL
-She walks deeper into the fair, seen from behind. The camera rises and pulls
-back steadily into the high aerial view. More and more cartoon people fill in
-around her as the fair opens out. She is still filmed and still real, and she
-is getting smaller only because the camera is getting further away.
+7.0 to 8.0 SECONDS - SHE BECOMES A DRAWING, ALREADY TINY
+While she is already that small and already far away, she becomes a drawing.
+The change sweeps up her once in under a second and she turns into the flat
+cartoon girl in the SECOND reference image: uniform black outline, solid flat
+fills, simple face. She turns to face the camera and stands still.
 
-6.0 to 7.0 SECONDS - THE CHANGE, AND THIS IS THE MOMENT THE CLIP IS FOR
-She becomes a drawing. The change sweeps up her body once, feet to head, in
-under a second, and as it passes she turns into the flat cartoon girl in the
-SECOND reference image: one uniform black outline of even weight, solid flat
-colour fills, a simple face, no skin shading, no separate strands of hair, no
-folds in the fabric, no highlights.
+THE CAMERA DOES NOT MOVE CLOSER FOR THIS. It does not zoom in on her, it does
+not cut to her, it does not follow her. It stays exactly where it was, looking
+down at the whole fair. The change happens to a small figure in a wide picture.
 
-At the same instant she also settles to exactly the size of the cartoon people
-around her. She does not shrink oddly or squash: the drawing of her that
-appears is simply the same height as everybody else in the crowd, about one
-thirtieth of the image height, as in the FOURTH reference image.
+HOW BIG SHE IS AT THE END - THIS IS WHAT THE LAST VERSION GOT WRONG
+She is one thirtieth of the frame height. To be concrete:
 
-7.0 to 8.0 SECONDS - SHE IS ONE OF THEM
-The camera holds completely still on the whole fair, hundreds of small people
-filling the frame. She is among them and nothing marks her out:
+- She is the same height as the cartoon children walking near her, and shorter
+  than the cartoon adults.
+- She is shorter than one of the small stall awnings behind her.
+- Her face must NOT be readable. At this size a face is a few pixels: two dots
+  and nothing more. If you can see her expression, she is far too big.
+- She takes up a small part of the frame. Hundreds of other people are visible
+  around her in every direction.
 
-- HER SIZE: the same height as everyone else. If she is taller than the people
-  beside her, the shot is wrong.
-- AROUND HER: other people standing close on every side, within one body width.
-  No clearing, no gap, no empty ground around her.
-- WHERE SHE IS: not in the middle of the frame. About a third of the way in
-  from one edge, among stalls and people.
-- HOW SHE IS DRAWN: exactly like everyone else - same outline weight, same flat
-  fills, same proportions. Her yellow and her violet are ordinary colours here,
-  no brighter than anyone else's.
-- FACING: away from the camera, standing still, doing nothing that draws the
-  eye.
+If she is the largest person in the frame, the shot is wrong. If she is in the
+middle of the frame, the shot is wrong. She stands about a third of the way in
+from one edge, with other people standing close on every side -- no clearing,
+no gap, no empty ground around her.
 
-A viewer should have to search for several seconds to find her. If she is
-obvious the moment the change finishes, the clip has failed.
+8.0 SECONDS TO THE END
+The camera holds completely still on the whole fair. Nothing moves except the
+crowd going about its day. She stands among them, facing the camera, doing
+nothing. A viewer should have to search for several seconds to find her.
 
 THE OTHER RULE
 Nobody else may wear all three of her signatures together. Other people may
@@ -72,5 +69,5 @@ looks at the camera.
 
 DO NOT INCLUDE
 No text, letters, numbers, signs, logos or watermarks. No arrows, circles,
-sparkles, magic dust or highlights. No camera shake, no speed ramps. No music
-or speech.
+sparkles, magic dust or highlights. No zoom in on the girl at any point. No
+camera shake, no speed ramps. No music or speech.
