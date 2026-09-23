@@ -43,9 +43,22 @@ HIGH = 0.17
 LOW = 0.66
 
 
-def hebrew(text: str) -> str:
-    """Hebrew reads right to left; a drawing library does not know that."""
-    return get_display(text)
+def runs_of(text: str, rtl: bool) -> list[tuple[str, bool]]:
+    """A line split into words to draw, and which of them carries the joke.
+
+    A word between asterisks is the emphasised one. In "That *was* Findo" the
+    whole joke is in that one word, and a line painted a single colour does not
+    tell it.
+
+    Right-to-left text is handled by reordering here rather than by the drawing
+    library, which has no idea: the words are reversed and each is shaped, so
+    drawing them left to right puts them where a Hebrew reader expects.
+    """
+    parts = [part.strip() for part in text.split("*")]
+    runs = [(part, i % 2 == 1) for i, part in enumerate(parts) if part]
+    if rtl:
+        runs = [(get_display(part), accent) for part, accent in reversed(runs)]
+    return runs
 
 
 def fit(draw: ImageDraw.ImageDraw, text: str, width: int, size: int) -> ImageFont.FreeTypeFont:
@@ -58,8 +71,8 @@ def fit(draw: ImageDraw.ImageDraw, text: str, width: int, size: int) -> ImageFon
     return ImageFont.truetype(str(FONT), size)
 
 
-def caption(image: Image.Image, text: str, alpha: float, accent: bool,
-            where: float) -> Image.Image:
+def caption(image: Image.Image, text: str, alpha: float, where: float,
+            rtl: bool) -> Image.Image:
     """One line of words on a dark rounded plate, so it reads over a crowd."""
     if alpha <= 0.01 or not text:
         return image
@@ -67,10 +80,13 @@ def caption(image: Image.Image, text: str, alpha: float, accent: bool,
     layer = Image.new("RGBA", out.size, (0, 0, 0, 0))
     draw = ImageDraw.Draw(layer)
 
-    shaped = hebrew(text)
+    runs = runs_of(text, rtl)
     margin = int(out.width * 0.08)
-    font = fit(draw, shaped, out.width - margin * 2, int(out.width * 0.115))
-    w = draw.textlength(shaped, font=font)
+    joined = " ".join(part for part, _ in runs)
+    font = fit(draw, joined, out.width - margin * 2, int(out.width * 0.115))
+    space = draw.textlength(" ", font=font)
+    widths = [draw.textlength(part, font=font) for part, _ in runs]
+    w = sum(widths) + space * (len(runs) - 1)
     h = font.size
     x = (out.width - w) / 2
     y = out.height * where
@@ -79,8 +95,10 @@ def caption(image: Image.Image, text: str, alpha: float, accent: bool,
     plate = (x - pad_x, y - pad_y, x + w + pad_x, y + h * 1.32 + pad_y)
     draw.rounded_rectangle(plate, radius=int(h * 0.42),
                            fill=(*INK, int(215 * alpha)))
-    draw.text((x, y), shaped, font=font,
-              fill=(*(ACCENT if accent else PAPER), int(255 * alpha)))
+    for (part, accent), width in zip(runs, widths):
+        draw.text((x, y), part, font=font,
+                  fill=(*(ACCENT if accent else PAPER), int(255 * alpha)))
+        x += width + space
 
     out.alpha_composite(layer)
     return out.convert("RGB")
@@ -88,12 +106,32 @@ def caption(image: Image.Image, text: str, alpha: float, accent: bool,
 
 def show(lines, t: float):
     """Which line is on screen at [t], how faded, and where it sits."""
-    for start, end, text, accent, where in lines:
+    for start, end, text, where in lines:
         if start <= t <= end:
             fade = 0.28
             alpha = min(1.0, (t - start) / fade, (end - t) / fade)
-            return text, max(0.0, alpha), accent, where
-    return "", 0.0, False, HIGH
+            return text, max(0.0, alpha), where
+    return "", 0.0, HIGH
+
+
+# The same joke in both languages: she is introduced, she is gone, and the
+# clip does not explain itself. The emphasised word is the whole of it.
+SCRIPTS = {
+    "he": [
+        (0.4, 2.4, "זאת פינדו", LOW),
+        (2.9, 5.4, "*הייתה* פינדו", HIGH),
+        (6.5, 9.2, "מוצאים אותה?", HIGH),
+        (9.6, 10.9, "100 שלבים", HIGH),
+        (11.0, 99.0, "*בהצלחה*", HIGH),
+    ],
+    "en": [
+        (0.4, 2.4, "This is Findo.", LOW),
+        (2.9, 5.4, "That *was* Findo.", HIGH),
+        (6.5, 9.2, "Find her?", HIGH),
+        (9.6, 10.9, "100 levels.", HIGH),
+        (11.0, 99.0, "*Good luck.*", HIGH),
+    ],
+}
 
 
 def main() -> None:
@@ -103,7 +141,8 @@ def main() -> None:
     # strongest pulse of the six tracks the game ships with.
     parser.add_argument("--music", default="mixkit-lovin-life-1107.mp3")
     parser.add_argument("--volume", type=float, default=0.55)
-    parser.add_argument("--out", default="story_clip_captioned.mp4")
+    parser.add_argument("--language", default="he", choices=sorted(SCRIPTS))
+    parser.add_argument("--out", default=None)
     args = parser.parse_args()
 
     clip = Path(args.clip)
@@ -112,21 +151,8 @@ def main() -> None:
     width, height = meta["size"]
     fps = meta["fps"]
 
-    # A joke in five beats: hello, goodbye, good luck, and the punchline on
-    # its own line. Saying it straight -- "she hides in the crowd, can you
-    # find her" -- describes the clip the viewer is already watching, which is
-    # the one thing a caption should never do.
-    #
-    # No emoji: the font that draws Hebrew here has none, and a missing glyph
-    # is an empty box in the middle of the joke.
-    lines = [
-        # Low, under her face, which is what this shot is for.
-        (0.4, 2.4, "זאת פינדו. תגידו שלום.", False, LOW),
-        (2.9, 5.4, "עכשיו תגידו ביי", False, HIGH),
-        (6.5, 9.2, "מוצאים אותה? בהצלחה", True, HIGH),
-        (9.6, 10.9, "יש עוד 99 שלבים כאלה", False, HIGH),
-        (11.0, 99.0, "סליחה", True, HIGH),
-    ]
+    lines = SCRIPTS[args.language]
+    rtl = args.language == "he"
 
     silent = clip.with_name("_silent.mp4")
     writer = imageio_ffmpeg.write_frames(
@@ -137,14 +163,14 @@ def main() -> None:
     frames = 0
     for raw in reader:
         image = Image.frombytes("RGB", (width, height), raw)
-        text, alpha, accent, where = show(lines, frames / fps)
-        writer.send(caption(image, text, alpha, accent, where).tobytes())
+        text, alpha, where = show(lines, frames / fps)
+        writer.send(caption(image, text, alpha, where, rtl).tobytes())
         frames += 1
     writer.close()
 
     seconds = frames / fps
     track = MUSIC / args.music
-    out = clip.with_name(args.out)
+    out = clip.with_name(args.out or f"story_clip_{args.language}.mp4")
     ffmpeg = imageio_ffmpeg.get_ffmpeg_exe()
     subprocess.run([
         ffmpeg, "-y", "-i", str(silent), "-stream_loop", "-1", "-i", str(track),
@@ -160,7 +186,7 @@ def main() -> None:
 
     print(f"  {frames} frames, {seconds:.1f}s")
     print(f"  music     {track.name} at {args.volume:.0%}")
-    for start, end, text, _, _ in lines:
+    for start, end, text, _ in lines:
         print(f"  {start:>4.1f}s  {text}")
     print(f"\n  {out}  ({out.stat().st_size / 1048576:.1f} MB)")
 
