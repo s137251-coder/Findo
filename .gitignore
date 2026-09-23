@@ -109,3 +109,7 @@ docs/prompts/
 # credential for the whole developer account: it lives outside the repo.
 findo-publisher.json
 *publisher*.json
+
+# Campaign videos: regenerable from the maps with tool/make_clips.py, and
+# large enough to make a clone painful.
+store/clips/
