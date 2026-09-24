@@ -8,16 +8,12 @@ class LeaderboardRow {
     required this.rank,
     required this.name,
     required this.milliseconds,
-    this.avatarBase64,
     this.isMe = false,
   });
 
   final int rank;
   final String name;
   final int milliseconds;
-
-  /// The player's Play Games picture, base64-encoded, when there is one.
-  final String? avatarBase64;
 
   /// The player looking at the table.
   final bool isMe;

@@ -33,7 +33,10 @@ String formatUntilNextHunt(LocalizationManager l10n, Duration left) {
   if (hours == 0) {
     return l10n.t('daily.next.minutes', params: {'minutes': rest});
   }
-  if (rest == 0) {
+  // Past a couple of hours the minutes are noise, and on the title card the
+  // longer sentence ran off the end of its line and was cut mid-word -- which
+  // is worse than imprecise, because the player could not read it at all.
+  if (rest == 0 || hours >= 2) {
     return l10n.t('daily.next.hours', params: {'hours': hours});
   }
   return l10n.t(

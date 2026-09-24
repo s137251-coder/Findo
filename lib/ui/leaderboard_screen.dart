@@ -1,4 +1,3 @@
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
 
@@ -357,11 +356,9 @@ class _Row extends StatelessWidget {
                   ),
           ),
           const SizedBox(width: 6),
-          _Avatar(base64Image: row.avatarBase64, name: row.name),
-          const SizedBox(width: 12),
           Expanded(
             child: Text(
-              row.isMe ? '${row.name} · ${l10n.t('lb.you')}' : row.name,
+              row.name,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
@@ -370,6 +367,18 @@ class _Row extends StatelessWidget {
               ),
             ),
           ),
+          // Outside the part that can run out of room. Appended to the name it
+          // was the first thing to be cut, so the row that says "this one is
+          // you" was the one row that did not say it.
+          if (row.isMe)
+            Text(
+              ' · ${l10n.t('lb.you')}',
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: FindoColors.primary,
+              ),
+            ),
           const SizedBox(width: 10),
           // Times read left to right whatever the language.
           Directionality(
@@ -385,54 +394,6 @@ class _Row extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _Avatar extends StatelessWidget {
-  const _Avatar({required this.base64Image, required this.name});
-
-  final String? base64Image;
-  final String name;
-
-  @override
-  Widget build(BuildContext context) {
-    final image = base64Image;
-    if (image != null && image.isNotEmpty) {
-      try {
-        return ClipOval(
-          child: Image.memory(
-            base64Decode(image),
-            width: 36,
-            height: 36,
-            fit: BoxFit.cover,
-            gaplessPlayback: true,
-            errorBuilder: (context, error, stack) => _initial(),
-          ),
-        );
-      } catch (_) {
-        // A picture that does not decode falls back to the initial.
-      }
-    }
-    return _initial();
-  }
-
-  Widget _initial() {
-    final letter = name.trim().isEmpty
-        ? '?'
-        : name.trim().characters.first.toUpperCase();
-    return Container(
-      width: 36,
-      height: 36,
-      alignment: Alignment.center,
-      decoration: const BoxDecoration(
-        color: FindoColors.surfaceRaised,
-        shape: BoxShape.circle,
-      ),
-      child: Text(
-        letter,
-        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
       ),
     );
   }

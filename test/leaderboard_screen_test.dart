@@ -56,7 +56,10 @@ void main() {
     expect(find.text('0:18.4'), findsOneWidget);
     expect(find.text('0:23.9'), findsOneWidget);
     expect(find.text('· · ·'), findsOneWidget, reason: 'no break between the top and the player');
-    expect(find.text('Yoav · lb.you'), findsOneWidget, reason: 'the player is not marked');
+    expect(find.text('Yoav'), findsOneWidget);
+    // The marker is its own widget rather than part of the name: appended to
+    // the name it was the first thing an overflow cut off.
+    expect(find.text(' · lb.you'), findsOneWidget, reason: 'the player is not marked');
     expect(find.text('0:39.2'), findsOneWidget);
   });
 
