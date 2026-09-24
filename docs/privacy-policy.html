@@ -31,7 +31,7 @@
 <body>
 
 <h1>Findo — Privacy Policy</h1>
-<p class="updated">Last updated: 17 September 2026</p>
+<p class="updated">Last updated: 24 September 2026</p>
 
 <p>Findo is a hidden-object game published by Yaoz Vashdi. This policy explains
 what the app collects, what it does not, and who else is involved.</p>
@@ -39,9 +39,9 @@ what the app collects, what it does not, and who else is involved.</p>
 <h2>The short version</h2>
 <p>Findo keeps your game progress on your own device and never uploads it. The
 only data that leaves your phone is what Google's advertising and payment
-services need in order to show ads and process purchases, and &mdash; if you are
-signed in to Google Play Games &mdash; your Daily Hunt time, which is posted to a
-public leaderboard.</p>
+services need in order to show ads and process purchases, and &mdash; if you
+play the Daily Hunt &mdash; your time and the nickname the game makes up for
+you, which go on a leaderboard other players can see.</p>
 
 <h2>Stored on your device only</h2>
 <p>The following is written to your device's local app storage and is never sent
@@ -76,12 +76,14 @@ for us to see your progress.</p>
         stores your payment details.</td>
   </tr>
   <tr>
-    <td>Google Play Games Services</td>
-    <td>Signs you in with your Play Games profile and keeps the Daily Hunt
-        leaderboard</td>
-    <td>Your Play Games player ID and profile (display name and avatar), and the
-        times you post in the Daily Hunt. Other players can see your profile name
-        and your time on the leaderboard.</td>
+    <td>Google Firebase (Authentication and Cloud Firestore)</td>
+    <td>Holds the Daily Hunt leaderboard, which is the same table on every
+        phone</td>
+    <td>An anonymous identifier Firebase gives your installation, your Daily
+        Hunt time, and a nickname the game generates for you, such as "Curious
+        Tiger 147". You are never asked to sign in and never asked for a name,
+        an e-mail address or anything else about you. Other players see the
+        nickname and the time.</td>
   </tr>
   <tr>
     <td>Google User Messaging Platform</td>
@@ -105,10 +107,11 @@ in AdMob</a>.</p>
   <li><strong>Advertising identifier.</strong> You can reset or delete it in your
       device settings: on Android under <em>Settings → Privacy → Ads</em>, on iOS
       under <em>Settings → Privacy &amp; Security → Tracking</em>.</li>
-  <li><strong>Leaderboard.</strong> The Daily Hunt can be played without Google
-      Play Games; nothing is posted then. If you are signed in, you can manage
-      who sees your profile, or delete your Play Games data, in the Google Play
-      Games settings on your device.</li>
+  <li><strong>Leaderboard.</strong> Nothing is posted unless you play the
+      Daily Hunt. You can change your nickname at any time from the result
+      panel or from Settings, and you can ask us to delete your leaderboard
+      row by writing to the address at the end of this page &mdash; tell us the
+      nickname it is under.</li>
   <li><strong>Fewer ads.</strong> Buying "Remove ads" stops the ads between
       levels permanently on that device. A rewarded video only ever plays when
       the player asks for one in exchange for a hint.</li>
@@ -119,9 +122,8 @@ in AdMob</a>.</p>
 <h2>Age suitability and children</h2>
 <p>Findo's game content is suitable for players of all ages. It contains no
 violence and no mature content, and it has no chat and no way to message other
-players. The only thing other players can see is the Play Games profile name and
-time of players who are signed in to Google Play Games and post a Daily Hunt
-time.</p>
+players. The only thing other players can see is the made-up nickname and the
+time of someone who has played the Daily Hunt.</p>
 <p>The game is made for a general audience and is not specifically directed at
 children under 13. We do not knowingly collect personal information from
 children. The ads in the game are provided by Google AdMob; a parent who prefers
@@ -140,7 +142,7 @@ updated date above.</p>
 
 <div class="rtl" lang="he" id="he">
 <h1>Findo — מדיניות פרטיות</h1>
-<p class="updated">עודכן לאחרונה: 17 בספטמבר 2026</p>
+<p class="updated">עודכן לאחרונה: 24 בספטמבר 2026</p>
 
 <p>Findo הוא משחק חיפוש חפצים מאת יהעוז ושדי. המסמך מסביר מה האפליקציה אוספת,
 מה היא לא אוספת, ומי עוד מעורב.</p>
@@ -148,8 +150,8 @@ updated date above.</p>
 <h2>בקצרה</h2>
 <p>Findo שומר את ההתקדמות שלכם על המכשיר שלכם בלבד ולא מעלה אותה לשום מקום.
 הנתונים היחידים שיוצאים מהטלפון הם אלה שנדרשים לשירותי הפרסום והתשלומים של גוגל,
-וכן &mdash; אם אתם מחוברים ל-Google Play Games &mdash; הזמן שלכם בחיפוש היומי,
-שמתפרסם בטבלת שיאים ציבורית.</p>
+וכן &mdash; אם אתם משחקים בחיפוש היומי &mdash; הזמן שלכם והכינוי שהמשחק ממציא
+עבורכם, שנכנסים לטבלת שיאים ששחקנים אחרים רואים.</p>
 
 <h2>נשמר על המכשיר בלבד</h2>
 <ul>
@@ -168,9 +170,10 @@ updated date above.</p>
 לחשבון הגוגל שלכם — Findo לעולם אינו רואה או שומר פרטי תשלום.
 <strong>Google UMP</strong> מציג את טופס ההסכמה במקומות שבהם הוא נדרש בחוק
 ושומר את תשובתכם.
-<strong>Google Play Games Services</strong> מחבר אתכם עם פרופיל Play Games ומנהל
-את טבלת השיאים של החיפוש היומי: מזהה השחקן והפרופיל שלכם (שם תצוגה ותמונה),
-והזמנים שאתם שולחים. שחקנים אחרים יכולים לראות בטבלה את שם הפרופיל ואת הזמן.</p>
+<strong>Google Firebase</strong> מחזיק את טבלת השיאים של החיפוש היומי, שהיא
+אותה טבלה בכל מכשיר: מזהה אנונימי שהשירות נותן להתקנה שלכם, הזמן שלכם, וכינוי
+שהמשחק מייצר עבורכם כמו &rdquo;נמר סקרן 147&ldquo;. לא מתבקשים מכם התחברות, שם,
+כתובת מייל או כל פרט אחר. שחקנים אחרים רואים את הכינוי ואת הזמן.</p>
 
 <h2>השליטה שלכם</h2>
 <ul>
@@ -178,9 +181,10 @@ updated date above.</p>
       ההסכמה בכל רגע דרך <em>הגדרות → הגדרות פרטיות</em> במשחק.</li>
   <li><strong>מעקב ב-iOS:</strong> סירוב לבקשת המעקב אינו משפיע על המשחק כלל.</li>
   <li><strong>מזהה פרסום:</strong> ניתן לאפס או למחוק בהגדרות המכשיר.</li>
-  <li><strong>טבלת שיאים:</strong> אפשר לשחק בחיפוש היומי בלי Google Play Games,
-      ואז שום דבר לא נשלח. אם אתם מחוברים, ניתן לקבוע מי רואה את הפרופיל, או
-      למחוק את נתוני Play Games, בהגדרות Google Play Games במכשיר.</li>
+  <li><strong>טבלת שיאים:</strong> שום דבר לא נשלח אלא אם שיחקתם בחיפוש היומי.
+      אפשר להחליף כינוי בכל רגע ממסך התוצאה או מההגדרות, ואפשר לבקש מאיתנו
+      למחוק את השורה שלכם מהטבלה &mdash; כתבו לכתובת שבסוף הדף וציינו את
+      הכינוי.</li>
   <li><strong>פחות פרסומות:</strong> רכישת "הסרת פרסומות" מבטלת לצמיתות במכשיר
       את הפרסומות שבין השלבים. סרטון תמורת רמז מוצג רק כשהשחקן מבקש אותו.</li>
   <li><strong>מחיקת הכול:</strong> הסרת האפליקציה מוחקת את כל המידע השמור במכשיר.</li>
@@ -189,8 +193,7 @@ updated date above.</p>
 <h2>התאמה לגיל וילדים</h2>
 <p>התוכן של Findo מתאים לשחקנים בכל הגילאים. אין בו אלימות ואין תוכן למבוגרים,
 ואין בו צ'אט או אפשרות לשלוח הודעות לשחקנים אחרים. הדבר היחיד ששחקנים אחרים
-יכולים לראות הוא שם פרופיל Play Games והזמן של מי שמחובר ל-Google Play Games
-ושולח זמן בחיפוש היומי.</p>
+יכולים לראות הוא הכינוי הממוצא והזמן של מי ששיחק בחיפוש היומי.</p>
 <p>המשחק מיועד לקהל הרחב ואינו מכוון במיוחד לילדים מתחת לגיל 13. איננו אוספים
 ביודעין מידע אישי מילדים. הפרסומות במשחק מסופקות על ידי Google AdMob; הורה
 שמעדיף שהילד לא יראה פרסומות בין השלבים יכול לרכוש את "הסרת פרסומות". אם אתם
