@@ -14,6 +14,8 @@ import 'package:flutter_test/flutter_test.dart';
 /// checks the far smaller thing it can -- that the index file still declares
 /// what the service still asks for.
 void main() {
+  _rulesGroup();
+
   final service = File('lib/managers/leaderboard_service.dart')
       .readAsStringSync();
   final indexes = jsonDecode(File('firestore.indexes.json').readAsStringSync())
@@ -69,5 +71,53 @@ void main() {
     // field, which Firestore indexes on its own. Declaring those would be
     // noise that hides the one that matters.
     expect(declared().length, lessThanOrEqualTo(2));
+  });
+}
+
+/// What the rules allow against what the app actually writes.
+///
+/// A rule and the write it governs live in two files and two languages, and
+/// nothing connects them until a real write is refused on a real server --
+/// where the refusal is caught and logged, so the only symptom is a button
+/// that appears to do nothing. Renaming yourself was exactly that: the day's
+/// row refused every update, so the name changed on two tables out of three.
+void _rulesGroup() {
+  final rules = File('firestore.rules').readAsStringSync();
+  final service = File('lib/managers/leaderboard_service.dart').readAsStringSync();
+
+  group('the rules and the writes agree', () {
+    test('the day\'s row accepts a new name', () {
+      final daily = rules.substring(rules.indexOf('match /daily'),
+          rules.indexOf('match /players'));
+      expect(daily, contains('allow update'),
+          reason: 'renaming cannot reach today\'s table');
+      expect(daily, contains("affectedKeys().hasOnly(['name'])"),
+          reason: 'the day\'s row should accept a name and nothing else');
+    });
+
+    test('the day\'s row still refuses a second attempt', () {
+      final daily = rules.substring(rules.indexOf('match /daily'),
+          rules.indexOf('match /players'));
+      // The time may not be rewritten, which is what one attempt a day means.
+      expect(daily, contains("hasOnly(['name'])"));
+      expect(daily, contains('allow delete: if false'));
+    });
+
+    test('renaming writes to both tables', () {
+      final reroll = service.substring(service.indexOf('Future<String> rerollName'),
+          service.indexOf('Future<bool> submitDailyTime'));
+      expect(reroll, contains("collection('players')"));
+      expect(reroll, contains("collection('daily')"),
+          reason: 'today\'s row is the one the player is looking at');
+    });
+
+    test('each row gets the write its rule wants', () {
+      final reroll = service.substring(service.indexOf('Future<String> rerollName'),
+          service.indexOf('Future<bool> submitDailyTime'));
+      // players insists the write says when it happened; daily refuses
+      // anything but the name.
+      expect(reroll, contains("{'name': made, 'at': FieldValue.serverTimestamp()}"));
+      expect(reroll, contains("{'name': made}"));
+    });
   });
 }

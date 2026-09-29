@@ -64,8 +64,14 @@ service cloud.firestore {
     // -- the day's table ---------------------------------------------------
     //
     // One row per player per day, written once. The daily hunt allows one
-    // attempt; refusing the second write here is what makes that true for a
+    // attempt, and refusing a second write is what makes that true for a
     // client that has been modified to allow more.
+    //
+    // The one thing that may change afterwards is the name. A player who
+    // presses "another name" is looking at today's table while they do it,
+    // and leaving that row under the old name makes the button look broken.
+    // Only the name: the time, and the moment it was set, are fixed by the
+    // attempt.
     match /daily/{day}/scores/{uid} {
       allow read: if signedIn();
       allow create: if mine(uid)
@@ -73,7 +79,10 @@ service cloud.firestore {
         && plausible(request.resource.data.ms)
         && realName(request.resource.data.name)
         && request.resource.data.at == request.time;
-      allow update, delete: if false;
+      allow update: if mine(uid)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name'])
+        && realName(request.resource.data.name);
+      allow delete: if false;
     }
 
     // -- the week and all-time tables --------------------------------------

@@ -75,27 +75,59 @@ class LeaderboardService {
     return made;
   }
 
-  /// Gives this player a different name, on the tables as well as here.
+  /// Gives this player a different name, on every table that shows it.
   ///
-  /// The rows already posted carry the old name until they are written again,
-  /// except the all-time row, which is updated now -- that is the one the
-  /// player is most likely to be looking at when they press the button.
+  /// Both rows, because both are on screen: the week and all-time tables read
+  /// `players`, and today's table reads the day's own row. The first version
+  /// wrote only the first, so a player pressing the button while looking at
+  /// today's table watched their name not change, which is indistinguishable
+  /// from a button that does nothing.
+  ///
+  /// Rows from previous days keep the name they were posted under. They are
+  /// not shown anywhere, and rewriting a week of history to rename somebody
+  /// is a great deal of work for something nobody can see.
   Future<String> rerollName() async {
     final made = PlayerName.create(_language);
     await _save.setPlayerName(made);
     final uid = await _uid();
-    if (uid != null) {
-      try {
-        await _db.collection('players').doc(uid).update({
-          'name': made,
-          'at': FieldValue.serverTimestamp(),
-        });
-      } catch (error) {
-        // No row yet, or no network. The next time posted carries the name.
-        _log('name not published: $error');
-      }
+    if (uid == null) {
+      return made;
     }
+    // The two rows take different writes, because the two rules want
+    // different things. The week and all-time row must carry a fresh
+    // timestamp -- its rule insists the write says when it happened. The
+    // day's row must carry nothing but the name -- its rule refuses any other
+    // field, which is what keeps one attempt to one attempt. Sending one
+    // payload to both would have been refused at one end or the other, and
+    // quietly, because a refused write here is only ever logged.
+    await _write(
+      _db.collection('players').doc(uid),
+      {'name': made, 'at': FieldValue.serverTimestamp()},
+    );
+    await _write(
+      _db
+          .collection('daily')
+          .doc(DailyHunt.pacificDay(DateTime.now()))
+          .collection('scores')
+          .doc(uid),
+      {'name': made},
+    );
     return made;
+  }
+
+  /// Writes what it can, and says so when it cannot.
+  ///
+  /// A player with no row yet, or no network, simply keeps the name locally;
+  /// the next time they post carries it.
+  Future<void> _write(
+    DocumentReference<Map<String, dynamic>> doc,
+    Map<String, Object?> fields,
+  ) async {
+    try {
+      await doc.update(fields);
+    } catch (error) {
+      _log('name not published to ${doc.path}: $error');
+    }
   }
 
   /// Posts today's time. False when it did not go through.
