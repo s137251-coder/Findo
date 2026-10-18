@@ -8,6 +8,11 @@ asks first unless --yes is given.
     python tool/upload_aab.py                     # look, change nothing
     python tool/upload_aab.py --upload            # to internal testing
     python tool/upload_aab.py --upload --track production
+    python tool/upload_aab.py --promote 35 --track alpha
+
+--promote puts a version code Play already holds on another track without
+building or uploading anything: it is how a build that passed internal testing
+reaches closed testing ("alpha") unchanged.
 
 The key is a credential for the whole developer account. It is read from
 FINDO_PLAY_KEY, or from the default path below, and never from the repo.
@@ -94,7 +99,27 @@ def upload(api, path, track, code, notes, draft):
     print(f"  accepted as version code {uploaded}")
     if uploaded != code:
         print(f"  note: pubspec says {code}; the store read {uploaded}")
+    release_to(edits, edit_id, track, uploaded, notes, draft)
 
+
+def promote(api, track, code, notes, draft):
+    """Puts a version code Play already holds on a track. Uploads nothing."""
+    edits = api.edits()
+    edit_id = edits.insert(body={}, packageName=PACKAGE).execute()["id"]
+    held = {
+        bundle["versionCode"]
+        for bundle in edits.bundles().list(
+            packageName=PACKAGE, editId=edit_id
+        ).execute().get("bundles", [])
+    }
+    if code not in held:
+        edits.delete(packageName=PACKAGE, editId=edit_id).execute()
+        listed = ", ".join(str(c) for c in sorted(held)) or "none"
+        raise SystemExit(f"Play holds no bundle with version code {code}; it has {listed}")
+    release_to(edits, edit_id, track, code, notes, draft)
+
+
+def release_to(edits, edit_id, track, uploaded, notes, draft):
     release = {
         "name": f"{local_version()[0]} ({uploaded})",
         "versionCodes": [str(uploaded)],
@@ -120,6 +145,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--upload", action="store_true",
                         help="actually send the bundle; without it, nothing is changed")
+    parser.add_argument("--promote", type=int, metavar="CODE",
+                        help="put this already-uploaded version code on --track")
     parser.add_argument("--track", default="internal", choices=TRACKS)
     parser.add_argument("--bundle", default=str(DEFAULT_BUNDLE))
     parser.add_argument("--notes", default="", help="release notes, in Hebrew")
@@ -137,6 +164,16 @@ def main():
     print(f"\n  {PACKAGE}\n")
     show(api, name, code)
 
+    notes = (args.notes, args.notes_en) if args.notes else None
+    if args.promote is not None:
+        print(f"\n  about to put version code {args.promote} on the {args.track} track"
+              f"{' as a draft' if args.draft else ''}.")
+        if not args.yes:
+            if input("  type yes to go ahead: ").strip().lower() != "yes":
+                raise SystemExit("  stopped; nothing was changed.")
+        promote(api, args.track, args.promote, notes, args.draft)
+        return
+
     if not args.upload:
         print("\n  nothing was changed. Add --upload to send the bundle.")
         return
@@ -152,7 +189,6 @@ def main():
     if not args.yes:
         if input("  type yes to go ahead: ").strip().lower() != "yes":
             raise SystemExit("  stopped; nothing was uploaded.")
-    notes = (args.notes, args.notes_en) if args.notes else None
     upload(api, path, args.track, code, notes, args.draft)
 
 
