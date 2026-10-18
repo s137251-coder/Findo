@@ -1,0 +1,193 @@
+# Builds and publishes Findo to Google Play from GitHub, so a release no longer
+# depends on one Windows machine. Run it from Actions -> Release -> Run workflow.
+#
+#   promote  puts a version code Play already has on another track. Nothing is
+#            built. This is how a build that passed internal testing reaches
+#            closed testing ("alpha") unchanged.
+#   build    bumps the version code, builds a signed bundle, uploads it to the
+#            chosen track, and commits the bump back so the next run starts
+#            from it.
+#
+# Secrets it needs (Settings -> Secrets and variables -> Actions):
+#   PLAY_SERVICE_ACCOUNT_JSON   the contents of findo-publisher.json
+#   UPLOAD_KEYSTORE_BASE64      the upload keystore (.jks), base64-encoded
+#   UPLOAD_KEYSTORE_PASSWORD    its store password
+#   UPLOAD_KEY_PASSWORD         its key password
+#   UPLOAD_KEY_ALIAS            its alias (findo)
+# Only "build" needs the four keystore secrets.
+
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "promote an existing version code, or build a new one"
+        type: choice
+        options: [promote, build]
+        default: promote
+      track:
+        description: "internal, alpha (= closed testing), beta (= open testing), production"
+        type: choice
+        options: [internal, alpha, beta, production]
+        default: alpha
+      version_code:
+        description: "promote only: the version code to move (e.g. 35)"
+        type: string
+        required: false
+      test_ads:
+        description: "build only: Google's test ads (testers only, never production)"
+        type: boolean
+        default: true
+      notes:
+        description: "release notes in Hebrew (optional)"
+        type: string
+        required: false
+      notes_en:
+        description: "the same notes in English (optional)"
+        type: string
+        required: false
+      draft:
+        description: "create the release as a draft instead of rolling it out"
+        type: boolean
+        default: false
+
+# One release at a time: two parallel builds would claim the same version code.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Refuse test ads on production
+        if: inputs.action == 'build' && inputs.track == 'production' && inputs.test_ads
+        run: |
+          echo "::error::A bundle with Google's test ads must never go to production. Untick test_ads."
+          exit 1
+
+      - name: Require a version code to promote
+        if: inputs.action == 'promote' && inputs.version_code == ''
+        run: |
+          echo "::error::promote needs version_code, for example 35."
+          exit 1
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install the Play API client
+        run: pip install google-api-python-client google-auth
+
+      - name: Write the Play key
+        env:
+          PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+        run: |
+          if [ -z "$PLAY_SERVICE_ACCOUNT_JSON" ]; then
+            echo "::error::Secret PLAY_SERVICE_ACCOUNT_JSON is not set."
+            exit 1
+          fi
+          key="$RUNNER_TEMP/findo-publisher.json"
+          printf '%s' "$PLAY_SERVICE_ACCOUNT_JSON" > "$key"
+          echo "FINDO_PLAY_KEY=$key" >> "$GITHUB_ENV"
+
+      - name: What Play has now
+        run: python tool/upload_aab.py
+
+      # ---- promote --------------------------------------------------------
+
+      - name: Promote
+        if: inputs.action == 'promote'
+        env:
+          CODE: ${{ inputs.version_code }}
+          TRACK: ${{ inputs.track }}
+          NOTES: ${{ inputs.notes }}
+          NOTES_EN: ${{ inputs.notes_en }}
+          DRAFT: ${{ inputs.draft && '--draft' || '' }}
+        run: >
+          python tool/upload_aab.py --promote "$CODE" --track "$TRACK"
+          --notes "$NOTES" --notes-en "$NOTES_EN" $DRAFT --yes
+
+      # ---- build ----------------------------------------------------------
+
+      - uses: actions/setup-java@v4
+        if: inputs.action == 'build'
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: subosito/flutter-action@v2
+        if: inputs.action == 'build'
+        with:
+          channel: stable
+          cache: true
+
+      - name: Write the upload keystore
+        if: inputs.action == 'build'
+        env:
+          KEYSTORE_BASE64: ${{ secrets.UPLOAD_KEYSTORE_BASE64 }}
+          STORE_PASSWORD: ${{ secrets.UPLOAD_KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.UPLOAD_KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.UPLOAD_KEY_ALIAS }}
+        run: |
+          for name in KEYSTORE_BASE64 STORE_PASSWORD KEY_PASSWORD KEY_ALIAS; do
+            if [ -z "${!name}" ]; then
+              echo "::error::A keystore secret is missing ($name)."
+              exit 1
+            fi
+          done
+          echo "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/findo-upload.jks"
+          cat > android/key.properties <<PROPS
+          storePassword=$STORE_PASSWORD
+          keyPassword=$KEY_PASSWORD
+          keyAlias=$KEY_ALIAS
+          storeFile=$RUNNER_TEMP/findo-upload.jks
+          PROPS
+
+      - name: Bump, build and verify
+        if: inputs.action == 'build'
+        env:
+          DEFINE: ${{ inputs.test_ads && '--define FINDO_TEST_ADS=true' || '' }}
+        run: python tool/release_aab.py $DEFINE
+
+      - name: Keep the bundle
+        if: inputs.action == 'build'
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-${{ github.run_number }}
+          path: build/app/outputs/bundle/release/app-release.aab
+          retention-days: 30
+
+      - name: Upload to Play
+        if: inputs.action == 'build'
+        env:
+          TRACK: ${{ inputs.track }}
+          NOTES: ${{ inputs.notes }}
+          NOTES_EN: ${{ inputs.notes_en }}
+          DRAFT: ${{ inputs.draft && '--draft' || '' }}
+        run: >
+          python tool/upload_aab.py --upload --track "$TRACK"
+          --notes "$NOTES" --notes-en "$NOTES_EN" $DRAFT --yes
+
+      # Play has consumed the code now, so the bump has to be kept even if
+      # nothing else changed.
+      - name: Commit the version bump
+        if: inputs.action == 'build'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          version=$(grep -m1 '^version:' pubspec.yaml | cut -d' ' -f2)
+          git add pubspec.yaml
+          git commit -m "Build $version (released to ${{ inputs.track }} from GitHub)"
+          git push
+
+      - name: Remove the secrets from the runner
+        if: always()
+        run: rm -f "$RUNNER_TEMP/findo-publisher.json" "$RUNNER_TEMP/findo-upload.jks" android/key.properties
