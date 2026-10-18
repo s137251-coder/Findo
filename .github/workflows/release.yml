@@ -143,11 +143,17 @@ jobs:
               exit 1
             fi
           done
-          echo "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/findo-upload.jks"
+          # Secrets set from Windows (PowerShell piping into gh) can carry a
+          # UTF-8 byte-order mark and CR/LF line endings, which base64 rejects
+          # and which would silently become part of a password.
+          clean() { printf '%s' "$1" | sed '1s/^\xEF\xBB\xBF//' | tr -d '\r\n'; }
+          clean "$KEYSTORE_BASE64" | tr -d ' \t' | base64 --decode > "$RUNNER_TEMP/findo-upload.jks"
+          magic=$(head -c 4 "$RUNNER_TEMP/findo-upload.jks" | od -An -tx1 | tr -d ' ')
+          echo "keystore: $(stat -c %s "$RUNNER_TEMP/findo-upload.jks") bytes, starts with $magic"
           cat > android/key.properties <<PROPS
-          storePassword=$STORE_PASSWORD
-          keyPassword=$KEY_PASSWORD
-          keyAlias=$KEY_ALIAS
+          storePassword=$(clean "$STORE_PASSWORD")
+          keyPassword=$(clean "$KEY_PASSWORD")
+          keyAlias=$(clean "$KEY_ALIAS")
           storeFile=$RUNNER_TEMP/findo-upload.jks
           PROPS
 
