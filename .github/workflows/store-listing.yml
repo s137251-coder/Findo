@@ -1,0 +1,54 @@
+# Pushes the store page -- the text in store/LISTING.md and the captioned
+# screenshots in store/screenshots/<language>/ -- to Google Play, in English
+# and Hebrew. Run it from Actions -> Store listing -> Run workflow.
+#
+# With "write" off it only reports what would change, which is the safe way
+# to look first. It uses the same PLAY_SERVICE_ACCOUNT_JSON as the release.
+
+name: Store listing
+
+on:
+  workflow_dispatch:
+    inputs:
+      write:
+        description: "change the store page (off = only say what would change)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  listing:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install the Play API client
+        run: pip install google-api-python-client google-auth
+
+      - name: Write the Play key
+        env:
+          PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+        run: |
+          if [ -z "$PLAY_SERVICE_ACCOUNT_JSON" ]; then
+            echo "::error::Secret PLAY_SERVICE_ACCOUNT_JSON is not set."
+            exit 1
+          fi
+          key="$RUNNER_TEMP/findo-publisher.json"
+          printf '%s' "$PLAY_SERVICE_ACCOUNT_JSON" > "$key"
+          echo "FINDO_PLAY_KEY=$key" >> "$GITHUB_ENV"
+
+      - name: Update the listing
+        env:
+          WRITE: ${{ inputs.write && '--write' || '' }}
+        run: python tool/update_listing.py $WRITE
+
+      - name: Remove the key from the runner
+        if: always()
+        run: rm -f "$RUNNER_TEMP/findo-publisher.json"

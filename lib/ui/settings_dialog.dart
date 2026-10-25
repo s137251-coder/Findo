@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../app_services.dart';
+import '../managers/account_service.dart';
 import '../managers/localization_manager.dart';
 import '../managers/monetization_manager.dart';
 import '../theme.dart';
 import 'rules_screen.dart';
+import 'share.dart';
 import 'widgets/common.dart';
 
 /// The published privacy policy, in both languages.
@@ -42,7 +44,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
     final l10n = context.l10n;
 
     return ListenableBuilder(
-      listenable: services.monetization,
+      listenable: Listenable.merge([services.monetization, services.account]),
       builder: (context, _) {
         final messageKey = services.monetization.takeStoreMessageKey();
         if (messageKey != null) {
@@ -95,6 +97,26 @@ class _SettingsDialogState extends State<SettingsDialog> {
                         }
                       },
                     ),
+                    if (services.reminder.supported)
+                      _ToggleRow(
+                        icon: Icons.notifications_active_rounded,
+                        label: l10n.t('settings.reminder'),
+                        value: services.save.dailyReminder,
+                        onChanged: (value) async {
+                          final allowed = await services.reminder.setEnabled(
+                            value,
+                            title: l10n.t('reminder.title'),
+                            body: l10n.t('reminder.body'),
+                          );
+                          if (!mounted) {
+                            return;
+                          }
+                          setState(() {});
+                          if (value && !allowed) {
+                            _say(l10n.t('reminder.blocked'));
+                          }
+                        },
+                      ),
                     const Divider(height: 26, color: FindoColors.surfaceRaised),
                     Text(
                       l10n.t('settings.language'),
@@ -120,6 +142,14 @@ class _SettingsDialogState extends State<SettingsDialog> {
                         ],
                       ],
                     ),
+                    if (services.account.available) ...[
+                      const Divider(height: 26, color: FindoColors.surfaceRaised),
+                      _AccountSection(
+                        account: services.account,
+                        onSay: _say,
+                        onRestore: services.monetization.restorePurchases,
+                      ),
+                    ],
                     const Divider(height: 26, color: FindoColors.surfaceRaised),
                     if (services.monetization.adsRemoved)
                       Row(
@@ -188,6 +218,23 @@ class _SettingsDialogState extends State<SettingsDialog> {
                       icon: const Icon(Icons.help_outline_rounded, size: 20),
                       label: Text(l10n.t('settings.howToPlay')),
                     ),
+                    const SizedBox(height: 10),
+                    // Straight to the store page's reviews: a player who asks
+                    // to rate should always land somewhere they can.
+                    OutlinedButton.icon(
+                      onPressed: services.review.openStorePage,
+                      icon: const Icon(Icons.star_rate_rounded, size: 20),
+                      label: Text(l10n.t('settings.rate')),
+                    ),
+                    const SizedBox(height: 10),
+                    Builder(
+                      builder: (buttonContext) => OutlinedButton.icon(
+                        onPressed: () =>
+                            shareText(buttonContext, l10n.t('share.app')),
+                        icon: const Icon(Icons.share_rounded, size: 20),
+                        label: Text(l10n.t('settings.share')),
+                      ),
+                    ),
                     const SizedBox(height: 18),
                     FilledButton(
                       onPressed: () => Navigator.of(context).pop(),
@@ -229,6 +276,12 @@ class _SettingsDialogState extends State<SettingsDialog> {
       context: context,
       barrierColor: const Color(0xB3050710),
       builder: (context) => const _PrivacyInfoDialog(),
+    );
+  }
+
+  void _say(String message) {
+    ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+      SnackBar(content: Text(message)),
     );
   }
 
@@ -367,5 +420,147 @@ class _LanguageChip extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+/// Signing in with Google, or who is signed in and the way out.
+class _AccountSection extends StatelessWidget {
+  const _AccountSection({
+    required this.account,
+    required this.onSay,
+    required this.onRestore,
+  });
+
+  final AccountService account;
+  final ValueChanged<String> onSay;
+
+  /// Asks the store for the player's purchases again. A new phone signed in
+  /// to the account should get its ads purchase back without a second tap.
+  final Future<void> Function() onRestore;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final busy = account.busy;
+    const heading = TextStyle(
+      fontSize: 14,
+      fontWeight: FontWeight.w600,
+      color: FindoColors.textMuted,
+    );
+
+    if (!account.isSignedIn) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(l10n.t('account.title'), style: heading),
+          const SizedBox(height: 6),
+          Text(
+            l10n.t('account.pitch'),
+            style: const TextStyle(fontSize: 14, height: 1.4),
+          ),
+          const SizedBox(height: 10),
+          FilledButton.icon(
+            onPressed: busy
+                ? null
+                : () async {
+                    final outcome = await account.signInWithGoogle();
+                    switch (outcome) {
+                      case AccountOutcome.signedIn:
+                        onSay(l10n.t('account.welcome'));
+                        await onRestore();
+                      case AccountOutcome.cancelled:
+                        break;
+                      case AccountOutcome.failed:
+                      case AccountOutcome.unavailable:
+                        onSay(l10n.t('account.failed'));
+                    }
+                  },
+            icon: busy
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2.4),
+                  )
+                : const Icon(Icons.account_circle_rounded, size: 22),
+            label: Text(l10n.t('account.signIn')),
+          ),
+        ],
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(l10n.t('account.title'), style: heading),
+        const SizedBox(height: 6),
+        Row(
+          children: [
+            const Icon(Icons.cloud_done_rounded, color: FindoColors.success, size: 20),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                l10n.t('account.signedInAs', params: {'email': account.email ?? ''}),
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Text(
+          l10n.t('account.synced'),
+          style: const TextStyle(fontSize: 13, color: FindoColors.textMuted),
+        ),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            Expanded(
+              child: OutlinedButton(
+                onPressed: busy ? null : account.signOut,
+                child: Text(l10n.t('account.signOut')),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: OutlinedButton(
+                onPressed: busy ? null : () => _confirmDelete(context),
+                style: OutlinedButton.styleFrom(foregroundColor: FindoColors.danger),
+                child: Text(l10n.t('account.delete')),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Future<void> _confirmDelete(BuildContext context) async {
+    final l10n = context.l10n;
+    final sure = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: FindoColors.surface,
+        title: Text(l10n.t('account.delete.title')),
+        content: Text(l10n.t('account.delete.body'), style: const TextStyle(height: 1.45)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(l10n.t('common.cancel')),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: FilledButton.styleFrom(
+              backgroundColor: FindoColors.danger,
+              foregroundColor: FindoColors.background,
+            ),
+            child: Text(l10n.t('account.delete.confirm')),
+          ),
+        ],
+      ),
+    );
+    if (sure != true) {
+      return;
+    }
+    final deleted = await account.deleteAccount();
+    onSay(l10n.t(deleted ? 'account.deleted' : 'account.failed'));
   }
 }

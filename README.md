@@ -65,6 +65,9 @@ lib/
     score_manager.dart          scoring, countdown, time bonus, stars
     audio_manager.dart          BGM and SFX, settings-aware, lifecycle-aware
     monetization_manager.dart   ATT, UMP consent, AdMob, in-app purchases
+    account_service.dart        optional Google sign-in, and the save that follows the player
+    review_manager.dart         Play's in-app rating card, and "Rate Findo"
+    reminder_manager.dart       the evening Daily Hunt reminder
   game/
     findo_game.dart             the FlameGame: camera, gestures, rules
     components/
@@ -79,6 +82,7 @@ lib/
     pause_modal.dart            pause
     settings_dialog.dart        audio, language, store, privacy options
     hint_dialog.dart            spend a hint or watch a video
+    tutorial_overlay.dart       the guided first hunt, and the one-off tips after it
     safe_area_wrapper.dart      notch, Dynamic Island and status-bar insets
     widgets/common.dart         stars, panels, chips, Findo's portrait
 assets/
@@ -93,6 +97,7 @@ tool/
   generate_maps.py              regenerates the character and the scenes
   generate_audio.py             regenerates music and sound effects
   generate_brand.py             launcher icons and Play store graphics
+  caption_screenshots.py        captioned store screenshots from raw captures
   level_data.py                 registers a map and records where Findo is in it
 docs/
   RELEASE_GUIDE_GOOGLE_PLAY.md  step-by-step publishing guide

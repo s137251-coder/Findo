@@ -13,7 +13,6 @@ import 'level_select_screen.dart';
 import 'motion.dart';
 import 'rank_screen.dart';
 import 'safe_area_wrapper.dart';
-import 'rules_screen.dart';
 import 'settings_dialog.dart';
 import 'title_findo.dart';
 import 'title_stage.dart';
@@ -75,15 +74,12 @@ class _HomeScreenState extends State<HomeScreen>
       if (!mounted) {
         return;
       }
+      // A new player is no longer handed five rules to read before they have
+      // played: the first level teaches them, one at a time, with the map
+      // under their fingers. The rules stay in Settings for reference.
       if (!services.save.introSeen) {
-        // Marked before showing, so a player who kills the app mid-read is not
-        // shown it again on every launch.
         await services.save.markIntroSeen();
-        if (mounted) {
-          await showRules(context, isFirstRun: true);
-        }
       }
-      // Once per launch, and after the rules rather than on top of them.
       if (mounted) {
         await offerUpdateIfAvailable(context);
       }

@@ -19,6 +19,9 @@ import '../models/rank.dart';
 import 'hud_overlay.dart';
 import 'rank_screen.dart';
 import 'pause_modal.dart';
+import 'reminder_prompt.dart';
+import 'share.dart';
+import 'tutorial_overlay.dart';
 import 'win_modal.dart';
 
 /// Hosts the Flame canvas and every Flutter overlay drawn on top of it.
@@ -26,9 +29,18 @@ import 'win_modal.dart';
 /// The Flame side never navigates: it reports "cleared" or "time up", and this
 /// widget decides which overlay to raise and what to persist.
 class GameScreen extends StatefulWidget {
-  const GameScreen({super.key, required this.level, this.daily});
+  const GameScreen({
+    super.key,
+    required this.level,
+    this.daily,
+    this.tutorial = false,
+  });
 
   final LevelDefinition level;
+
+  /// Runs the guided first hunt on this level even for a player who has
+  /// already had it -- asked for from the rules screen.
+  final bool tutorial;
 
   /// Set for the daily hunt: a fixed hiding place, no hints, and a time for
   /// the table instead of stars and progress.
@@ -78,6 +90,27 @@ class _GameScreenState extends State<GameScreen> {
   /// How the daily hunt just went, for its result panel.
   DailyOutcome? _dailyOutcome;
 
+  /// The guided first hunt, while it is running.
+  TutorialController? _tutorial;
+
+  /// The tip on screen now, if any.
+  String? _tipKey;
+
+  /// Set by a clear that should ask for a rating, which happens on the way
+  /// out of the summary instead of the interstitial.
+  bool _reviewDue = false;
+
+  /// One-off tips and the level each first becomes useful on. Shown once
+  /// each, one per level start, so a player who updates mid-game meets them
+  /// one at a time too.
+  static const _levelTips = {
+    2: 'tip.timeBonus',
+    3: 'tip.character',
+    4: 'tip.daily',
+    6: 'tip.zoom',
+    8: 'tip.stars',
+  };
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -94,7 +127,63 @@ class _GameScreenState extends State<GameScreen> {
         unawaited(_services.save.markDailyStarted(daily.day));
       }
     }
+    final firstHunt = !_services.save.tutorialDone &&
+        widget.level.index == 1 &&
+        _services.save.unlockedLevelIndex <= 1;
+    if (daily == null && (widget.tutorial || firstHunt)) {
+      _tutorial = TutorialController()..addListener(_onTutorialChanged);
+    }
     _startLevel(widget.level);
+  }
+
+  /// Lets the clock run, and remembers, once the guided hunt is over --
+  /// finished or skipped.
+  void _onTutorialChanged() {
+    final tutorial = _tutorial;
+    if (tutorial == null || tutorial.active) {
+      return;
+    }
+    _game.clockHeld = false;
+    unawaited(_services.save.setTutorialDone(true));
+  }
+
+  /// Puts up the tip for this level, if one is due.
+  void _offerLevelTip(LevelDefinition level) {
+    if (widget.daily != null || (_tutorial?.active ?? false)) {
+      return;
+    }
+    final seen = _services.save.tipsSeen;
+    for (final entry in _levelTips.entries) {
+      if (level.index >= entry.key && !seen.contains(entry.value)) {
+        _showTip(entry.value);
+        return;
+      }
+    }
+  }
+
+  void _showTip(String key) {
+    unawaited(_services.save.markTipSeen(key));
+    _tipKey = key;
+    _game.overlays.remove(TipBanner.overlayId);
+    _game.overlays.add(TipBanner.overlayId);
+  }
+
+  void _hideTip() {
+    _game.overlays.remove(TipBanner.overlayId);
+    _tipKey = null;
+  }
+
+  /// The first wrong tap ever is when the cost of one is worth explaining.
+  void _onMisclick() {
+    const key = 'tip.misclick';
+    // The guided hunt's last card says this already, and the two would sit
+    // on top of each other.
+    if (_tutorial?.active ?? false) {
+      return;
+    }
+    if (!_services.save.tipsSeen.contains(key)) {
+      _showTip(key);
+    }
   }
 
   void _startLevel(LevelDefinition chosen) {
@@ -119,8 +208,13 @@ class _GameScreenState extends State<GameScreen> {
       audioManager: _services.audio,
       onLevelCleared: _handleLevelCleared,
       onTimeUp: _handleTimeUp,
-    );
+    )
+      ..clockHeld = _tutorial?.active ?? false
+      ..onPlayerPanned = (() => _tutorial?.did(TutorialStep.drag))
+      ..onPlayerZoomed = (() => _tutorial?.did(TutorialStep.zoom))
+      ..onMisclick = _onMisclick;
     _hasGame = true;
+    _offerLevelTip(level);
     _releaseMap(outgoing, keep: level.map);
   }
 
@@ -159,6 +253,7 @@ class _GameScreenState extends State<GameScreen> {
     if (_servicesReady) {
       unawaited(_services.audio.endMusic());
     }
+    _tutorial?.dispose();
     _scoreManager.dispose();
     super.dispose();
   }
@@ -169,6 +264,10 @@ class _GameScreenState extends State<GameScreen> {
     if (widget.daily != null) {
       return _handleDailyEnd(found: true);
     }
+    // Finding her ends the guided hunt wherever it had got to: a player who
+    // spotted her before being shown the hint has learned what it was for.
+    _tutorial?.skip();
+    _hideTip();
     final level = _game.level;
     final projected = _scoreManager.projectedTotal(cleared: true);
     final stars = level.starThresholds.starsFor(projected);
@@ -196,6 +295,8 @@ class _GameScreenState extends State<GameScreen> {
         : null;
     _pendingFinale = (_finaleDemo || level.index >= _finaleLevel) &&
         !_services.save.finaleSeen;
+    _reviewDue = !widget.tutorial &&
+        _services.review.isDue(levelIndex: level.index, stars: stars);
     setState(() {
       _result = result;
       _pendingRank = pending;
@@ -212,6 +313,8 @@ class _GameScreenState extends State<GameScreen> {
     if (widget.daily != null) {
       return _handleDailyEnd(found: false);
     }
+    _tutorial?.skip();
+    _hideTip();
     final level = _game.level;
     await _services.levels.recordResult(
       level: level,
@@ -247,6 +350,11 @@ class _GameScreenState extends State<GameScreen> {
     });
     _game.overlays.add(DailyResultPanel.overlayId);
     _game.pauseEngine();
+    // Today's hunt is played: tonight's reminder would be for nothing.
+    unawaited(_services.reminder.reschedule(
+      title: context.l10n.t('reminder.title'),
+      body: context.l10n.t('reminder.body'),
+    ));
     if (!official) {
       return;
     }
@@ -273,12 +381,55 @@ class _GameScreenState extends State<GameScreen> {
 
   /// Shows the interstitial that is due, then runs [next]. Ads never sit
   /// between the player and the result they just earned, only after it.
+  ///
+  /// At most one thing stands between the summary and what the player chose:
+  /// Play's rating card after a milestone, else the one-time question about
+  /// the Daily Hunt reminder, else the interstitial that is due.
   Future<void> _leaveLevel(VoidCallback next) async {
-    await _services.monetization.onLevelFinished();
+    if (_reviewDue) {
+      _reviewDue = false;
+      await _services.review.ask(_game.level.index);
+    } else if (_shouldOfferReminder) {
+      await offerDailyReminder(context, _services);
+    } else {
+      await _services.monetization.onLevelFinished();
+    }
     if (!mounted) {
       return;
     }
     next();
+  }
+
+  /// Once, after the second level is cleared: by then the player has seen
+  /// enough of the game to know whether they want to hear from it.
+  bool get _shouldOfferReminder =>
+      widget.daily == null &&
+      _services.reminder.supported &&
+      !_services.save.reminderAsked &&
+      _services.save.unlockedLevelIndex >= 3;
+
+  void _shareLevel(LevelResult result) {
+    final l10n = context.l10n;
+    unawaited(shareText(
+      context,
+      l10n.t('share.level', params: {
+        'seconds': result.secondsTaken,
+        'level': _game.level.index,
+        'stars': result.stars,
+      }),
+    ));
+  }
+
+  void _shareDaily(DailyOutcome outcome) {
+    final l10n = context.l10n;
+    unawaited(shareText(
+      context,
+      outcome.found
+          ? l10n.t('share.daily', params: {
+              'time': formatDailyTime(outcome.milliseconds),
+            })
+          : l10n.t('share.dailyMissed'),
+    ));
   }
 
   /// Runs the promotion first when one is due, then whatever the button meant.
@@ -373,6 +524,14 @@ class _GameScreenState extends State<GameScreen> {
     if (_services.levels.isFound || widget.daily != null) {
       return;
     }
+    // The guided hunt's hint is on the house: it is there to show what a
+    // hint does, not to spend one of the three the player starts with.
+    final tutorial = _tutorial;
+    if (tutorial != null && tutorial.step == TutorialStep.hint) {
+      _game.revealHint();
+      tutorial.did(TutorialStep.hint);
+      return;
+    }
     _services.audio.play(GameSound.tap);
     _game.setAccepting(false);
     final choice = await showHintDialog(context, _services.monetization);
@@ -430,7 +589,10 @@ class _GameScreenState extends State<GameScreen> {
               style: const TextStyle(fontSize: 16),
             ),
           ),
-          initialActiveOverlays: const [HudOverlay.overlayId],
+          initialActiveOverlays: [
+            HudOverlay.overlayId,
+            if (_tutorial?.active ?? false) TutorialOverlay.overlayId,
+          ],
           overlayBuilderMap: {
             HudOverlay.overlayId: (context, game) => HudOverlay(
                   game: game,
@@ -440,6 +602,20 @@ class _GameScreenState extends State<GameScreen> {
                   onOpenCharacter: _openCharacterSheet,
                   daily: widget.daily != null,
                 ),
+            TutorialOverlay.overlayId: (context, game) {
+              final tutorial = _tutorial;
+              if (tutorial == null) {
+                return const SizedBox.shrink();
+              }
+              return TutorialOverlay(game: game, controller: tutorial);
+            },
+            TipBanner.overlayId: (context, game) {
+              final key = _tipKey;
+              if (key == null) {
+                return const SizedBox.shrink();
+              }
+              return TipBanner(key: ValueKey(key), tipKey: key, onDone: _hideTip);
+            },
             DailyResultPanel.overlayId: (context, game) {
               final outcome = _dailyOutcome;
               if (outcome == null) {
@@ -447,6 +623,7 @@ class _GameScreenState extends State<GameScreen> {
               }
               return DailyResultPanel(
                 outcome: outcome,
+                onShare: () => _shareDaily(outcome),
                 onTable: _showDailyTable,
                 onHome: () => _leaveLevel(_backToLevelList),
               );
@@ -469,6 +646,7 @@ class _GameScreenState extends State<GameScreen> {
                 starHints: _starHints,
                 hasNextLevel: next != null,
                 moreComing: next == null && game.level.index < _finaleLevel,
+                onShare: () => _shareLevel(result),
                 onNext: () => _afterRank(() => _leaveLevel(() => _restart(next!))),
                 onReplay: () =>
                     _afterRank(() => _leaveLevel(() => _restart(game.level))),

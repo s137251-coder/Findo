@@ -83,12 +83,16 @@ class DailyResultPanel extends StatelessWidget {
     required this.outcome,
     required this.onTable,
     required this.onHome,
+    this.onShare,
   });
 
   static const overlayId = 'daily-result';
 
   final DailyOutcome outcome;
   final VoidCallback onTable;
+
+  /// Hands the result to the share sheet.
+  final VoidCallback? onShare;
   final VoidCallback onHome;
 
   @override
@@ -162,6 +166,14 @@ class DailyResultPanel extends StatelessWidget {
               icon: const Icon(Icons.leaderboard_rounded, size: 22),
               label: Text(l10n.t('daily.table')),
             ),
+            if (onShare != null) ...[
+              const SizedBox(height: 10),
+              OutlinedButton.icon(
+                onPressed: onShare,
+                icon: const Icon(Icons.share_rounded, size: 20),
+                label: Text(l10n.t('share.button')),
+              ),
+            ],
             const SizedBox(height: 10),
             OutlinedButton(
               onPressed: onHome,

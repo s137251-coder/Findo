@@ -163,6 +163,34 @@ service cloud.firestore {{
       allow delete: if mine(uid);
     }}
 
+    // -- a signed-in player's save -----------------------------------------
+    //
+    // Progress, hints and the ads purchase, kept so a player who signs in
+    // with Google on a new phone picks up where they left off. Only the
+    // player can read or write it, and only fields the game writes, sized
+    // for the game: a hundred levels, not a database smuggled into a save.
+    match /saves/{{uid}} {{
+      allow read, delete: if mine(uid);
+      allow create, update: if mine(uid)
+        && request.resource.data.keys().hasOnly(
+             ['unlocked', 'levels', 'hints', 'starHints', 'rankSeen',
+              'finaleSeen', 'adsRemoved', 'tutorialDone', 'at'])
+        && request.resource.data.unlocked is int
+        && request.resource.data.unlocked >= 1
+        && request.resource.data.unlocked <= 1000
+        && request.resource.data.levels is map
+        && request.resource.data.levels.size() <= 1000
+        && request.resource.data.hints is int
+        && request.resource.data.hints >= 0
+        && request.resource.data.hints <= 100000
+        && request.resource.data.starHints is int
+        && request.resource.data.rankSeen is int
+        && request.resource.data.finaleSeen is bool
+        && request.resource.data.adsRemoved is bool
+        && request.resource.data.tutorialDone is bool
+        && request.resource.data.at == request.time;
+    }}
+
     // Nothing else is anybody's business.
     match /{{document=**}} {{
       allow read, write: if false;

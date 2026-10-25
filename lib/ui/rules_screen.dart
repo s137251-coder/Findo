@@ -4,6 +4,7 @@ import '../app_services.dart';
 import '../managers/audio_manager.dart';
 import '../managers/localization_manager.dart';
 import '../theme.dart';
+import 'game_screen.dart';
 import 'motion.dart';
 import 'safe_area_wrapper.dart';
 import 'widgets/common.dart';
@@ -109,6 +110,25 @@ class RulesScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
+              // The guided hunt again, for a player who skipped it or wants a
+              // refresher. Played on the first level, where nothing is at
+              // stake.
+              if (!isFirstRun && services.levels.levels.isNotEmpty) ...[
+                OutlinedButton.icon(
+                  onPressed: () {
+                    services.audio.play(GameSound.tap);
+                    Navigator.of(context).pushReplacement(
+                      findoRoute<void>(GameScreen(
+                        level: services.levels.levels.first,
+                        tutorial: true,
+                      )),
+                    );
+                  },
+                  icon: const Icon(Icons.school_rounded, size: 20),
+                  label: Text(l10n.t('rules.tutorial')),
+                ),
+                const SizedBox(height: 10),
+              ],
               FilledButton(
                 onPressed: () {
                   services.audio.play(GameSound.tap);

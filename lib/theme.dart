@@ -17,6 +17,11 @@ class FindoColors {
   static const textPrimary = Color(0xFFF5F7FA);
   static const textMuted = Color(0xFFA5AEC2);
   static const locked = Color(0xFF39405A);
+
+  /// An empty star. Lighter than [locked]: a star outline is information,
+  /// and at the old shade it sat at 1.5:1 against a panel, where 3:1 is what
+  /// a player with weaker eyesight needs to tell two stars from three.
+  static const starEmpty = Color(0xFF6B7491);
 }
 
 /// Corner radii and paddings reused across overlays, so panels look related.

@@ -26,6 +26,7 @@ class WinModal extends StatelessWidget {
     required this.onNext,
     required this.onReplay,
     required this.onLevelList,
+    this.onShare,
   });
 
   static const overlayId = 'win';
@@ -46,6 +47,9 @@ class WinModal extends StatelessWidget {
   final VoidCallback onNext;
   final VoidCallback onReplay;
   final VoidCallback onLevelList;
+
+  /// Hands the result to the share sheet. The panel stays up meanwhile.
+  final VoidCallback? onShare;
 
   @override
   Widget build(BuildContext context) {
@@ -152,6 +156,28 @@ class WinModal extends StatelessWidget {
                   child: Text(l10n.t('win.menu')),
                 ),
               ),
+              // An icon beside the two, not a third full-width row: on a
+              // landscape phone this panel already fills the height.
+              if (onShare != null) ...[
+                const SizedBox(width: 10),
+                SizedBox(
+                  height: 52,
+                  child: OutlinedButton(
+                    onPressed: onShare,
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size(52, 52),
+                      padding: EdgeInsets.zero,
+                    ),
+                    child: Tooltip(
+                      message: l10n.t('share.button'),
+                      child: Semantics(
+                        label: l10n.t('share.button'),
+                        child: const Icon(Icons.share_rounded, size: 22),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
         ];
@@ -258,7 +284,7 @@ class _LandingStarsState extends State<_LandingStars> {
               child: Icon(
                 earned ? Icons.star_rounded : Icons.star_outline_rounded,
                 size: 40,
-                color: earned ? FindoColors.primary : FindoColors.locked,
+                color: earned ? FindoColors.primary : FindoColors.starEmpty,
               ),
             ),
           ),
