@@ -124,7 +124,10 @@ class MonetizationManager extends ChangeNotifier {
   static const interstitialEveryNLevels = 2;
 
   final SaveManager _saveManager;
-  final InAppPurchase _iap = InAppPurchase.instance;
+  // Late, so the store's plugin is only reached when the store is first used
+  // (initialize, buy, restore). Built eagerly it opened a billing connection
+  // the moment the manager existed, which a widget test cannot answer.
+  late final InAppPurchase _iap = InAppPurchase.instance;
 
   StreamSubscription<List<PurchaseDetails>>? _purchaseSubscription;
   InterstitialAd? _interstitial;
