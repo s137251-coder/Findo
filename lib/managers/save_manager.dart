@@ -42,6 +42,11 @@ class SaveManager {
   static const _keyDailyStarted = 'findo.daily.started';
   static const _keyDailyTime = 'findo.daily.timeMs';
   static const _keyPlayerName = 'findo.player.name';
+  static const _keyTutorialDone = 'findo.tutorial.done';
+  static const _keyTipsSeen = 'findo.tips.seen';
+  static const _keyReviewAsked = 'findo.review.askedAtLevel';
+  static const _keyReminder = 'findo.reminder.daily';
+  static const _keyReminderAsked = 'findo.reminder.asked';
 
   /// Hints the player starts with, so the hint button is usable on day one.
   static const startingHints = 3;
@@ -70,6 +75,41 @@ class SaveManager {
   bool get introSeen => _prefs.getBool(_keyIntroSeen) ?? false;
 
   Future<void> markIntroSeen() => _prefs.setBool(_keyIntroSeen, true);
+
+  /// False until the guided first hunt has been finished or skipped.
+  bool get tutorialDone => _prefs.getBool(_keyTutorialDone) ?? false;
+
+  Future<void> setTutorialDone(bool value) =>
+      _prefs.setBool(_keyTutorialDone, value);
+
+  /// The one-off tips the player has already been shown, by id.
+  Set<String> get tipsSeen =>
+      (_prefs.getStringList(_keyTipsSeen) ?? const <String>[]).toSet();
+
+  Future<void> markTipSeen(String id) =>
+      _prefs.setStringList(_keyTipsSeen, {...tipsSeen, id}.toList());
+
+  // -- asking for a rating ---------------------------------------------------
+
+  /// The level whose clear last asked for a rating, 0 when none has.
+  int get reviewAskedAtLevel => _prefs.getInt(_keyReviewAsked) ?? 0;
+
+  Future<void> setReviewAskedAtLevel(int index) =>
+      _prefs.setInt(_keyReviewAsked, index);
+
+  // -- the daily reminder ------------------------------------------------------
+
+  /// Whether the Daily Hunt reminder is on. On until the player says no --
+  /// though nothing is shown before Android has been given permission.
+  bool get dailyReminder => _prefs.getBool(_keyReminder) ?? true;
+
+  Future<void> setDailyReminder(bool value) => _prefs.setBool(_keyReminder, value);
+
+  /// True once the player has been asked for permission to notify, so the
+  /// question is put once and never again unprompted.
+  bool get reminderAsked => _prefs.getBool(_keyReminderAsked) ?? false;
+
+  Future<void> markReminderAsked() => _prefs.setBool(_keyReminderAsked, true);
 
   // -- audio ---------------------------------------------------------------
 
@@ -232,6 +272,86 @@ class SaveManager {
   Future<void> addHints(int amount) => setHintCount(hintCount + amount);
 
   /// Returns false when the player had none left, so the caller can offer an ad.
+  // -- cloud save ----------------------------------------------------------
+
+  /// What a signed-in player keeps across phones: progress, stars paid out,
+  /// ranks seen, hints, and the ads purchase.
+  ///
+  /// Language, sound and the tips are this phone's business and stay here.
+  Map<String, Object?> exportProgress() => {
+        'unlocked': unlockedLevelIndex,
+        'levels': allProgress.map((key, value) => MapEntry(key, value.toJson())),
+        'hints': hintCount,
+        'starHints': starHintsGranted,
+        'rankSeen': rankSeen,
+        'finaleSeen': finaleSeen,
+        'adsRemoved': adsRemoved,
+        'tutorialDone': tutorialDone,
+      };
+
+  /// Folds a save from another phone into this one, keeping the better of the
+  /// two everywhere, so signing in can only ever add to what a player has.
+  ///
+  /// Hints take the larger balance rather than the sum: the same hints would
+  /// otherwise be counted once per phone the player ever signed in on.
+  Future<void> mergeProgress(Map<String, dynamic> cloud) async {
+    // Read defensively: the document is the player's to write, and a field
+    // of the wrong type should be ignored, not take the game down.
+    int number(String key) {
+      final value = cloud[key];
+      return value is num ? value.toInt() : 0;
+    }
+
+    bool flag(String key) => cloud[key] == true;
+
+    await unlockLevel(number('unlocked'));
+    final levels = cloud['levels'];
+    if (levels is Map) {
+      final merged = Map<String, LevelProgress>.from(allProgress);
+      levels.forEach((key, value) {
+        if (key is! String || value is! Map) {
+          return;
+        }
+        final LevelProgress theirs;
+        try {
+          theirs = LevelProgress.fromJson(Map<String, dynamic>.from(value));
+        } catch (_) {
+          return;
+        }
+        if (theirs.stars < 0 || theirs.stars > 3) {
+          return;
+        }
+        final mine = merged[key] ?? const LevelProgress();
+        merged[key] = LevelProgress(
+          bestScore: theirs.bestScore > mine.bestScore
+              ? theirs.bestScore
+              : mine.bestScore,
+          stars: theirs.stars > mine.stars ? theirs.stars : mine.stars,
+        );
+      });
+      await _prefs.setString(
+        _keyProgress,
+        jsonEncode(merged.map((key, value) => MapEntry(key, value.toJson()))),
+      );
+    }
+    if (number('hints') > hintCount) {
+      await setHintCount(number('hints'));
+    }
+    if (number('starHints') > starHintsGranted) {
+      await _prefs.setInt(_keyStarHints, number('starHints'));
+    }
+    await setRankSeen(number('rankSeen'));
+    if (flag('finaleSeen')) {
+      await markFinaleSeen();
+    }
+    if (flag('adsRemoved')) {
+      await setAdsRemoved(true);
+    }
+    if (flag('tutorialDone')) {
+      await setTutorialDone(true);
+    }
+  }
+
   Future<bool> consumeHint() async {
     final current = hintCount;
     if (current <= 0) {

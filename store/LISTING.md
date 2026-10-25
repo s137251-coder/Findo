@@ -47,19 +47,28 @@ One level a day, the same one for every player in the world, at the highest diff
 CAN'T SEE HER?
 A hint sweeps the map towards Findo and makes her glow. Start with three, earn more by watching a video, or buy a pack.
 
+NEW TO IT? THE FIRST LEVEL TEACHES YOU
+A guided first hunt has you drag, pinch and use a hint on the real map, one step at a time, and short tips explain the rest as you reach it.
+
 PLAYS YOUR WAY
 • Full English and Hebrew, with proper right-to-left layout
 • Switch language any time, mid-level, without restarting
-• No account, no login, no sign-up, no e-mail
+• No account needed. Sign in with Google only if you want your levels, stars, hints and purchases on every phone
+• An optional evening reminder when a new Daily Hunt is waiting
+• Share your best times with friends
 • Works on phones and tablets, in portrait and landscape
 
 Findo is free to play. It contains ads and optional in-app purchases, including a one-time purchase that removes ads permanently.
 ```
 
-### What's new — release 1.0.0
+### What's new — release 1.1.0
 
 ```
-First release. A hundred crowded scenes to search, a daily hunt everyone plays together with a shared leaderboard, English and Hebrew, hints, and star ratings.
+• A guided first level that teaches drag, zoom and hints on the real map, plus tips as you go
+• Sign in with Google to keep your progress and purchases on every phone
+• An optional reminder for the Daily Hunt
+• Rate Findo and share your times from the game
+• Better screen-reader labels and clearer empty stars
 ```
 
 ---
@@ -103,19 +112,28 @@ Findo
 לא מוצאים אותה?
 רמז מזיז את המפה לכיוון פינדו וגורם לה לזהור. מתחילים עם שלושה, מרוויחים עוד בצפייה בסרטון, או קונים חבילה.
 
+חדשים במשחק? השלב הראשון מלמד אתכם
+הדרכה מודרכת בשלב הראשון מלמדת לגרור, לצבוט ולהשתמש ברמז על המפה האמיתית, צעד אחרי צעד, וטיפים קצרים מסבירים את השאר כשמגיעים אליו.
+
 מותאם לכם
 • עברית ואנגלית מלאות, כולל פריסה מימין לשמאל כמו שצריך
 • החלפת שפה בכל רגע, גם באמצע שלב, בלי להפעיל מחדש
-• בלי חשבון, בלי התחברות, בלי הרשמה, בלי אימייל
+• אין צורך בחשבון. התחברו עם Google רק אם תרצו שהשלבים, הכוכבים, הרמזים והרכישות יהיו איתכם בכל טלפון
+• תזכורת ערב אופציונלית כשמחכה חיפוש יומי חדש
+• שתפו את הזמנים הכי טובים שלכם עם חברים
 • עובד על טלפונים וטאבלטים, לאורך ולרוחב
 
 Findo חינמי לשחק. הוא כולל פרסומות ורכישות אופציונליות, ובהן רכישה חד-פעמית שמסירה את הפרסומות לצמיתות.
 ```
 
-### What's new — release 1.0.0
+### What's new — release 1.1.0
 
 ```
-גרסה ראשונה. מאה שלבים עמוסים לחיפוש, חיפוש יומי שכל השחקנים משחקים יחד עם טבלת שיאים משותפת, עברית ואנגלית, רמזים, ודירוג כוכבים.
+• שלב ראשון מודרך שמלמד גרירה, זום ורמזים על המפה האמיתית, וטיפים לאורך הדרך
+• התחברות עם Google כדי לשמור את ההתקדמות והרכישות בכל טלפון
+• תזכורת אופציונלית לחיפוש היומי
+• דירוג המשחק ושיתוף הזמנים שלכם מתוך המשחק
+• תוויות טובות יותר לקורא מסך וכוכבים ריקים ברורים יותר
 ```
 
 ---
@@ -126,16 +144,13 @@ Findo חינמי לשחק. הוא כולל פרסומות ורכישות אופ�
 | --- | --- | --- |
 | App icon | 512×512 PNG, 32-bit, no transparency | `store/icon-512.png` ✅ |
 | Feature graphic | 1024×500 PNG/JPEG, no transparency | `store/feature-graphic-1024x500.png` ✅ |
-| Phone screenshots | 2–8, each side 320–3840 px | `store/screenshots/phone-*.png` ⚠️ from 1.0.0+2 |
+| Phone screenshots | 2–8, each side 320–3840 px | `store/screenshots/en/*.png`, `store/screenshots/he/*.png` ✅ captioned, built by `tool/caption_screenshots.py` |
 | 7" tablet screenshots | Only if you declare tablet support | not generated |
 | 10" tablet screenshots | Only if you declare tablet support | not generated |
 
-**The screenshots are out of date.** They were captured from 1.0.0+2, before the
-title screen was rebuilt, before the daily hunt existed and before the
-leaderboard. A store page is the last thing a person reads before deciding, and
-these show a game that is no longer the one they would install. Recapture from
-the current build before publishing, and include the daily hunt and the
-leaderboard among them.
+The screenshots carry a headline and a line under it, in each language, over
+captures of the real game. Recapture into `store/screenshots/raw/<language>/`
+and run `python tool/caption_screenshots.py` to rebuild them.
 
 Upload the Hebrew screenshots under the he-IL listing rather than the default,
 so an English-speaking browser is not shown a screen they cannot read.
@@ -157,7 +172,12 @@ Answers matching what the shipped code actually does.
 | App activity → Purpose | App functionality (the shared leaderboard) |
 | Purchase history → Collected | **Yes** — via Google Play Billing |
 | Purchase history → Purpose | App functionality |
-| Personal info, Financial info, Photos, Files, Contacts, Messages, Location | **Not collected** |
+| Personal info → Email address, Name | **Collected, not shared** — only for players who choose to sign in with Google |
+| Personal info → Purpose | Account management; App functionality (restoring progress on another phone) |
+| Personal info → Optional? | **Optional** — the game is fully playable without signing in |
+| App activity → Other actions (game progress) | **Collected, not shared** — only when signed in: levels, stars, hint balance, ranks seen, ad-removal purchase |
+| User IDs | **Collected, not shared** — the Firebase account identifier of a signed-in player |
+| Financial info, Photos, Files, Contacts, Messages, Location | **Not collected** |
 | Is all collected data encrypted in transit? | **Yes** |
 | Can users request data deletion? | **Yes** — see below |
 
@@ -167,6 +187,13 @@ the install, the time taken, and a display name the game generates ("Curious
 Tiger 147"). The player never types a name and never signs in, so no personal
 information is involved — but the identifier and the time leave the device, and
 anything that leaves the device is collection.
+
+**Account deletion (required because the game now offers sign-in).** In-app:
+*Settings → Account → Delete account* deletes the save, the player's week and
+all-time row, and the Firebase account. Outside the app, for the Play Console
+"Delete account URL" field, use the privacy policy's deletion section:
+`https://s137251-coder.github.io/Findo/privacy-policy.html` — it explains the
+in-app path and the e-mail route.
 
 **Deletion.** Uninstalling removes everything held on the device. The
 leaderboard row is tied to an anonymous identifier with no way to reach the

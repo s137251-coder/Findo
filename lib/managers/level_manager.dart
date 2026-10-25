@@ -148,6 +148,10 @@ class LevelManager extends ChangeNotifier {
     return isNewBest;
   }
 
+  /// Tells the screens that progress changed underneath them -- a save
+  /// brought in from the player's account.
+  void refresh() => notifyListeners();
+
   void clearCurrent() {
     _current = null;
     _found = false;

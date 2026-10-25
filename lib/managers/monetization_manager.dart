@@ -145,6 +145,10 @@ class MonetizationManager extends ChangeNotifier {
 
   int get hintCount => _saveManager.hintCount;
 
+  /// Tells the screens the hint balance or the ads purchase changed from
+  /// outside -- a save brought in from the player's account.
+  void refresh() => notifyListeners();
+
   List<ProductDetails> get products => List.unmodifiable(_products);
 
   /// Translation key describing the last store outcome, consumed by the UI.

@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import sys
 from pathlib import Path
@@ -26,7 +27,9 @@ from googleapiclient.http import MediaFileUpload
 
 ROOT = Path(__file__).resolve().parent.parent
 PACKAGE = "com.findo.game"
-KEY = r"C:\AI\findo-publisher.json"
+# The service account's key: FINDO_PLAY_KEY when set (as the GitHub workflow
+# does), the old Windows path otherwise.
+KEY = os.environ.get("FINDO_PLAY_KEY", r"C:\AI\findo-publisher.json")
 SCOPE = "https://www.googleapis.com/auth/androidpublisher"
 
 # The folder each store language takes its screenshots from.

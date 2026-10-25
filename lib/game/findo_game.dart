@@ -72,6 +72,32 @@ class FindoGame extends FlameGame with ScaleDetector {
 
   ItemTargetComponent? _target;
 
+  /// Told once the player has dragged the map a real distance, and once they
+  /// have pinched to zoom. The guided first hunt waits on these, so it moves
+  /// on when the player has actually done the thing rather than when they
+  /// press a button saying they have.
+  VoidCallback? onPlayerPanned;
+  VoidCallback? onPlayerZoomed;
+
+  /// Told on every tap that missed her.
+  VoidCallback? onMisclick;
+
+  /// Screen pixels of dragging that count as having learned to drag.
+  static const learnedPanDistance = 160.0;
+
+  /// How far the zoom has to move from where the level opened, either way,
+  /// to count as having learned to pinch.
+  static const learnedZoomRatio = 1.25;
+
+  double _pannedSoFar = 0;
+  bool _reportedPan = false;
+  bool _reportedZoom = false;
+
+  /// Stops the clock without stopping play: the guided first hunt teaches
+  /// with the map live under the player's fingers, and a clock running while
+  /// they read would punish them for reading.
+  bool clockHeld = false;
+
   /// How far a finger may travel and still count as a tap rather than a drag,
   /// in screen pixels. Below this a tap on nothing is a miss; above it the
   /// player was moving the map and owes nothing.
@@ -107,6 +133,8 @@ class FindoGame extends FlameGame with ScaleDetector {
   /// edge to the viewport's bottom edge at every zoom level, a Findo hidden
   /// down there could not be tapped at all -- the panel swallows the tap
   /// before it reaches the game. The HUD measures itself and reports here.
+  double get hudBottomInset => _hudBottomInset;
+
   set hudBottomInset(double value) {
     if ((value - _hudBottomInset).abs() < 0.5) {
       return;
@@ -261,7 +289,7 @@ class FindoGame extends FlameGame with ScaleDetector {
       _viewportDirty = false;
       _applyViewport();
     }
-    if (_finished || !_accepting) {
+    if (_finished || !_accepting || clockHeld) {
       return;
     }
     if (scoreManager.update(dt)) {
@@ -292,11 +320,21 @@ class FindoGame extends FlameGame with ScaleDetector {
           (_zoomAtScaleStart * info.raw.scale).clamp(_minZoom, _maxZoom);
       // The allowed area is derived from the zoom, so it moves with it.
       _applyCameraBounds();
+      final ratio = camera.viewfinder.zoom / _minZoom;
+      if (!_reportedZoom && ratio >= learnedZoomRatio) {
+        _reportedZoom = true;
+        onPlayerZoomed?.call();
+      }
       return;
     }
     // One finger drags the map: screen delta divided by zoom is world delta.
     final zoom = camera.viewfinder.zoom;
     camera.viewfinder.position += Vector2(-delta.dx / zoom, -delta.dy / zoom);
+    _pannedSoFar += delta.distance;
+    if (!_reportedPan && _pannedSoFar >= learnedPanDistance) {
+      _reportedPan = true;
+      onPlayerPanned?.call();
+    }
   }
 
   // -- rules ---------------------------------------------------------------
@@ -326,6 +364,7 @@ class FindoGame extends FlameGame with ScaleDetector {
       return;
     }
     scoreManager.registerMisclick();
+    onMisclick?.call();
     unawaited(audioManager.playMisclick());
     _showFloatingScore(mapPosition, -ScoreManager.misclickPenalty);
     if (scoreManager.isTimeUp) {

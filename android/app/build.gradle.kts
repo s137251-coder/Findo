@@ -29,6 +29,9 @@ android {
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
+        // The Daily Hunt reminder's plugin schedules with java.time, which
+        // the older Android versions this app still supports do not have.
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
@@ -84,4 +87,5 @@ dependencies {
     // MainActivity initialises Play Games itself, so the app needs the SDK on
     // its own compile path, not only through the games_services plugin.
     implementation("com.google.android.gms:play-services-games-v2:21.0.0")
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 }

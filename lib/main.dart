@@ -7,11 +7,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'app_services.dart';
+import 'managers/account_service.dart';
 import 'managers/audio_manager.dart';
 import 'managers/leaderboard_service.dart';
 import 'managers/level_manager.dart';
 import 'managers/localization_manager.dart';
 import 'managers/monetization_manager.dart';
+import 'managers/reminder_manager.dart';
+import 'managers/review_manager.dart';
 import 'managers/save_manager.dart';
 import 'theme.dart';
 import 'firebase_options.dart';
@@ -78,13 +81,22 @@ Future<void> main() async {
     debugPrint('leaderboard unavailable: $error');
   }
 
+  final monetization = MonetizationManager(save);
+  final account = AccountService(save, watch: [levels, monetization])
+    ..onMerged = () {
+      levels.refresh();
+      monetization.refresh();
+    };
   final services = AppServices(
     save: save,
     localization: localization,
     audio: audio,
     levels: levels,
-    monetization: MonetizationManager(save),
+    monetization: monetization,
     table: LeaderboardService(save),
+    account: account,
+    review: ReviewManager(save),
+    reminder: ReminderManager(save),
   );
 
   runApp(FindoApp(services: services));
@@ -108,7 +120,16 @@ class _FindoAppState extends State<FindoApp> {
     // Consent and the iOS tracking prompt need a live UI to attach to, so this
     // runs after the first frame rather than during startup.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      widget.services.monetization.initialize();
+      final services = widget.services;
+      services.monetization.initialize();
+      services.account.start();
+      // Rebuilt on every launch, so the evenings ahead are counted from now
+      // and a hunt already played today is not announced.
+      final l10n = services.localization;
+      services.reminder.reschedule(
+        title: l10n.t('reminder.title'),
+        body: l10n.t('reminder.body'),
+      );
     });
   }
 
@@ -116,6 +137,7 @@ class _FindoAppState extends State<FindoApp> {
   void dispose() {
     widget.services.audio.dispose();
     widget.services.monetization.dispose();
+    widget.services.account.dispose();
     super.dispose();
   }
 

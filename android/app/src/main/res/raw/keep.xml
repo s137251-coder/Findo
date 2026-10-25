@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The notification icon is named from Dart, by string, so resource
+     shrinking cannot see that it is used and would strip it from a release
+     build. -->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@drawable/ic_stat_findo" />

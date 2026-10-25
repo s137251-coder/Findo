@@ -92,11 +92,7 @@ final GlobalKey _panelKey = GlobalKey(debugLabel: 'findo.hud.objectivePanel');
 /// a comparison, and it keeps the camera correct through rotation or a changed
 /// text scale.
 class _HudInsetReporter extends StatefulWidget {
-  const _HudInsetReporter({
-    required this.game,
-    required this.panelKey,
-    required this.child,
-  });
+  const _HudInsetReporter({required this.game, required this.panelKey, required this.child});
 
   final FindoGame game;
   final GlobalKey panelKey;
@@ -173,54 +169,59 @@ class _TopBar extends StatelessWidget {
                 icon: Icons.stars_rounded,
                 value: '${scoreManager.score}',
                 color: FindoColors.primary,
+                semanticLabel: l10n.t('a11y.score', params: {'score': scoreManager.score}),
               ),
               const SizedBox(width: 8),
             ],
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.timer_outlined,
-                        size: 16,
-                        color: lowOnTime ? FindoColors.danger : FindoColors.textMuted,
-                      ),
-                      const SizedBox(width: 5),
-                      Text(
-                        formatSeconds(scoreManager.timeRemaining),
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: lowOnTime
-                              ? FindoColors.danger
-                              : FindoColors.textPrimary,
+              child: Semantics(
+                label: l10n.t(
+                  'a11y.time',
+                  params: {'time': formatSeconds(scoreManager.timeRemaining)},
+                ),
+                excludeSemantics: true,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.timer_outlined,
+                          size: 16,
+                          color: lowOnTime ? FindoColors.danger : FindoColors.textMuted,
+                        ),
+                        const SizedBox(width: 5),
+                        Text(
+                          formatSeconds(scoreManager.timeRemaining),
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: lowOnTime ? FindoColors.danger : FindoColors.textPrimary,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 5),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: LinearProgressIndicator(
+                        value: scoreManager.timeFraction,
+                        minHeight: 6,
+                        backgroundColor: FindoColors.surfaceRaised,
+                        valueColor: AlwaysStoppedAnimation(
+                          lowOnTime ? FindoColors.danger : FindoColors.accent,
                         ),
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 5),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(4),
-                    child: LinearProgressIndicator(
-                      value: scoreManager.timeFraction,
-                      minHeight: 6,
-                      backgroundColor: FindoColors.surfaceRaised,
-                      valueColor: AlwaysStoppedAnimation(
-                        lowOnTime ? FindoColors.danger : FindoColors.accent,
-                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
             if (!daily) ...[
               const SizedBox(width: 8),
               StarRow(
-                stars: level.starThresholds
-                    .starsFor(scoreManager.projectedTotal(cleared: true)),
+                stars: level.starThresholds.starsFor(scoreManager.projectedTotal(cleared: true)),
                 size: 20,
               ),
             ],
@@ -267,7 +268,8 @@ class _ObjectiveBar extends StatelessWidget {
     final l10n = context.l10n;
     // "Level 59 - Fish Hall". Players could see which level they were on
     // everywhere but here, where they spend the whole minute.
-    final place = '${l10n.t('level.number', params: {'index': level.index})}'
+    final place =
+        '${l10n.t('level.number', params: {'index': level.index})}'
         '  ·  ${l10n.t(level.nameKey)}';
     // The daily hunt names the place but not the level's number.
     final where = daily ? '${l10n.t('daily.title')}  ·  ${l10n.t(level.nameKey)}' : place;
@@ -294,10 +296,7 @@ class _ObjectiveBar extends StatelessWidget {
                   compact ? where : l10n.t('hud.find'),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: compact ? 16 : 18,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: TextStyle(fontSize: compact ? 16 : 18, fontWeight: FontWeight.w700),
                 ),
                 if (!compact) const SizedBox(height: 2),
                 if (!compact)
@@ -305,10 +304,7 @@ class _ObjectiveBar extends StatelessWidget {
                     where,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: FindoColors.textMuted,
-                    ),
+                    style: const TextStyle(fontSize: 13, color: FindoColors.textMuted),
                   ),
               ],
             ),
@@ -336,32 +332,37 @@ class _HintButton extends StatelessWidget {
     return ListenableBuilder(
       listenable: monetization,
       builder: (context, _) {
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Material(
-              color: FindoColors.primary,
-              borderRadius: BorderRadius.circular(FindoMetrics.radiusControl),
-              child: InkWell(
-                onTap: onHint,
+        return Semantics(
+          button: true,
+          label: context.l10n.t('a11y.hint', params: {'count': monetization.hintCount}),
+          excludeSemantics: true,
+          onTap: onHint,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Material(
+                color: FindoColors.primary,
                 borderRadius: BorderRadius.circular(FindoMetrics.radiusControl),
-                child: const Padding(
-                  padding: EdgeInsets.all(11),
-                  child: Icon(Icons.lightbulb_rounded,
-                      color: FindoColors.onPrimary, size: 24),
+                child: InkWell(
+                  onTap: onHint,
+                  borderRadius: BorderRadius.circular(FindoMetrics.radiusControl),
+                  child: const Padding(
+                    padding: EdgeInsets.all(11),
+                    child: Icon(Icons.lightbulb_rounded, color: FindoColors.onPrimary, size: 24),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 3),
-            Text(
-              '${monetization.hintCount}',
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: FindoColors.textMuted,
+              const SizedBox(height: 3),
+              Text(
+                '${monetization.hintCount}',
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: FindoColors.textMuted,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         );
       },
     );

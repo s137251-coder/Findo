@@ -1,0 +1,46 @@
+# Sends firestore.rules and firestore.indexes.json to the findo-hunt Firebase
+# project. Run it from Actions -> Firestore -> Run workflow after a change to
+# either file has been merged; the app's new writes are refused until it has.
+#
+# Secret it needs (Settings -> Secrets and variables -> Actions):
+#   FIREBASE_SERVICE_ACCOUNT_JSON   a key for a service account in findo-hunt
+#                                   with the "Firebase Rules Admin" and
+#                                   "Cloud Datastore Index Admin" roles
+
+name: Firestore
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Write the Firebase key
+        env:
+          FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+        run: |
+          if [ -z "$FIREBASE_SERVICE_ACCOUNT_JSON" ]; then
+            echo "::error::Secret FIREBASE_SERVICE_ACCOUNT_JSON is not set."
+            exit 1
+          fi
+          key="$RUNNER_TEMP/firebase.json"
+          printf '%s' "$FIREBASE_SERVICE_ACCOUNT_JSON" | sed '1s/^\xEF\xBB\xBF//' > "$key"
+          echo "GOOGLE_APPLICATION_CREDENTIALS=$key" >> "$GITHUB_ENV"
+
+      - name: Deploy rules and indexes
+        run: npx --yes firebase-tools@14 deploy --only firestore --project findo-hunt --non-interactive
+
+      - name: Remove the key from the runner
+        if: always()
+        run: rm -f "$RUNNER_TEMP/firebase.json"

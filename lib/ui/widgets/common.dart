@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../managers/localization_manager.dart';
 import '../../theme.dart';
 import '../safe_area_wrapper.dart';
 
@@ -13,19 +14,24 @@ class StarRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: List.generate(total, (index) {
-        final earned = index < stars;
-        return Padding(
-          padding: EdgeInsets.symmetric(horizontal: size * 0.06),
-          child: Icon(
-            earned ? Icons.star_rounded : Icons.star_outline_rounded,
-            size: size,
-            color: earned ? FindoColors.primary : FindoColors.locked,
-          ),
-        );
-      }),
+    // Read out as "2 of 3 stars", not as three unlabeled pictures.
+    return Semantics(
+      label: context.l10n.t('a11y.stars', params: {'stars': stars, 'total': total}),
+      excludeSemantics: true,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: List.generate(total, (index) {
+          final earned = index < stars;
+          return Padding(
+            padding: EdgeInsets.symmetric(horizontal: size * 0.06),
+            child: Icon(
+              earned ? Icons.star_rounded : Icons.star_outline_rounded,
+              size: size,
+              color: earned ? FindoColors.primary : FindoColors.starEmpty,
+            ),
+          );
+        }),
+      ),
     );
   }
 }
@@ -65,15 +71,19 @@ class StatChip extends StatelessWidget {
     required this.icon,
     required this.value,
     this.color = FindoColors.textPrimary,
+    this.semanticLabel,
   });
 
   final IconData icon;
   final String value;
   final Color color;
 
+  /// What a screen reader says instead of the bare number.
+  final String? semanticLabel;
+
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final chip = Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
       decoration: BoxDecoration(
         color: const Color(0xCC1E2333),
@@ -92,6 +102,11 @@ class StatChip extends StatelessWidget {
         ],
       ),
     );
+    final label = semanticLabel;
+    if (label == null) {
+      return chip;
+    }
+    return Semantics(label: label, excludeSemantics: true, child: chip);
   }
 }
 
@@ -142,6 +157,7 @@ class FindoPortrait extends StatelessWidget {
     }
     return Semantics(
       button: true,
+      label: context.l10n.t('a11y.portrait'),
       child: Material(
         color: Colors.transparent,
         borderRadius: BorderRadius.circular(size * 0.24),
