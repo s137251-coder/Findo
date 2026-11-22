@@ -127,6 +127,9 @@ jobs:
         if: inputs.action == 'build'
         with:
           channel: stable
+          # Pinned so a new Flutter release cannot change the toolchain under a
+          # release; raise it on purpose, in a PR CI has built.
+          flutter-version: 3.50.1
           cache: true
 
       - name: Write the upload keystore
